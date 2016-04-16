@@ -11,6 +11,7 @@ module Fountainhead
                                       :processed_event,
                                       :reset_last_processed_event_id,
                                       :last_processed_event_id,
-                                      :tracked_processors
+                                      :tracked_processors,
+                                      :processing_event
   end
 end

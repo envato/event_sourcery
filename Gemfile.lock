@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    es_framework (0.1.0)
+    fountainhead (0.1.0)
       pg
       rollbar
       sequel
@@ -57,7 +57,7 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 1.10)
-  es_framework!
+  fountainhead!
   pry
   rake (~> 10.0)
   rspec

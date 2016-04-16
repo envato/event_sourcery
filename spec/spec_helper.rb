@@ -1,5 +1,5 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
-require 'es_framework'
+require 'fountainhead'
 require 'pry'
 
 Dir.glob(File.dirname(__FILE__) + '/support/**/*.rb') { |f| require f }

@@ -24,6 +24,13 @@ module Fountainhead
         true
       end
 
+      def processing_event(processor_name, event_id)
+        @connection.transaction do
+          yield
+          processed_event(processor_name, event_id)
+        end
+      end
+
       def reset_last_processed_event_id(processor_name)
         table.where(name: processor_name.to_s).update(last_processed_event_id: 0)
       end

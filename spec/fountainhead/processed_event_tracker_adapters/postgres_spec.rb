@@ -47,6 +47,31 @@ RSpec.describe Fountainhead::ProcessedEventTrackerAdapters::Postgres do
     end
   end
 
+  describe '#processing_event' do
+    before { setup_table }
+
+    context 'when the block succeeds' do
+      it 'marks the event as processed' do
+        postgres_tracker.processing_event(processor_name, 1) do
+
+        end
+        expect(track_entry[:last_processed_event_id]).to eq 1
+      end
+    end
+
+    context 'when the block raises' do
+      it "doesn't mark the event as processed and raises an error" do
+        expect(track_entry[:last_processed_event_id]).to eq 0
+        expect {
+          postgres_tracker.processing_event(processor_name, 1) do
+            raise 'boo'
+          end
+        }.to raise_error(RuntimeError)
+        expect(track_entry[:last_processed_event_id]).to eq 0
+      end
+    end
+  end
+
   describe '#last_processed_event_id' do
     before do
       setup_table

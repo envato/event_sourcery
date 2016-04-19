@@ -3,7 +3,7 @@ module DBHelpers
     @connection ||= if ENV['CI']
                       Sequel.connect(adapter: 'postgres', database: 'fountainhead_test')
                     else
-                      Sequel.connect("#{postgres_url}fountainhead_teat")
+                      Sequel.connect("#{postgres_url}fountainhead_test")
                     end
   end
 

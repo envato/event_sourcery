@@ -59,5 +59,8 @@ DEPENDENCIES
   bundler (~> 1.10)
   fountainhead!
   pry
-  rake (~> 10.0)
+  rake
   rspec
+
+BUNDLED WITH
+   1.11.2

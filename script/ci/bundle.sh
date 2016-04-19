@@ -1,3 +1,4 @@
 #!/bin/bash -ex
 
-bundle check || bundle --binstubs --path vendor/bundle
+BUNDLE_PATH=vendor/bundle
+bundle check --path $BUNDLE_PATH || bundle --binstubs --path $BUNDLE_PATH

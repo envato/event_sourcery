@@ -1,9 +1,9 @@
 module DBHelpers
   def connection
     @connection ||= if ENV['CI']
-                      Sequel.connect(adapter: 'postgres', database: 'fountainhead_test')
+                      Sequel.connect(adapter: 'postgres', database: 'event_sourcery_test')
                     else
-                      Sequel.connect("#{postgres_url}fountainhead_test")
+                      Sequel.connect("#{postgres_url}event_sourcery_test")
                     end
   end
 
@@ -23,6 +23,6 @@ RSpec.configure do |config|
   config.include(DBHelpers)
   config.before do
     connection.execute("drop table if exists events")
-    Fountainhead::PostgresSchema.create(connection)
+    EventSourcery::PostgresSchema.create(connection)
   end
 end

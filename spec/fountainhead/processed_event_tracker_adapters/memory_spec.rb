@@ -1,4 +1,4 @@
-RSpec.describe Fountainhead::ProcessedEventTrackerAdapters::Memory do
+RSpec.describe EventSourcery::ProcessedEventTrackerAdapters::Memory do
   let(:processor_name) { 'test-processor' }
   subject(:adapter) { described_class.new }
 

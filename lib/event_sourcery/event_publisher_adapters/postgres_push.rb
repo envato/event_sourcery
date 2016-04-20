@@ -1,16 +1,17 @@
 module EventSourcery
   module EventPublisherAdapters
-    class PostgresPush < EventPublisher
+    class PostgresPush
+      include EventSubscriber
+
       def initialize(sequel_connection, event_source)
         @sequel_connection = sequel_connection
         @event_source = event_source
-        super()
         @postgres_subscriber = NewEventSubscriber.new(sequel_connection)
       end
 
       def run!(*args)
         @postgres_subscriber.listen(*args) do |event_id|
-          @subscribers.each do |subscriber|
+          subscribers.each do |subscriber|
             catch_up_subscriber(subscriber, event_id)
           end
         end

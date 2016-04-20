@@ -1,5 +1,5 @@
 module EventSourcery
-  class EventPublisher
+  module EventSubscriber
     class Subscriber
       def initialize(last_seen_event_id, &block)
         @last_seen_event_id = last_seen_event_id
@@ -14,12 +14,12 @@ module EventSourcery
       attr_reader :last_seen_event_id
     end
 
-    def initialize
-      @subscribers = []
+    def subscribe(last_seen_event_id, &block)
+      subscribers << Subscriber.new(last_seen_event_id, &block)
     end
 
-    def subscribe(last_seen_event_id, &block)
-      @subscribers << Subscriber.new(last_seen_event_id, &block)
+    def subscribers
+      @subscribers ||= []
     end
   end
 end

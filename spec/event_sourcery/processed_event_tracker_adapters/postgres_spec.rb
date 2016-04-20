@@ -39,20 +39,6 @@ RSpec.describe EventSourcery::ProcessedEventTrackerAdapters::Postgres do
       postgres_tracker.processed_event(processor_name, 1)
       expect(last_processed_event_id).to eq 1
     end
-
-    context 'out of order processing' do
-      it "raises an error" do
-        expect {
-          postgres_tracker.processed_event(processor_name, 2)
-        }.to raise_error(EventSourcery::NonSequentialEventProcessingError)
-      end
-
-      it "doesn't update a tracker" do
-        expect {
-          postgres_tracker.processed_event(processor_name, 2) rescue EventSourcery::NonSequentialEventProcessingError
-        }.to change { last_processed_event_id }.by 0
-      end
-    end
   end
 
   describe '#processing_event' do
@@ -76,6 +62,23 @@ RSpec.describe EventSourcery::ProcessedEventTrackerAdapters::Postgres do
           end
         }.to raise_error(RuntimeError)
         expect(last_processed_event_id).to eq 0
+      end
+    end
+
+    context 'out of order processing' do
+      it "raises an error" do
+        expect {
+          postgres_tracker.processing_event(processor_name, 2) { }
+        }.to raise_error(EventSourcery::NonSequentialEventProcessingError)
+      end
+
+      it "doesn't update a tracker" do
+        expect {
+          begin
+            postgres_tracker.processing_event(processor_name, 2) {}
+          rescue EventSourcery::NonSequentialEventProcessingError
+          end
+        }.to change { last_processed_event_id }.by 0
       end
     end
   end

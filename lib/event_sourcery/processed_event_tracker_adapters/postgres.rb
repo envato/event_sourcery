@@ -15,17 +15,14 @@ module EventSourcery
 
       def processed_event(processor_name, event_id)
         rows_changed = table.
-          where(name: processor_name.to_s,
-                last_processed_event_id: event_id - 1).
+          where(name: processor_name.to_s).
                 update(last_processed_event_id: event_id)
-        if rows_changed == 0
-          raise NonSequentialEventProcessingError, "Expected last processed event for processor: #{processor_name} to be #{event_id - 1}, but it was #{last_processed_event_id(processor_name)}"
-        end
         true
       end
 
       def processing_event(processor_name, event_id)
         @connection.transaction do
+          select_for_update(processor_name, event_id)
           yield
           processed_event(processor_name, event_id)
         end
@@ -47,6 +44,14 @@ module EventSourcery
       end
 
       private
+
+      def select_for_update(processor_name, event_id)
+        previous_event_id = event_id - 1
+        rows_locked = @connection.execute "SELECT * FROM #{TABLE_NAME} WHERE name = '#{processor_name}' and last_processed_event_id = '#{previous_event_id}' FOR UPDATE"
+        if rows_locked == 0
+          raise NonSequentialEventProcessingError, "Unable to get a lock on #{processor_name} at #{event_id}. Last processed event ID now is: #{last_processed_event_id(processor_name)}"
+        end
+      end
 
       def create_table_if_not_exists
         @connection.create_table?(TABLE_NAME) do

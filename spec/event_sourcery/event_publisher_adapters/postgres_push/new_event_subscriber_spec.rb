@@ -1,7 +1,7 @@
-RSpec.describe EventSourcery::EventSubscriberAdapters::Postgres do
+RSpec.describe EventSourcery::EventPublisherAdapters::PostgresPush do
   let(:event_source) { EventSourcery::EventSourceAdapters::Postgres.new(connection) }
   let(:event_id) { 5 }
-  subject(:adapter) { EventSourcery::EventSubscriberAdapters::Postgres.new(connection, event_source) }
+  subject(:adapter) { EventSourcery::EventPublisherAdapters::PostgresPush::NewEventSubscriber.new(connection) }
 
   def notify_new_event
     connection.notify('new_event', payload: event_id)

@@ -1,5 +1,5 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
-require 'fountainhead'
+require 'event_sourcery'
 require 'pry'
 
 Dir.glob(File.dirname(__FILE__) + '/support/**/*.rb') { |f| require f }

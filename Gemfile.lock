@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    fountainhead (0.1.0)
+    event_sourcery (0.1.0)
       pg
       rollbar
       sequel
@@ -57,7 +57,10 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 1.10)
-  fountainhead!
+  event_sourcery!
   pry
-  rake (~> 10.0)
+  rake
   rspec
+
+BUNDLED WITH
+   1.11.2

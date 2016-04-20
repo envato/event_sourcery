@@ -21,7 +21,7 @@ RSpec.describe EventSourcery::Projector do
     end
   }
   let(:projector_name) { 'my_projector' }
-  let(:tracker_storage) { EventSourcery::ProcessedEventTrackerAdapters::Memory.new }
+  let(:tracker_storage) { EventSourcery::ProcessedEventTrackerAdapters::Postgres.new(connection) }
   let(:tracker) { EventSourcery::ProcessedEventTracker.new(tracker_storage) }
   let(:events) { [] }
 
@@ -65,6 +65,46 @@ RSpec.describe EventSourcery::Projector do
     it "processes events it's interested in" do
       projector.process(event)
       expect(projector.processed_event).to eq(event)
+    end
+
+    context 'when an error occurs processing the event' do
+      let(:projector_class) {
+        Class.new do
+          include EventSourcery::Projector
+          self.processor_name = 'test_processor'
+
+          processes_events :terms_accepted
+
+          table :profiles do
+            column :user_uuid, 'UUID NOT NULL'
+            column :terms_accepted, 'BOOLEAN DEFAULT FALSE'
+          end
+
+          def process(event)
+            table.insert(user_uuid: event.aggregate_id,
+                         terms_accepted: true)
+            raise 'boo'
+          end
+
+          attr_reader :processed_event
+        end
+      }
+
+      it "the projection insert is rolled back by the transaction" do
+        connection[:profiles].delete
+        expect(connection[:profiles].count).to eq 0
+        projector.process(event) rescue nil
+        expect(connection[:profiles].count).to eq 0
+      end
+
+      it "doesn't update the tracker" do
+        expect {
+          begin
+            projector.process(event)
+          rescue
+          end
+        }.to change { tracker.last_processed_event_id(:test_processor) }.by 0
+      end
     end
 
     context 'with more than one table' do

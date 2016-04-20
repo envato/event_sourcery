@@ -1,12 +1,10 @@
 module EventSourcery
   module EventPublisherAdapters
     class PostgresPush < EventPublisher
-      EarlyStopError = Class.new(StandardError)
-
       def initialize(sequel_connection, event_source)
         @sequel_connection = sequel_connection
         @event_source = event_source
-        @subscribers = []
+        super()
         @postgres_subscriber = NewEventSubscriber.new(sequel_connection)
       end
 

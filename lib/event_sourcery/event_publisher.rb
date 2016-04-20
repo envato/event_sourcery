@@ -14,6 +14,10 @@ module EventSourcery
       attr_reader :last_seen_event_id
     end
 
+    def initialize
+      @subscribers = []
+    end
+
     def subscribe(last_seen_event_id, &block)
       @subscribers << Subscriber.new(last_seen_event_id, &block)
     end

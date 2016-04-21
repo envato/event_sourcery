@@ -9,10 +9,6 @@ RSpec.describe EventSourcery::ProcessedEventTrackerAdapters::Postgres do
     release_advisory_locks
   end
 
-  def release_advisory_locks
-    connection.fetch("SELECT pg_advisory_unlock_all();").to_a
-  end
-
   def last_processed_event_id
     postgres_tracker.last_processed_event_id(processor_name)
   end

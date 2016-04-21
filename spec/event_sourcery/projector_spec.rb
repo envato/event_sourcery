@@ -33,6 +33,8 @@ RSpec.describe EventSourcery::Projector do
   }
   let(:aggregate_id) { SecureRandom.uuid }
 
+  after { release_advisory_locks }
+
   describe '#setup' do
     before do
       connection.execute('DROP TABLE IF EXISTS profiles')

@@ -21,6 +21,10 @@ module DBHelpers
     connection.execute('truncate table events')
     connection.execute('alter sequence events_id_seq restart with 1')
   end
+
+  def release_advisory_locks
+    connection.fetch("SELECT pg_advisory_unlock_all();").to_a
+  end
 end
 
 RSpec.configure do |config|

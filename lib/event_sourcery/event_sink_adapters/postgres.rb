@@ -7,16 +7,14 @@ module EventSourcery
       end
 
       def sink(aggregate_id:, type:, body:)
-        connection.transaction do
-          result = events_table.
-            returning(:id).
-            insert(aggregate_id: aggregate_id,
-                   type: type.to_s,
-                   body: ::Sequel.pg_json(body))
-          event_id = result.first.fetch(:id)
-          connection.notify('new_event', payload: event_id)
-          true
-        end
+        result = events_table.
+          returning(:id).
+          insert(aggregate_id: aggregate_id,
+                 type: type.to_s,
+                 body: ::Sequel.pg_json(body))
+        event_id = result.first.fetch(:id)
+        connection.notify('new_event', payload: event_id)
+        true
       end
 
       private

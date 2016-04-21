@@ -26,6 +26,7 @@ require 'event_sourcery/processed_event_tracker'
 require 'event_sourcery/projector'
 require 'event_sourcery/command'
 require 'event_sourcery/postgres_schema'
+require 'event_sourcery/errors'
 
 module EventSourcery
 end

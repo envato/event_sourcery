@@ -5,6 +5,14 @@ RSpec.describe EventSourcery::ProcessedEventTrackerAdapters::Postgres do
   let(:table) { connection[table_name] }
   let(:track_entry) { table.where(name: processor_name).first }
 
+  after do
+    release_advisory_locks
+  end
+
+  def release_advisory_locks
+    connection.fetch("SELECT pg_advisory_unlock_all();").to_a
+  end
+
   def last_processed_event_id
     postgres_tracker.last_processed_event_id(processor_name)
   end
@@ -65,20 +73,13 @@ RSpec.describe EventSourcery::ProcessedEventTrackerAdapters::Postgres do
       end
     end
 
-    context 'out of order processing' do
+    context 'unable to lock tracker row' do
       it "raises an error" do
+        db = new_connection
         expect {
-          postgres_tracker.processing_event(processor_name, 2) { }
-        }.to raise_error(EventSourcery::NonSequentialEventProcessingError)
-      end
-
-      it "doesn't update a tracker" do
-        expect {
-          begin
-            postgres_tracker.processing_event(processor_name, 2) {}
-          rescue EventSourcery::NonSequentialEventProcessingError
-          end
-        }.to change { last_processed_event_id }.by 0
+          tracker = EventSourcery::ProcessedEventTrackerAdapters::Postgres.new(db)
+          tracker.setup(processor_name)
+        }.to raise_error(EventSourcery::UnableToLockProcessorError)
       end
     end
   end

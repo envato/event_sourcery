@@ -11,6 +11,7 @@ module EventSourcery
       def setup(processor_name = nil)
         create_table_if_not_exists
         create_track_entry_if_not_exists(processor_name) if processor_name
+        obtain_global_lock_on_processor(processor_name) if processor_name
       end
 
       def processed_event(processor_name, event_id)
@@ -22,7 +23,6 @@ module EventSourcery
 
       def processing_event(processor_name, event_id)
         @connection.transaction do
-          select_for_update(processor_name, event_id)
           yield
           processed_event(processor_name, event_id)
         end
@@ -45,16 +45,16 @@ module EventSourcery
 
       private
 
-      def select_for_update(processor_name, event_id)
-        previous_event_id = event_id - 1
-        rows_locked = @connection.execute "SELECT * FROM #{TABLE_NAME} WHERE name = '#{processor_name}' and last_processed_event_id = '#{previous_event_id}' FOR UPDATE"
-        if rows_locked == 0
-          raise NonSequentialEventProcessingError, "Unable to get a lock on #{processor_name} at #{event_id}. Last processed event ID now is: #{last_processed_event_id(processor_name)}"
+      def obtain_global_lock_on_processor(processor_name)
+        lock_obtained = @connection.fetch("select pg_try_advisory_lock(#{@track_entry_id})").to_a.first[:pg_try_advisory_lock]
+        if lock_obtained == false
+          raise UnableToLockProcessorError, "Unable to get a lock on #{processor_name} #{@track_entry_id}"
         end
       end
 
       def create_table_if_not_exists
         @connection.create_table?(TABLE_NAME) do
+          primary_key :id, type: Bignum
           column :name, 'varchar(255) not null'
           column :last_processed_event_id, 'bigint not null default 0'
           index :name, unique: true
@@ -62,9 +62,12 @@ module EventSourcery
       end
 
       def create_track_entry_if_not_exists(processor_name)
-        unless table.where(name: processor_name.to_s).any?
-          table.insert(name: processor_name.to_s, last_processed_event_id: 0)
-        end
+        track_entry = table.where(name: processor_name.to_s).first
+        @track_entry_id = if track_entry
+                            track_entry[:id]
+                          else
+                            table.insert(name: processor_name.to_s, last_processed_event_id: 0)
+                          end
       end
 
       def table

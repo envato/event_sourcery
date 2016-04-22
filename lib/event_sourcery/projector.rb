@@ -8,10 +8,11 @@ module EventSourcery
 
     module ProcessHandler
       def process(event)
-        if self.class.processes?(event.type)
-          super(event)
+        tracker.processing_event(self.class.processor_name, event.id) do
+          if self.class.processes?(event.type)
+            super(event)
+          end
         end
-        tracker.processed_event(self.class.processor_name, event.id)
       end
     end
 

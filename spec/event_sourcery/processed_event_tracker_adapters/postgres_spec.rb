@@ -4,8 +4,10 @@ RSpec.describe EventSourcery::ProcessedEventTrackerAdapters::Postgres do
   let(:processor_name) { 'blah' }
   let(:table) { connection[table_name] }
   let(:track_entry) { table.where(name: processor_name).first }
-  let(:last_processed_event_id) { postgres_tracker.last_processed_event_id(processor_name) }
 
+  def last_processed_event_id
+    postgres_tracker.last_processed_event_id(processor_name)
+  end
 
   def setup_table
     connection.execute "drop table if exists #{table_name}"
@@ -24,8 +26,7 @@ RSpec.describe EventSourcery::ProcessedEventTrackerAdapters::Postgres do
 
     it "creates an entry for the projector if it doesn't exist" do
       postgres_tracker.setup(processor_name)
-      expect(track_entry).to be
-      expect(track_entry[:last_processed_event_id]).to eq 0
+      expect(last_processed_event_id).to eq 0
     end
   end
 
@@ -36,14 +37,46 @@ RSpec.describe EventSourcery::ProcessedEventTrackerAdapters::Postgres do
 
     it 'updates the tracker entry to the given ID' do
       postgres_tracker.processed_event(processor_name, 1)
-      expect(track_entry).to be
-      expect(track_entry[:last_processed_event_id]).to eq 1
+      expect(last_processed_event_id).to eq 1
     end
 
-    it "doesn't allow out of order processing" do
-      expect {
-        postgres_tracker.processed_event(processor_name, 2)
-      }.to raise_error(EventSourcery::NonSequentialEventProcessingError)
+    context 'out of order processing' do
+      it "raises an error" do
+        expect {
+          postgres_tracker.processed_event(processor_name, 2)
+        }.to raise_error(EventSourcery::NonSequentialEventProcessingError)
+      end
+
+      it "doesn't update a tracker" do
+        expect {
+          postgres_tracker.processed_event(processor_name, 2) rescue EventSourcery::NonSequentialEventProcessingError
+        }.to change { last_processed_event_id }.by 0
+      end
+    end
+  end
+
+  describe '#processing_event' do
+    before { setup_table }
+
+    context 'when the block succeeds' do
+      it 'marks the event as processed' do
+        postgres_tracker.processing_event(processor_name, 1) do
+
+        end
+        expect(last_processed_event_id).to eq 1
+      end
+    end
+
+    context 'when the block raises' do
+      it "doesn't mark the event as processed and raises an error" do
+        expect(last_processed_event_id).to eq 0
+        expect {
+          postgres_tracker.processing_event(processor_name, 1) do
+            raise 'boo'
+          end
+        }.to raise_error(RuntimeError)
+        expect(last_processed_event_id).to eq 0
+      end
     end
   end
 

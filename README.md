@@ -1,10 +1,27 @@
 # EventSourcery
 
-## Event Store
+## Event Source and Sink
+
+Read events with the event source, save events to the event sink.
 
 ```ruby
 event_source = EventSourcery::EventSource.build(:postgres, db_connection)
+
 event_sink = EventSourcery::EventSink.build(:postgres, db_connection)
+
+# world view container
+config = EventSourcery::Config.new do |config|
+  config.event_source = :postgres, db_connection
+  config.event_sink = :postgres, db_connection
+  config.event_feeder = :postgres, db_connection
+  config.processor_tracker = :postgres, db_connection
+
+  # or to use all postgres
+  config.use :postgres, db_connection
+end
+
+event_source = config.event_source
+event_sink = config.event_sink
 ```
 
 ### Saving events
@@ -19,28 +36,6 @@ event_sink.sink(aggregate_id: user_id, type: :signed_up, body: { email: 'me@exam
 ```ruby
 # get raw events
 events = event_source.get_events_for_aggregate_id(user_id)
-```
-
-### Subscribing to events
-
-```ruby
-# publisher.add_subscription(0) do |event|
-#   processor_1.process(event)
-# end
-# publisher.add_subscription(0, types: [:name_changed]) do |event|
-#   processor_2.process(event)
-# end
-
-feeder = EventSourcery::EventFeeder.build(:postgres, db_connection)
-
-user_projector = UserProjector.new(tracker: tracker, db_connection: db_connection)
-user_projector.register_subscription(feeder)
-
-  feeder.add_subscription(0, types: [:signup]) do |event|
-    processor.process(event)
-  end
-
-feeder.start! # block and start feeding events
 ```
 
 ## Event Processors
@@ -63,6 +58,12 @@ class UserProjector
     table.insert(event.aggregate_uuid, event.body[:name], event.body[:email])
   end
 end
+
+db_connection = Sequel.connect('...')
+tracker = EventSourcery::ProcessedEventTrackers::Postgres.new(db_connection)
+projector = UserProjector.new(tracker: tracker,
+                              db_connection: db_connection)
+projector.process(event)
 ```
 
 ### Downstream Event Processors
@@ -84,6 +85,31 @@ class WelcomeEmailDownstreamEventProcessor
     end
   end
 end
+```
+
+### Subscribing to events
+
+```ruby
+# publisher.add_subscription(0) do |event|
+#   processor_1.process(event)
+# end
+# publisher.add_subscription(0, types: [:name_changed]) do |event|
+#   processor_2.process(event)
+# end
+
+# Feeder or Publisher, or ?
+event_feeder = EventSourcery::EventFeeder.build(:postgres, db_connection)
+
+event_feeder.add_subscription(0, types: [:signup]) do |event|
+  puts event.id
+end
+
+# subscribing projectors to events
+
+user_projector = UserProjector.new(tracker: tracker, db_connection: db_connection)
+user_projector.register_subscription(event_feeder)
+
+event_feeder.start! # block and start feeding events
 ```
 
 # Roadmap/TODO

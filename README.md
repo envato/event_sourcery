@@ -31,16 +31,16 @@ events = event_source.get_events_for_aggregate_id(user_id)
 #   processor_2.process(event)
 # end
 
-publisher = EventSourcery::EventPublisher.build(:postgres, db_connection)
+feeder = EventSourcery::EventFeeder.build(:postgres, db_connection)
 
 user_projector = UserProjector.new(tracker: tracker, db_connection: db_connection)
-user_projector.register_subscription(publisher)
+user_projector.register_subscription(feeder)
 
-  publisher.add_subscription(tracker.last_processed_event_id, types: self.class.processed_types) do |event|
-    processor_2.process(event)
+  feeder.add_subscription(0, types: [:signup]) do |event|
+    processor.process(event)
   end
 
-publisher.start! # block and start feeding events
+feeder.start! # block and start feeding events
 ```
 
 ## Event Processors

@@ -3,42 +3,43 @@
 ## Event Store
 
 ```ruby
-# Convenient way to build a specific world view
-store = EventSourcery::EventStore.new(:postgres, db_connection)
-
-# Or construct each adapter manually
-store = EventSourcery::EventStore.new do |config|
-  config.event_source = EventSourcery::EventSourceAdapters::Postgres.new(pg_connection)
-  config.event_sink = EventSourcery::EventSinkAdapters::Postgres.new(pg_connection)
-  config.event_publisher = EventSourcery::EventPublisherAdapters::PostgresPush.new(pg_connection)
-end
+event_source = EventSourcery::EventSource.build(:postgres, db_connection)
+event_sink = EventSourcery::EventSink.build(:postgres, db_connection)
 ```
 
 ### Saving events
 
 ```ruby
 user_id = SecureRandom.uuid
-store.sink(aggregate_id: user_id, type: :signed_up, body: { email: 'me@example.com' })
+event_sink.sink(aggregate_id: user_id, type: :signed_up, body: { email: 'me@example.com' })
 ```
 
 ### Reading events
 
 ```ruby
 # get raw events
-events = store.get_events_for_aggregate_id(user_id)
+events = event_source.get_events_for_aggregate_id(user_id)
 ```
 
 ### Subscribing to events
 
 ```ruby
-publisher = store.publisher
+# publisher.add_subscription(0) do |event|
+#   processor_1.process(event)
+# end
+# publisher.add_subscription(0, types: [:name_changed]) do |event|
+#   processor_2.process(event)
+# end
 
-publisher.add_subscription(0) do |event|
-  processor_1.process(event)
-end
-publisher.add_subscription(0, types: [:name_changed]) do |event|
-  processor_2.process(event)
-end
+publisher = EventSourcery::EventPublisher.build(:postgres, db_connection)
+
+user_projector = UserProjector.new(tracker: tracker, db_connection: db_connection)
+user_projector.register_subscription(publisher)
+
+  publisher.add_subscription(tracker.last_processed_event_id, types: self.class.processed_types) do |event|
+    processor_2.process(event)
+  end
+
 publisher.start! # block and start feeding events
 ```
 

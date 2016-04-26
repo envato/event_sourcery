@@ -30,12 +30,17 @@ RSpec.describe EventSourcery::EventSource do
       end
     end
 
-    context "the range doesn't include the latest event ID" do
-      it 'returns only the events in the range' do
-        events = []
-        event_store.each_by_range(1, 20) do |event|
+    def events_by_range(*args)
+      [].tap do |events|
+        event_store.each_by_range(*args) do |event|
           events << event
         end
+      end
+    end
+
+    context "the range doesn't include the latest event ID" do
+      it 'returns only the events in the range' do
+        events = events_by_range(1, 20)
         expect(events.count).to eq 20
         expect(events.map(&:id)).to eq((1..20).to_a)
       end
@@ -43,10 +48,7 @@ RSpec.describe EventSourcery::EventSource do
 
     context 'the range includes the latest event ID' do
       it 'returns all the events' do
-        events = []
-        event_store.each_by_range(1, 2001) do |event|
-          events << event
-        end
+        events = events_by_range(1, 2001)
         expect(events.count).to eq 2001
         expect(events.map(&:id)).to eq((1..2001).to_a)
       end
@@ -54,10 +56,7 @@ RSpec.describe EventSourcery::EventSource do
 
     context 'the range exceeds the latest event ID' do
       it 'returns all the events' do
-        events = []
-        event_store.each_by_range(1, 2050) do |event|
-          events << event
-        end
+        events = events_by_range(1, 2050)
         expect(events.count).to eq 2001
         expect(events.map(&:id)).to eq((1..2001).to_a)
       end
@@ -65,16 +64,8 @@ RSpec.describe EventSourcery::EventSource do
 
     context 'the range filters by event type' do
       it 'returns only events of the given type' do
-        events = []
-        event_store.each_by_range(1, 2001, event_type: 'user_signed_up') do |event|
-          events << event
-        end
-        expect(events.count).to eq 0
-        events = []
-        event_store.each_by_range(1, 2001, event_type: 'item_added') do |event|
-          events << event
-        end
-        expect(events.count).to eq 2001
+        expect(events_by_range(1, 2001, event_type: 'user_signed_up').count).to eq 0
+        expect(events_by_range(1, 2001, event_type: 'item_added').count).to eq 2001
       end
     end
   end

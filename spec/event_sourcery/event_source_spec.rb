@@ -25,7 +25,7 @@ RSpec.describe EventSourcery::EventSource do
     before do
       (1..2001).each do |i|
         event_sink.sink(aggregate_id: aggregate_id,
-                        type: 'my_event',
+                        type: 'item_added',
                         body: {})
       end
     end
@@ -60,6 +60,21 @@ RSpec.describe EventSourcery::EventSource do
         end
         expect(events.count).to eq 2001
         expect(events.map(&:id)).to eq((1..2001).to_a)
+      end
+    end
+
+    context 'the range filters by event type' do
+      it 'returns only events of the given type' do
+        events = []
+        event_store.each_by_range(1, 2001, event_type: 'user_signed_up') do |event|
+          events << event
+        end
+        expect(events.count).to eq 0
+        events = []
+        event_store.each_by_range(1, 2001, event_type: 'item_added') do |event|
+          events << event
+        end
+        expect(events.count).to eq 2001
       end
     end
   end

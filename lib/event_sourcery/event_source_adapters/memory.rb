@@ -5,8 +5,12 @@ module EventSourcery
         @events = events
       end
 
-      def get_next_from(id, n = 1000)
-        @events.select { |event| event.id >= id && event.id < id + n }
+      def get_next_from(id, event_type: nil, limit: 1000)
+        events = @events.select { |event| event.id >= id }
+        if event_type
+          events = events.select { |event| event.type == event_type }
+        end
+        events.first(limit)
       end
 
       def latest_event_id

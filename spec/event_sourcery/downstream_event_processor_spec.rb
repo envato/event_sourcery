@@ -205,11 +205,11 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
       end
 
       def event_count
-        event_source.get_next_from(0, 100).count
+        event_source.get_next_from(0, limit: 100).count
       end
 
       def latest_events(n = 1)
-        event_source.get_next_from(0, 100)[-n..-1]
+        event_source.get_next_from(0, limit: 100)[-n..-1]
       end
 
       xit "doesn't action if the event is not newer than or the latest event captured in setup" do
@@ -320,7 +320,7 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
             [event_1, event_2, event_3, event_4].each do |event|
               dep.process(event)
             end
-            event_tokens = event_source.get_next_from(0, 4).map {|e| e.body[:token] }.compact
+            event_tokens = event_source.get_next_from(0, limit: 4).map {|e| e.body[:token] }.compact
             expect(event_tokens).to eq []
           end
 

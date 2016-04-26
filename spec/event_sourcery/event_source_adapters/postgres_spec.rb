@@ -5,10 +5,10 @@ RSpec.describe EventSourcery::EventSourceAdapters::Postgres do
   let(:event_2) { EventSourcery::Event.new(id: 2, type: 'my_event', aggregate_id: aggregate_id, body: event_body) }
   subject(:adapter) { described_class.new(connection) }
 
-  def add_event(aggregate_id:)
+  def add_event(aggregate_id:, type: 'my_event')
     connection[:events].
       insert(aggregate_id: aggregate_id,
-             type: 'my_event',
+             type: type,
              body: ::Sequel.pg_json(event_body))
   end
 
@@ -21,21 +21,34 @@ RSpec.describe EventSourcery::EventSourceAdapters::Postgres do
     connection.execute('alter sequence events_id_seq restart with 1')
   end
 
-  it 'gets a subset of events' do
-    add_event(aggregate_id: aggregate_id)
-    add_event(aggregate_id: aggregate_id)
-    expect(adapter.get_next_from(1, 1).map(&:id)).to eq [1]
-    expect(adapter.get_next_from(2, 1).map(&:id)).to eq [2]
-    expect(adapter.get_next_from(1, 2).map(&:id)).to eq [1, 2]
-  end
+  describe '#get_next_from' do
+    it 'gets a subset of events' do
+      add_event(aggregate_id: aggregate_id)
+      add_event(aggregate_id: aggregate_id)
+      expect(adapter.get_next_from(1, limit: 1).map(&:id)).to eq [1]
+      expect(adapter.get_next_from(2, limit: 1).map(&:id)).to eq [2]
+      expect(adapter.get_next_from(1, limit: 2).map(&:id)).to eq [1, 2]
+    end
 
-  it 'returns the event as expected' do
-    add_event(aggregate_id: aggregate_id)
-    event = adapter.get_next_from(1, 1).first
-    expect(event.aggregate_id).to eq aggregate_id
-    expect(event.type).to eq 'my_event'
-    expect(event.body).to eq event_body
-    expect(event.created_at).to be_instance_of(Time)
+    it 'returns the event as expected' do
+      add_event(aggregate_id: aggregate_id)
+      event = adapter.get_next_from(1, limit: 1).first
+      expect(event.aggregate_id).to eq aggregate_id
+      expect(event.type).to eq 'my_event'
+      expect(event.body).to eq event_body
+      expect(event.created_at).to be_instance_of(Time)
+    end
+
+    it 'filters by event type' do
+      add_event(aggregate_id: aggregate_id, type: 'user_signed_up')
+      add_event(aggregate_id: aggregate_id, type: 'item_added')
+      add_event(aggregate_id: aggregate_id, type: 'item_added')
+      add_event(aggregate_id: aggregate_id, type: 'item_rejected')
+      add_event(aggregate_id: aggregate_id, type: 'user_signed_up')
+      events = adapter.get_next_from(1, event_type: 'user_signed_up')
+      expect(events.count).to eq 2
+      expect(events.map(&:id)).to eq [1, 5]
+    end
   end
 
   describe '#latest_event_id' do

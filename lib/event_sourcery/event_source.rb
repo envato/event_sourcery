@@ -10,12 +10,12 @@ module EventSourcery
                    :latest_event_id,
                    :get_events_for_aggregate_id
 
-    def each_by_range(from_event_id, to_event_id)
+    def each_by_range(from_event_id, to_event_id, event_type: nil)
       caught_up = false
       no_events_left = false
       event_id = from_event_id
       begin
-        events = get_next_from(event_id)
+        events = get_next_from(event_id, event_type: event_type)
         no_events_left = true if events.empty?
         events.each do |event|
           yield event

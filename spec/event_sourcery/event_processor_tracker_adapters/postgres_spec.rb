@@ -1,9 +1,13 @@
-RSpec.describe EventSourcery::ProcessedEventTrackerAdapters::Postgres do
+RSpec.describe EventSourcery::EventProcessorTrackerAdapters::Postgres do
   subject(:postgres_tracker) { described_class.new(connection) }
-  let(:table_name) { EventSourcery::ProcessedEventTrackerAdapters::Postgres::TABLE_NAME }
+  let(:table_name) { EventSourcery::EventProcessorTrackerAdapters::Postgres::DEFAULT_TABLE_NAME }
   let(:processor_name) { 'blah' }
   let(:table) { connection[table_name] }
   let(:track_entry) { table.where(name: processor_name).first }
+
+  after do
+    release_advisory_locks
+  end
 
   def last_processed_event_id
     postgres_tracker.last_processed_event_id(processor_name)
@@ -39,20 +43,6 @@ RSpec.describe EventSourcery::ProcessedEventTrackerAdapters::Postgres do
       postgres_tracker.processed_event(processor_name, 1)
       expect(last_processed_event_id).to eq 1
     end
-
-    context 'out of order processing' do
-      it "raises an error" do
-        expect {
-          postgres_tracker.processed_event(processor_name, 2)
-        }.to raise_error(EventSourcery::NonSequentialEventProcessingError)
-      end
-
-      it "doesn't update a tracker" do
-        expect {
-          postgres_tracker.processed_event(processor_name, 2) rescue EventSourcery::NonSequentialEventProcessingError
-        }.to change { last_processed_event_id }.by 0
-      end
-    end
   end
 
   describe '#processing_event' do
@@ -76,6 +66,26 @@ RSpec.describe EventSourcery::ProcessedEventTrackerAdapters::Postgres do
           end
         }.to raise_error(RuntimeError)
         expect(last_processed_event_id).to eq 0
+      end
+    end
+
+    context 'unable to lock tracker row' do
+      it "raises an error" do
+        db = new_connection
+        expect {
+          tracker = EventSourcery::EventProcessorTrackerAdapters::Postgres.new(db)
+          tracker.setup(processor_name)
+        }.to raise_error(EventSourcery::UnableToLockProcessorError)
+      end
+
+      context 'with obtain_processor_lock: false' do
+        it "doesn't raises an error" do
+          db = new_connection
+          expect {
+            tracker = EventSourcery::EventProcessorTrackerAdapters::Postgres.new(db, obtain_processor_lock: false)
+            tracker.setup(processor_name)
+          }.to_not raise_error
+        end
       end
     end
   end

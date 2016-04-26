@@ -1,5 +1,5 @@
 module EventSourcery
-  module ProcessedEventTrackerAdapters
+  module EventProcessorTrackerAdapters
     class Memory
       def initialize
         @state = Hash.new(0)

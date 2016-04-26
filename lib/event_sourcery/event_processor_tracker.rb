@@ -1,7 +1,5 @@
 module EventSourcery
-  NonSequentialEventProcessingError = Class.new(StandardError)
-
-  class ProcessedEventTracker
+  class EventProcessorTracker
     def initialize(storage_adapter)
       @storage_adapter = storage_adapter
     end

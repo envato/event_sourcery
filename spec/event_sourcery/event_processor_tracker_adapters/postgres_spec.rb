@@ -1,6 +1,6 @@
 RSpec.describe EventSourcery::EventProcessorTrackerAdapters::Postgres do
   subject(:postgres_tracker) { described_class.new(connection) }
-  let(:table_name) { EventSourcery::EventProcessorTrackerAdapters::Postgres::TABLE_NAME }
+  let(:table_name) { EventSourcery::EventProcessorTrackerAdapters::Postgres::DEFAULT_TABLE_NAME }
   let(:processor_name) { 'blah' }
   let(:table) { connection[table_name] }
   let(:track_entry) { table.where(name: processor_name).first }
@@ -76,6 +76,16 @@ RSpec.describe EventSourcery::EventProcessorTrackerAdapters::Postgres do
           tracker = EventSourcery::EventProcessorTrackerAdapters::Postgres.new(db)
           tracker.setup(processor_name)
         }.to raise_error(EventSourcery::UnableToLockProcessorError)
+      end
+
+      context 'with obtain_processor_lock: false' do
+        it "doesn't raises an error" do
+          db = new_connection
+          expect {
+            tracker = EventSourcery::EventProcessorTrackerAdapters::Postgres.new(db, obtain_processor_lock: false)
+            tracker.setup(processor_name)
+          }.to_not raise_error
+        end
       end
     end
   end

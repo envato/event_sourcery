@@ -1,5 +1,5 @@
 module EventSourcery
-  module EventPublisherAdapters
+  module EventFeederAdapters
     class PostgresPush
       class NewEventSubscriber
         EarlyStopError = Class.new(StandardError)

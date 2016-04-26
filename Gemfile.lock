@@ -59,7 +59,7 @@ DEPENDENCIES
   bundler (~> 1.10)
   event_sourcery!
   pry
-  rake
+  rake (~> 10.0)
   rspec
 
 BUNDLED WITH

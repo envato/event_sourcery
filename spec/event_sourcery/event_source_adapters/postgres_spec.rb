@@ -1,11 +1,11 @@
 RSpec.describe EventSourcery::EventSourceAdapters::Postgres do
   let(:aggregate_id) { SecureRandom.uuid }
   let(:event_body) { { 'my_event' => 'data' } }
-  let(:event_1) { EventSourcery::Event.new(id: 1, type: 'my_event', aggregate_id: aggregate_id, body: event_body) }
-  let(:event_2) { EventSourcery::Event.new(id: 2, type: 'my_event', aggregate_id: aggregate_id, body: event_body) }
+  let(:event_1) { EventSourcery::Event.new(id: 1, type: 'item_added', aggregate_id: aggregate_id, body: event_body) }
+  let(:event_2) { EventSourcery::Event.new(id: 2, type: 'item_added', aggregate_id: aggregate_id, body: event_body) }
   subject(:adapter) { described_class.new(connection) }
 
-  def add_event(aggregate_id:, type: 'my_event')
+  def add_event(aggregate_id:, type: 'item_added')
     connection[:events].
       insert(aggregate_id: aggregate_id,
              type: type,
@@ -34,7 +34,7 @@ RSpec.describe EventSourcery::EventSourceAdapters::Postgres do
       add_event(aggregate_id: aggregate_id)
       event = adapter.get_next_from(1, limit: 1).first
       expect(event.aggregate_id).to eq aggregate_id
-      expect(event.type).to eq 'my_event'
+      expect(event.type).to eq 'item_added'
       expect(event.body).to eq event_body
       expect(event.created_at).to be_instance_of(Time)
     end
@@ -73,7 +73,7 @@ RSpec.describe EventSourcery::EventSourceAdapters::Postgres do
       events = adapter.get_events_for_aggregate_id(aggregate_id)
       expect(events.map(&:id)).to eq([1, 2])
       expect(events.first.aggregate_id).to eq aggregate_id
-      expect(events.first.type).to eq 'my_event'
+      expect(events.first.type).to eq 'item_added'
       expect(events.first.body).to eq event_body
       expect(events.first.created_at).to be_instance_of(Time)
     end

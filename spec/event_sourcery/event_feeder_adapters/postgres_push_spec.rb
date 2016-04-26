@@ -32,7 +32,7 @@ RSpec.describe EventSourcery::EventFeederAdapters::PostgresPush do
     event_feeder.subscribe(1) do |event|
       second_subscriber_events << event.id
     end
-    event_feeder.run!(loop: false, after_listen: proc { notify_new_event(3) })
+    event_feeder.start!(loop: false, after_listen: proc { notify_new_event(3) })
     expect(first_subscriber_events).to eq [1, 2, 3]
     expect(second_subscriber_events).to eq [2, 3]
   end

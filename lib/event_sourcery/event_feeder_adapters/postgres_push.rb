@@ -9,7 +9,7 @@ module EventSourcery
         @postgres_subscriber = NewEventSubscriber.new(sequel_connection)
       end
 
-      def run!(*args)
+      def start!(*args)
         @postgres_subscriber.listen(*args) do |event_id|
           subscribers.each do |subscriber|
             catch_up_subscriber(subscriber, event_id)

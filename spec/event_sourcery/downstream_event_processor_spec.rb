@@ -24,8 +24,8 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
     end
   }
 
-  let(:tracker_storage) { EventSourcery::ProcessedEventTrackerAdapters::Memory.new }
-  let(:tracker) { EventSourcery::ProcessedEventTracker.new(tracker_storage) }
+  let(:tracker_storage) { EventSourcery::EventProcessorTrackerAdapters::Memory.new }
+  let(:tracker) { EventSourcery::EventProcessorTracker.new(tracker_storage) }
   let(:dep_name) { 'my_dep' }
   let(:event_source_adapter) { EventSourcery::EventSourceAdapters::Memory.new(events) }
   let(:event_source) { EventSourcery::EventSource.new(event_source_adapter) }

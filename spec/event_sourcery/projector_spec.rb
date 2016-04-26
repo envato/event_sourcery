@@ -21,8 +21,8 @@ RSpec.describe EventSourcery::Projector do
     end
   }
   let(:projector_name) { 'my_projector' }
-  let(:tracker_storage) { EventSourcery::ProcessedEventTrackerAdapters::Postgres.new(connection) }
-  let(:tracker) { EventSourcery::ProcessedEventTracker.new(tracker_storage) }
+  let(:tracker_storage) { EventSourcery::EventProcessorTrackerAdapters::Postgres.new(connection) }
+  let(:tracker) { EventSourcery::EventProcessorTracker.new(tracker_storage) }
   let(:events) { [] }
 
   subject(:projector) {

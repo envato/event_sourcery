@@ -1,5 +1,5 @@
 module EventSourcery
-  module ProcessedEventTrackerAdapters
+  module EventProcessorTrackerAdapters
     class Postgres
       # TODO: rename table
       TABLE_NAME = :projector_tracker

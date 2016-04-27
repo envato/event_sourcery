@@ -12,7 +12,7 @@ module EventSourcery
         @last_seen_event_id = event.id
       end
 
-      attr_reader :last_seen_event_id
+      attr_reader :last_seen_event_id, :event_type
     end
 
     def initialize(adapter)

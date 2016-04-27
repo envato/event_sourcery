@@ -45,7 +45,7 @@ RSpec.describe EventSourcery::EventSourceAdapters::Postgres do
       add_event(aggregate_id: aggregate_id, type: 'item_added')
       add_event(aggregate_id: aggregate_id, type: 'item_rejected')
       add_event(aggregate_id: aggregate_id, type: 'user_signed_up')
-      events = adapter.get_next_from(1, event_type: 'user_signed_up')
+      events = adapter.get_next_from(1, event_types: ['user_signed_up'])
       expect(events.count).to eq 2
       expect(events.map(&:id)).to eq [1, 5]
     end

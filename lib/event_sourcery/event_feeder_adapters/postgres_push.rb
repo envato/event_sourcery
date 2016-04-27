@@ -19,7 +19,7 @@ module EventSourcery
       private
 
       def catch_up_subscriber(subscriber, event_id)
-        @event_source.each_by_range(subscriber.last_seen_event_id + 1, event_id, event_type: subscriber.event_type) do |event|
+        @event_source.each_by_range(subscriber.last_seen_event_id + 1, event_id, event_types: subscriber.event_types) do |event|
           subscriber.call(event)
         end
       end

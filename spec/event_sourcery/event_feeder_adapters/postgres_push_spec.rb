@@ -30,7 +30,7 @@ RSpec.describe EventSourcery::EventFeederAdapters::PostgresPush do
     event_feeder.subscribe(0) do |event|
       first_subscriber_events << event.id
     end
-    event_feeder.subscribe(1, event_type: 'user_signed_up') do |event|
+    event_feeder.subscribe(1, event_types: ['user_signed_up']) do |event|
       second_subscriber_events << event.id
     end
     event_feeder.start!

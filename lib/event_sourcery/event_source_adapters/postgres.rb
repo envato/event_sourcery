@@ -6,14 +6,14 @@ module EventSourcery
         @events_table = connection[:events]
       end
 
-      def get_next_from(id, event_type: nil, limit: 1000)
+      def get_next_from(id, event_types: nil, limit: 1000)
         query = events_table.
           order(:id).
           where('id >= :from_id',
                 from_id: id).
           limit(limit)
-        if event_type
-          query = query.where(type: event_type)
+        if event_types
+          query = query.where(type: event_types)
         end
         query.map do |event_row|
           Event.new(event_row)

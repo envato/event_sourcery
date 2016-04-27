@@ -64,8 +64,8 @@ RSpec.describe EventSourcery::EventSource do
 
     context 'the range filters by event type' do
       it 'returns only events of the given type' do
-        expect(events_by_range(1, 2001, event_type: 'user_signed_up').count).to eq 0
-        expect(events_by_range(1, 2001, event_type: 'item_added').count).to eq 2001
+        expect(events_by_range(1, 2001, event_types: ['user_signed_up']).count).to eq 0
+        expect(events_by_range(1, 2001, event_types: ['item_added']).count).to eq 2001
       end
     end
   end

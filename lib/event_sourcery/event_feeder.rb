@@ -1,9 +1,9 @@
 module EventSourcery
   class EventFeeder
     class Subscriber
-      def initialize(last_seen_event_id, event_type: nil, &block)
+      def initialize(last_seen_event_id, event_types: nil, &block)
         @last_seen_event_id = last_seen_event_id
-        @event_type = event_type
+        @event_types = event_types
         @block = block
       end
 
@@ -12,7 +12,7 @@ module EventSourcery
         @last_seen_event_id = event.id
       end
 
-      attr_reader :last_seen_event_id, :event_type
+      attr_reader :last_seen_event_id, :event_types
     end
 
     def initialize(adapter)

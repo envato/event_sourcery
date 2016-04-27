@@ -13,8 +13,8 @@ RSpec.describe EventSourcery::EventSourceAdapters::Memory do
   end
 
   it 'filters by event type' do
-    expect(adapter.get_next_from(1, event_type: 'user_signed_up', limit: 1)).to eq [event_1]
-    expect(adapter.get_next_from(1, event_type: 'user_signed_up')).to eq [event_1, event_3]
+    expect(adapter.get_next_from(1, event_types: ['user_signed_up'], limit: 1)).to eq [event_1]
+    expect(adapter.get_next_from(1, event_types: ['user_signed_up'])).to eq [event_1, event_3]
   end
 
   it 'gets events for a specific aggregate' do

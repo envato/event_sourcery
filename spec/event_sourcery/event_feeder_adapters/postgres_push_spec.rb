@@ -9,10 +9,10 @@ RSpec.describe EventSourcery::EventFeederAdapters::PostgresPush do
     connection.notify('new_event', payload: event_id)
   end
 
-  def insert_event
+  def insert_event(event_type: 'item_added')
     connection[:events].insert(
       aggregate_id: SecureRandom.uuid,
-      type: 'blah',
+      type: event_type,
       body: Sequel.pg_json({})
     )
   end
@@ -20,7 +20,7 @@ RSpec.describe EventSourcery::EventFeederAdapters::PostgresPush do
   before do
     reset_database
     insert_event
-    insert_event
+    insert_event(event_type: 'user_signed_up')
     insert_event
   end
 
@@ -30,11 +30,11 @@ RSpec.describe EventSourcery::EventFeederAdapters::PostgresPush do
     event_feeder.subscribe(0) do |event|
       first_subscriber_events << event.id
     end
-    event_feeder.subscribe(1) do |event|
+    event_feeder.subscribe(1, event_types: ['user_signed_up']) do |event|
       second_subscriber_events << event.id
     end
     event_feeder.start!
     expect(first_subscriber_events).to eq [1, 2, 3]
-    expect(second_subscriber_events).to eq [2, 3]
+    expect(second_subscriber_events).to eq [2]
   end
 end

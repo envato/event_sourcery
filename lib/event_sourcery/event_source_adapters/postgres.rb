@@ -3,7 +3,6 @@ module EventSourcery
     class Postgres
       def initialize(connection)
         @connection = connection
-        @events_table = connection[:events]
       end
 
       def get_next_from(id, event_types: nil, limit: 1000)
@@ -35,9 +34,17 @@ module EventSourcery
         end
       end
 
+      def aggregate_version(aggregate_id)
+        aggregate_versions_table.
+          where(aggregate_id: aggregate_id).
+          first.try(:[], :version)
+      end
+
       private
 
-      attr_reader :events_table
+      def events_table
+        @connection[:events]
+      end
     end
   end
 end

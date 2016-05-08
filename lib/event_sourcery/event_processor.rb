@@ -30,8 +30,6 @@ module EventSourcery
       def processor_name
         @processor_name || self.name
       end
-
-      attr_reader :event_types
     end
 
     def setup
@@ -44,6 +42,12 @@ module EventSourcery
 
     def last_processed_event_id
       tracker.last_processed_event_id(self.class.processor_name)
+    end
+
+    def subscribe_to(feeder)
+      feeder.subscribe(last_processed_event_id, event_types: self.class.processes_event_types) do |event|
+        process(event)
+      end
     end
 
     private

@@ -12,9 +12,13 @@ module DBHelpers
   end
 
   def postgres_url
-    ENV.fetch('BOXEN_POSTGRESQL_URL') {
+    if ENV['BUILDKITE']
       'postgres://buildkite-agent:127.0.0.1:5432/'
-    }
+    else
+      ENV.fetch('BOXEN_POSTGRESQL_URL') {
+        'postgres://127.0.0.1:5432/'
+      }
+    end
   end
 
   def reset_database
@@ -31,6 +35,7 @@ RSpec.configure do |config|
   config.include(DBHelpers)
   config.before do
     connection.execute("drop table if exists events")
+    connection.execute("drop table if exists aggregate_versions")
     EventSourcery::PostgresSchema.create(connection)
   end
 end

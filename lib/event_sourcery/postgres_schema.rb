@@ -3,6 +3,11 @@ module EventSourcery
     extend self
 
     def create(db)
+      create_events(db)
+      create_aggregate_versions(db)
+    end
+
+    def create_events(db)
       db.create_table(:events) do
         primary_key :id, type: Bignum
         column :aggregate_id, 'uuid not null'
@@ -12,6 +17,13 @@ module EventSourcery
         index :aggregate_id
         index :type
         index :created_at
+      end
+    end
+
+    def create_aggregate_versions(db)
+      db.create_table(:aggregate_versions) do
+        primary_key :aggregate_id, 'uuid not null'
+        column :version, 'bigint default 1'
       end
     end
   end

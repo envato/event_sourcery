@@ -68,14 +68,6 @@ module EventSourcery
           result[:version]
         end
       end
-      def aggregate_version(aggregate_id)
-        result = aggregates_table.
-          where(aggregate_id: aggregate_id).
-          first
-        if result
-          result[:version]
-        end
-      end
 
       attr_reader :events_table, :connection
 

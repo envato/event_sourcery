@@ -44,10 +44,9 @@ module EventSourcery
       end
 
       def insert_aggregate_version(aggregate_id, type, version)
-        @connection.run <<-SQL
-          insert into aggregates (aggregate_id, type, version)
-            values ('#{aggregate_id}', '#{type}', #{version})
-        SQL
+        @connection[:aggregates].insert(aggregate_id: aggregate_id,
+                                        type: type,
+                                        version: version)
       end
 
       def increment_aggregate_version(aggregate_id)

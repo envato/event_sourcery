@@ -9,11 +9,13 @@ module EventSourcery
         event_id = nil
         connection.transaction do
           current_version = aggregate_version(aggregate_id)
-          unless current_version
-            insert_aggregate_version(aggregate_id, type, 0)
-            current_version = 0
+          if current_version
+            new_version = current_version + 1
+            update_aggregate_version(aggregate_id, new_version, expected_version)
+          else
+            insert_aggregate_version(aggregate_id, type, 1)
+            new_version = 1
           end
-          new_version = current_version + 1
           result = events_table.
             returning(:id).
             insert(aggregate_id: aggregate_id,
@@ -21,7 +23,6 @@ module EventSourcery
                    body: ::Sequel.pg_json(body),
                    version: new_version)
           event_id = result.first.fetch(:id)
-          update_aggregate_version(aggregate_id, new_version, expected_version)
         end
         connection.notify('new_event', payload: event_id)
         true
@@ -47,6 +48,15 @@ module EventSourcery
 
       private
 
+
+      def aggregate_version(aggregate_id)
+        result = aggregates_table.
+          where(aggregate_id: aggregate_id).
+          first
+        if result
+          result[:version]
+        end
+      end
       def aggregate_version(aggregate_id)
         result = aggregates_table.
           where(aggregate_id: aggregate_id).

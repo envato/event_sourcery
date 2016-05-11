@@ -10,8 +10,12 @@ module EventSourcery
         connection.transaction do
           current_version = aggregate_version(aggregate_id)
           if current_version
-            new_version = current_version + 1
-            update_aggregate_version(aggregate_id, new_version, expected_version)
+            if expected_version.nil?
+              new_version = increment_aggregate_version(aggregate_id)
+            else
+              new_version = current_version + 1
+              update_aggregate_version(aggregate_id, new_version, expected_version)
+            end
           else
             insert_aggregate_version(aggregate_id, type, 1)
             new_version = 1
@@ -44,6 +48,13 @@ module EventSourcery
           insert into aggregates (aggregate_id, type, version)
             values ('#{aggregate_id}', '#{type}', #{version})
         SQL
+      end
+
+      def increment_aggregate_version(aggregate_id)
+        @connection[:aggregates].
+          where(aggregate_id: aggregate_id).
+          returning(:version).
+          update(version: Sequel.expr(:version) + 1).first[:version]
       end
 
       private

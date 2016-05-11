@@ -33,7 +33,7 @@ module EventSourcery
       end
 
       def update_aggregate_version(aggregate_id, version, expected_version)
-        update_query = @connection[:aggregates].
+        update_query = aggregates_table.
           where(aggregate_id: aggregate_id)
         if expected_version
           update_query = update_query.where(version: expected_version)
@@ -44,13 +44,14 @@ module EventSourcery
       end
 
       def insert_aggregate_version(aggregate_id, type, version)
-        @connection[:aggregates].insert(aggregate_id: aggregate_id,
-                                        type: type,
-                                        version: version)
+        @connection.run <<-SQL
+          insert into aggregates (aggregate_id, type, version)
+            values ('#{aggregate_id}', '#{type}', #{version})
+        SQL
       end
 
       def increment_aggregate_version(aggregate_id)
-        @connection[:aggregates].
+        aggregates_table.
           where(aggregate_id: aggregate_id).
           returning(:version).
           update(version: Sequel.expr(:version) + 1).first[:version]

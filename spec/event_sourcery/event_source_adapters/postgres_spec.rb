@@ -9,7 +9,8 @@ RSpec.describe EventSourcery::EventSourceAdapters::Postgres do
     connection[:events].
       insert(aggregate_id: aggregate_id,
              type: type,
-             body: ::Sequel.pg_json(event_body))
+             body: ::Sequel.pg_json(event_body),
+             version: 1) # TODO: use event sink
   end
 
   def events
@@ -35,6 +36,7 @@ RSpec.describe EventSourcery::EventSourceAdapters::Postgres do
       event = adapter.get_next_from(1, limit: 1).first
       expect(event.aggregate_id).to eq aggregate_id
       expect(event.type).to eq 'item_added'
+      expect(event.version).to eq 1
       expect(event.body).to eq event_body
       expect(event.created_at).to be_instance_of(Time)
     end

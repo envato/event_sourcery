@@ -13,7 +13,8 @@ RSpec.describe EventSourcery::EventFeederAdapters::PostgresPush do
     connection[:events].insert(
       aggregate_id: SecureRandom.uuid,
       type: event_type,
-      body: Sequel.pg_json({})
+      body: Sequel.pg_json({}),
+      version: 1 # TODO: use event sink
     )
   end
 

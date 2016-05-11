@@ -35,7 +35,7 @@ RSpec.configure do |config|
   config.include(DBHelpers)
   config.before do
     connection.execute("drop table if exists events")
-    connection.execute("drop table if exists aggregate_versions")
+    connection.execute("drop table if exists aggregates")
     EventSourcery::PostgresSchema.create(connection)
   end
 end

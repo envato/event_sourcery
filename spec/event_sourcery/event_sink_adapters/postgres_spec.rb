@@ -5,8 +5,7 @@ RSpec.describe EventSourcery::EventSinkAdapters::Postgres do
   def add_event
     adapter.sink(aggregate_id: aggregate_id,
                  type: :billing_details_provided,
-                 body: { my_event: 'data' },
-                 version: 1)
+                 body: { my_event: 'data' })
   end
 
   def events
@@ -44,22 +43,27 @@ RSpec.describe EventSourcery::EventSinkAdapters::Postgres do
     expect(add_event).to eq true
   end
 
-  describe '#update_aggregate_version' do
-    context "the aggregate doesn't exist" do
-      it 'inserts it' do
-        adapter.update_aggregate_version(aggregate_id, '1')
-        expect(connection[:aggregate_versions].order(:aggregate_id).last[:version]).to eq 1
-      end
+  context 'optimistic concurrency control' do
+    it 'raises when the previous version is not the expected version' do
+      add_event
+      expect {
+        adapter.sink(aggregate_id: aggregate_id,
+                     type: :billing_details_provided,
+                     body: { my_event: 'data' },
+                     expected_version: 0)
+      }.to raise_error(EventSourcery::ConcurrencyError)
     end
+  end
 
+  describe '#update_aggregate_version' do
     context 'the aggregate exists' do
       before do
-        adapter.update_aggregate_version(aggregate_id, '1')
+        adapter.insert_aggregate_version(aggregate_id, 'blah', '1')
       end
 
       it 'updates it' do
         adapter.update_aggregate_version(aggregate_id, '2')
-        expect(connection[:aggregate_versions].order(:aggregate_id).last[:version]).to eq 2
+        expect(connection[:aggregates].order(:aggregate_id).last[:version]).to eq 2
       end
     end
   end

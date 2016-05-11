@@ -34,12 +34,6 @@ module EventSourcery
         end
       end
 
-      def aggregate_version(aggregate_id)
-        aggregate_versions_table.
-          where(aggregate_id: aggregate_id).
-          first.try(:[], :version)
-      end
-
       private
 
       def events_table

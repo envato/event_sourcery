@@ -32,7 +32,7 @@ module EventSourcery
         true
       end
 
-      def update_aggregate_version(aggregate_id, version, expected_version = nil)
+      def update_aggregate_version(aggregate_id, version, expected_version)
         update_query = @connection[:aggregates].
           where(aggregate_id: aggregate_id)
         if expected_version

@@ -62,7 +62,7 @@ RSpec.describe EventSourcery::EventSinkAdapters::Postgres do
       end
 
       it 'updates it' do
-        adapter.update_aggregate_version(aggregate_id, '2')
+        adapter.update_aggregate_version(aggregate_id, 2, 1)
         expect(connection[:aggregates].order(:aggregate_id).last[:version]).to eq 2
       end
     end

@@ -42,7 +42,7 @@ module EventSourcery
             update_aggregate_version(aggregate_id, new_version, expected_version)
           end
         else
-          insert_aggregate_version(aggregate_id, type, 1)
+          insert_aggregate_version(aggregate_id, type, 1, expected_version)
           new_version = 1
         end
         new_version
@@ -59,7 +59,10 @@ module EventSourcery
         end
       end
 
-      def insert_aggregate_version(aggregate_id, type, version)
+      def insert_aggregate_version(aggregate_id, type, version, expected_version)
+        if expected_version && expected_version != 0
+          raise ConcurrencyError, "expected version was #{expected_version}, not 0"
+        end
         @connection.run <<-SQL
           insert into aggregates (aggregate_id, type, version)
             values ('#{aggregate_id}', '#{type}', #{version})
@@ -73,7 +76,7 @@ module EventSourcery
           update(version: Sequel.expr(:version) + 1).first[:version]
       end
 
-      attr_reader :events_table, :connection
+      attr_reader :connection
 
       def events_table
         @connection[:events]

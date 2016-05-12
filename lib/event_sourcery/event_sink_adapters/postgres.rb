@@ -8,18 +8,7 @@ module EventSourcery
       def sink(aggregate_id:, type:, body:, expected_version: nil)
         event_id = nil
         connection.transaction do
-          current_version = aggregate_version(aggregate_id)
-          if current_version
-            if expected_version.nil?
-              new_version = increment_aggregate_version(aggregate_id)
-            else
-              new_version = current_version + 1
-              update_aggregate_version(aggregate_id, new_version, expected_version)
-            end
-          else
-            insert_aggregate_version(aggregate_id, type, 1)
-            new_version = 1
-          end
+          new_version = resolve_new_aggregate_version(aggregate_id, type, expected_version)
           result = events_table.
             returning(:id).
             insert(aggregate_id: aggregate_id,
@@ -30,6 +19,33 @@ module EventSourcery
         end
         connection.notify('new_event', payload: event_id)
         true
+      end
+
+      private
+
+      def aggregate_version(aggregate_id)
+        result = aggregates_table.
+          where(aggregate_id: aggregate_id).
+          first
+        if result
+          result[:version]
+        end
+      end
+
+      def resolve_new_aggregate_version(aggregate_id, type, expected_version)
+        current_version = aggregate_version(aggregate_id)
+        if current_version
+          if expected_version.nil?
+            new_version = increment_aggregate_version(aggregate_id)
+          else
+            new_version = current_version + 1
+            update_aggregate_version(aggregate_id, new_version, expected_version)
+          end
+        else
+          insert_aggregate_version(aggregate_id, type, 1)
+          new_version = 1
+        end
+        new_version
       end
 
       def update_aggregate_version(aggregate_id, version, expected_version)
@@ -55,18 +71,6 @@ module EventSourcery
           where(aggregate_id: aggregate_id).
           returning(:version).
           update(version: Sequel.expr(:version) + 1).first[:version]
-      end
-
-      private
-
-
-      def aggregate_version(aggregate_id)
-        result = aggregates_table.
-          where(aggregate_id: aggregate_id).
-          first
-        if result
-          result[:version]
-        end
       end
 
       attr_reader :events_table, :connection

@@ -5,10 +5,13 @@ module EventSourcery
         @events = events
       end
 
-      def get_next_from(id, event_types: nil, limit: 1000)
+      def get_next_from(id, event_types: nil, limit: 1000, to: nil)
         events = @events.select { |event| event.id >= id }
         if event_types
           events = events.select { |event| event_types.include?(event.type) }
+        end
+        if to
+          events = events.select { |event| event.id <= id }
         end
         events.first(limit)
       end

@@ -7,9 +7,9 @@ module EventSourcery
         @block = block
       end
 
-      def call(event)
-        @block.call(event)
-        @last_seen_event_id = event.id
+      def call(events)
+        @block.call(events)
+        @last_seen_event_id = events.last.id
       end
 
       attr_reader :last_seen_event_id, :event_types

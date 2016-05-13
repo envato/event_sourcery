@@ -27,11 +27,15 @@ RSpec.describe EventSourcery::EventFeederAdapters::PostgresPush do
   it 'sends events from where the subscriber indicates' do
     first_subscriber_events = []
     second_subscriber_events = []
-    event_feeder.subscribe(0) do |event|
-      first_subscriber_events << event.id
+    event_feeder.subscribe(0) do |events|
+      events.each do |event|
+        first_subscriber_events << event.id
+      end
     end
-    event_feeder.subscribe(1, event_types: ['user_signed_up']) do |event|
-      second_subscriber_events << event.id
+    event_feeder.subscribe(1, event_types: ['user_signed_up']) do |events|
+      events.each do |event|
+        second_subscriber_events << event.id
+      end
     end
     event_feeder.start!
     expect(first_subscriber_events).to eq [1, 2, 3]

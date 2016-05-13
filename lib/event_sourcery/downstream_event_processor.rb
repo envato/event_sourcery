@@ -3,10 +3,10 @@ module EventSourcery
     UndeclaredEventEmissionError = Class.new(StandardError)
 
     def self.included(base)
-      base.include(EventProcessor)
+      base.include(EventHandler)
       base.extend(ClassMethods)
       base.prepend(TableOwner)
-      base.prepend(ProcessHandler)
+      base.prepend(HandleMethod)
       base.prepend(EventProcessorOverrides)
     end
 
@@ -51,25 +51,25 @@ module EventSourcery
 
     DRIVEN_BY_EVENT_PAYLOAD_KEY = :_driven_by_event_id
 
-    module ProcessHandler
-      def process(event)
+    module HandleMethod
+      def handle(event)
         @event = event
         if self.class.emits_events? && clutch_down?
           keep_track_of_previously_emitted_events
         end
-        if self.class.processes?(event.type)
+        if self.class.handles?(event.type)
           super(event)
         end
         if clutch_down? && event_is_latest_event_on_setup?
           release_clutch
         end
-        tracker.processed_event(self.class.processor_name, event.id)
+        tracker.processed_event(self.class.handler_name, event.id)
         @event = nil
       end
     end
 
     def last_processed_event_id
-      tracker.last_processed_event_id(self.class.processor_name)
+      tracker.last_processed_event_id(self.class.handler_name)
     end
 
     private

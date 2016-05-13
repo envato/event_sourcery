@@ -21,7 +21,7 @@ require 'event_sourcery/event_feeder_adapters/postgres_push/new_event_subscriber
 require 'event_sourcery/event_processor_tracker_adapters/memory'
 require 'event_sourcery/event_processor_tracker_adapters/postgres'
 require 'event_sourcery/event_processor_tracker'
-require 'event_sourcery/event_processor'
+require 'event_sourcery/event_handler'
 require 'event_sourcery/table_owner'
 require 'event_sourcery/downstream_event_processor'
 require 'event_sourcery/projector'

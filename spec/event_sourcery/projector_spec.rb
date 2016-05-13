@@ -2,16 +2,16 @@ RSpec.describe EventSourcery::Projector do
   let(:projector_class) {
     Class.new do
       include EventSourcery::Projector
-      self.processor_name = 'test_processor'
+      self.handler_name = 'test_processor'
 
-      processes_events :terms_accepted
+      handles_events :terms_accepted
 
       table :profiles do
         column :user_uuid, 'UUID NOT NULL'
         column :terms_accepted, 'BOOLEAN DEFAULT FALSE'
       end
 
-      def process(event)
+      def handle(event)
         @processed_event = event
         table.insert(user_uuid: event.aggregate_id,
                      terms_accepted: true)
@@ -52,7 +52,7 @@ RSpec.describe EventSourcery::Projector do
     before do
       connection.execute('DROP TABLE IF EXISTS profiles')
       projector.setup
-      projector.process(event)
+      projector.handle(event)
     end
 
     it 'resets last processed event ID' do
@@ -61,28 +61,28 @@ RSpec.describe EventSourcery::Projector do
     end
   end
 
-  describe '#process' do
+  describe '#handle' do
     let(:event) { EventSourcery::Event.new(body: {}, aggregate_id: aggregate_id, type: :terms_accepted, id: 1) }
 
-    it "processes events it's interested in" do
-      projector.process(event)
+    it "handles events it's interested in" do
+      projector.handle(event)
       expect(projector.processed_event).to eq(event)
     end
 
-    context 'when an error occurs processing the event' do
+    context 'when an error occurs handling the event' do
       let(:projector_class) {
         Class.new do
           include EventSourcery::Projector
-          self.processor_name = 'test_processor'
+          self.handler_name = 'test_processor'
 
-          processes_events :terms_accepted
+          handles_events :terms_accepted
 
           table :profiles do
             column :user_uuid, 'UUID NOT NULL'
             column :terms_accepted, 'BOOLEAN DEFAULT FALSE'
           end
 
-          def process(event)
+          def handle(event)
             table.insert(user_uuid: event.aggregate_id,
                          terms_accepted: true)
             raise 'boo'
@@ -95,14 +95,14 @@ RSpec.describe EventSourcery::Projector do
       it "the projection insert is rolled back by the transaction" do
         connection[:profiles].delete
         expect(connection[:profiles].count).to eq 0
-        projector.process(event) rescue nil
+        projector.handle(event) rescue nil
         expect(connection[:profiles].count).to eq 0
       end
 
       it "doesn't update the tracker" do
         expect {
           begin
-            projector.process(event)
+            projector.handle(event)
           rescue
           end
         }.to change { tracker.last_processed_event_id(:test_processor) }.by 0
@@ -114,7 +114,7 @@ RSpec.describe EventSourcery::Projector do
         Class.new do
           include EventSourcery::Projector
 
-          processes_events :terms_accepted
+          handles_events :terms_accepted
 
           table :profiles do
             column :user_uuid, 'UUID NOT NULL'
@@ -125,7 +125,7 @@ RSpec.describe EventSourcery::Projector do
             column :user_uuid, 'UUID NOT NULL'
           end
 
-          def process(event)
+          def handle(event)
             @processed_event = event
             table.insert(user_uuid: event.aggregate_id,
                          terms_accepted: true)
@@ -137,7 +137,7 @@ RSpec.describe EventSourcery::Projector do
 
       it 'throws a DefaultTableError when #table is used' do
         expect {
-          projector.process(event)
+          projector.handle(event)
         }.to raise_error(EventSourcery::TableOwner::DefaultTableError)
       end
     end

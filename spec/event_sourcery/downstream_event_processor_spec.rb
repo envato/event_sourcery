@@ -3,9 +3,9 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
     Class.new do
       include EventSourcery::DownstreamEventProcessor
 
-      processes_events :terms_accepted
+      handles_events :terms_accepted
 
-      def process(event)
+      def handle(event)
         @processed_event = event
       end
 
@@ -16,10 +16,10 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
     Class.new do
       include EventSourcery::DownstreamEventProcessor
 
-      processes_events :terms_accepted
+      handles_events :terms_accepted
       emits_events :blah
 
-      def process(event)
+      def handle(event)
       end
     end
   }
@@ -74,28 +74,28 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
     end
 
     it 'sets up the tracker to ensure we have a track entry' do
-      expect(tracker).to receive(:setup).with(dep_class.processor_name)
+      expect(tracker).to receive(:setup).with(dep_class.handler_name)
       dep.setup
     end
   end
 
   describe '#reset' do
     it 'resets last processed event ID' do
-      dep.process(OpenStruct.new(type: :terms_accepted, id: 1))
+      dep.handle(OpenStruct.new(type: :terms_accepted, id: 1))
       dep.reset
       expect(tracker.last_processed_event_id(:test_processor)).to eq 0
     end
   end
 
-  describe '.processes?' do
+  describe '.handles?' do
     it 'returns true if the event has been defined' do
-      expect(dep_class.processes?('terms_accepted')).to eq true
-      expect(dep_class.processes?(:terms_accepted)).to eq true
+      expect(dep_class.handles?('terms_accepted')).to eq true
+      expect(dep_class.handles?(:terms_accepted)).to eq true
     end
 
     it "returns false if the event hasn't been defined" do
-      expect(dep_class.processes?('item_viewed')).to eq false
-      expect(dep_class.processes?(:item_viewed)).to eq false
+      expect(dep_class.handles?('item_viewed')).to eq false
+      expect(dep_class.handles?(:item_viewed)).to eq false
     end
   end
 
@@ -117,19 +117,19 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
   end
 
   it 'allows setting of name' do
-    dep_class.processor_name = 'my_processor'
-    expect(dep_class.processor_name).to eq 'my_processor'
+    dep_class.handler_name = 'my_processor'
+    expect(dep_class.handler_name).to eq 'my_processor'
   end
 
-  it 'has a default processor_name of the class name' do
+  it 'has a default handler_name of the class name' do
     allow(dep_class).to receive(:name).and_return('EventSourcery::EventSource')
-    expect(dep_class.processor_name).to eq 'EventSourcery::EventSource'
+    expect(dep_class.handler_name).to eq 'EventSourcery::EventSource'
   end
 
   describe '#last_processed_event_id' do
     it "delegates to the tracker to get it's last processed event id" do
-      dep.process(OpenStruct.new(type: :terms_accepted, id: 1))
-      expect(dep.last_processed_event_id).to eq tracker.last_processed_event_id(dep_class.processor_name)
+      dep.handle(OpenStruct.new(type: :terms_accepted, id: 1))
+      expect(dep.last_processed_event_id).to eq tracker.last_processed_event_id(dep_class.handler_name)
     end
   end
 
@@ -137,7 +137,7 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
     let(:event) { OpenStruct.new(type: :terms_accepted, id: 1) }
 
     it "projects events it's interested in" do
-      dep.process(event)
+      dep.handle(event)
       expect(dep.processed_event).to eq(event)
     end
 
@@ -145,20 +145,20 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
       let(:event) { OpenStruct.new(type: :item_viewed, id: 1) }
 
       it "doesn't process unexpected events" do
-        dep.process(event)
+        dep.handle(event)
         expect(dep.processed_event).to eq(nil)
       end
 
       it "tracks the event if it doesn't care about them" do
         expect(tracker.last_processed_event_id(dep.class.name)).to eq 0
-        dep.process(event)
+        dep.handle(event)
         expect(tracker.last_processed_event_id(dep.class.name)).to eq 1
       end
     end
 
     it 'tracks that events have been projected using the tracker' do
       expect(tracker.last_processed_event_id(dep.class.name)).to eq 0
-      dep.process(event)
+      dep.handle(event)
       expect(tracker.last_processed_event_id(dep.class.name)).to eq 1
     end
 
@@ -185,10 +185,10 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
         Class.new do
           include EventSourcery::DownstreamEventProcessor
 
-          processes_events :terms_accepted
+          handles_events :terms_accepted
           emits_events :echo_event
 
-          def process(event)
+          def handle(event)
             @event = event
             emit_event(aggregate_id: event.aggregate_id, type: 'echo_event', body: event.body) do
               TestActioner.action(event.id)
@@ -213,36 +213,36 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
       end
 
       xit "doesn't action if the event is not newer than or the latest event captured in setup" do
-        dep.process(event_1)
+        dep.handle(event_1)
         expect(TestActioner.actioned).to eq []
-        dep.process(event_2)
+        dep.handle(event_2)
         expect(TestActioner.actioned).to eq []
-        dep.process(event_3)
+        dep.handle(event_3)
         expect(TestActioner.actioned).to eq []
-        dep.process(event_4)
+        dep.handle(event_4)
         expect(TestActioner.actioned).to eq [3, 4]
-        dep.process(event_5)
+        dep.handle(event_5)
         expect(TestActioner.actioned).to eq [3, 4, 5]
       end
 
       xit "emits events when it reaches the end of the stream as captured in setup" do
-        dep.process(event_1)
+        dep.handle(event_1)
         expect(event_count).to eq 4
-        dep.process(event_2)
+        dep.handle(event_2)
         expect(event_count).to eq 4
-        dep.process(event_3)
+        dep.handle(event_3)
         expect(event_count).to eq 4
-        dep.process(event_4)
+        dep.handle(event_4)
         expect(event_count).to eq 6
         expect(latest_events(2).map(&:type)).to eq ['echo_event', 'echo_event']
         expect(latest_events(2).map(&:body).map{|b| b[EventSourcery::DownstreamEventProcessor::DRIVEN_BY_EVENT_PAYLOAD_KEY]}).to eq [3, 4]
-        dep.process(event_5)
+        dep.handle(event_5)
         expect(event_count).to eq 7
       end
 
       it 'releases the clutch after it has processes the latest event captured in setup, not before' do
         [event_1, event_2, event_3, event_4, event_5, event_6].each do |event|
-          dep.process(event)
+          dep.handle(event)
         end
         expect(latest_events(2).map(&:body).map{|b| b[EventSourcery::DownstreamEventProcessor::DRIVEN_BY_EVENT_PAYLOAD_KEY]}).to eq [4, 5]
       end
@@ -252,10 +252,10 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
           Class.new do
             include EventSourcery::DownstreamEventProcessor
 
-            processes_events :terms_accepted
+            handles_events :terms_accepted
             emits_events :echo_event
 
-            def process(event)
+            def handle(event)
               emit_event(aggregate_id: event.aggregate_id, type: 'echo_event', body: event.body)
             end
           end
@@ -263,7 +263,7 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
 
         it 'processes the events as usual' do
           [event_1, event_2, event_3, event_4, event_5].each do |event|
-            dep.process(event)
+            dep.handle(event)
           end
           expect(event_count).to eq 8
         end
@@ -274,10 +274,10 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
           Class.new do
             include EventSourcery::DownstreamEventProcessor
 
-            processes_events :terms_accepted
+            handles_events :terms_accepted
             emits_events :echo_event
 
-            def process(event)
+            def handle(event)
               emit_event(aggregate_id: event.aggregate_id, type: 'echo_event_2', body: event.body)
             end
           end
@@ -285,7 +285,7 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
 
         it 'raises an error' do
           expect {
-            dep.process(event_1)
+            dep.handle(event_1)
           }.to raise_error(EventSourcery::DownstreamEventProcessor::UndeclaredEventEmissionError)
         end
       end
@@ -295,10 +295,10 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
           Class.new do
             include EventSourcery::DownstreamEventProcessor
 
-            processes_events :terms_accepted
+            handles_events :terms_accepted
             emits_events :echo_event
 
-            def process(event)
+            def handle(event)
               emit_event(aggregate_id: event.aggregate_id, type: 'echo_event') do |body|
                 body[:token] = 'secret-identifier'
               end
@@ -310,7 +310,7 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
           let(:events) { [] }
 
           it 'can manupulate the event body as part of the action' do
-            dep.process(event_1)
+            dep.handle(event_1)
             expect(latest_events(1).first.body[:token]).to eq 'secret-identifier'
           end
         end
@@ -318,7 +318,7 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
         context 'and the clutch is down' do
           it "doesn't manipulate events that are already emitted" do
             [event_1, event_2, event_3, event_4].each do |event|
-              dep.process(event)
+              dep.handle(event)
             end
             event_tokens = event_source.get_next_from(0, limit: 4).map {|e| e.body[:token] }.compact
             expect(event_tokens).to eq []
@@ -326,9 +326,9 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
 
           it 'can manupulate the event body as part of the action' do
             [event_1, event_2, event_3, event_4].each do |event|
-              dep.process(event)
+              dep.handle(event)
             end
-            dep.process(event_5)
+            dep.handle(event_5)
             expect(latest_events(1).first.body[:token]).to eq 'secret-identifier'
           end
         end

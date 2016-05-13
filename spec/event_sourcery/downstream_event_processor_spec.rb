@@ -170,38 +170,9 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
       let(:event_5) { EventSourcery::Event.new(id: 5, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
       let(:event_6) { EventSourcery::Event.new(id: 6, type: 'echo_event', aggregate_id: aggregate_id, body: event_3.body.merge(EventSourcery::DownstreamEventProcessor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 3)) }
       let(:events) { [event_1, event_2, event_3, event_4] }
-      let(:action_stub_class) {
-        Class.new do
-          def self.action(id)
-            actioned << id
-          end
-
-          def self.actioned
-            @actions ||= []
-          end
-        end
-      }
-      let(:dep_class) {
-        Class.new do
-          include EventSourcery::DownstreamEventProcessor
-
-          handles_events :terms_accepted
-          emits_events :echo_event
-
-          def handle(event)
-            @event = event
-            emit_event(aggregate_id: event.aggregate_id, type: 'echo_event', body: event.body) do
-              TestActioner.action(event.id)
-            end
-          end
-
-          attr_reader :event
-        end
-      }
 
       before do
         dep.setup
-        stub_const("TestActioner", action_stub_class)
       end
 
       def event_count
@@ -210,41 +181,6 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
 
       def latest_events(n = 1)
         event_source.get_next_from(0, limit: 100)[-n..-1]
-      end
-
-      xit "doesn't action if the event is not newer than or the latest event captured in setup" do
-        dep.handle(event_1)
-        expect(TestActioner.actioned).to eq []
-        dep.handle(event_2)
-        expect(TestActioner.actioned).to eq []
-        dep.handle(event_3)
-        expect(TestActioner.actioned).to eq []
-        dep.handle(event_4)
-        expect(TestActioner.actioned).to eq [3, 4]
-        dep.handle(event_5)
-        expect(TestActioner.actioned).to eq [3, 4, 5]
-      end
-
-      xit "emits events when it reaches the end of the stream as captured in setup" do
-        dep.handle(event_1)
-        expect(event_count).to eq 4
-        dep.handle(event_2)
-        expect(event_count).to eq 4
-        dep.handle(event_3)
-        expect(event_count).to eq 4
-        dep.handle(event_4)
-        expect(event_count).to eq 6
-        expect(latest_events(2).map(&:type)).to eq ['echo_event', 'echo_event']
-        expect(latest_events(2).map(&:body).map{|b| b[EventSourcery::DownstreamEventProcessor::DRIVEN_BY_EVENT_PAYLOAD_KEY]}).to eq [3, 4]
-        dep.handle(event_5)
-        expect(event_count).to eq 7
-      end
-
-      it 'releases the clutch after it has processes the latest event captured in setup, not before' do
-        [event_1, event_2, event_3, event_4, event_5, event_6].each do |event|
-          dep.handle(event)
-        end
-        expect(latest_events(2).map(&:body).map{|b| b[EventSourcery::DownstreamEventProcessor::DRIVEN_BY_EVENT_PAYLOAD_KEY]}).to eq [4, 5]
       end
 
       context "when the event emitted doesn't take actions" do
@@ -306,31 +242,11 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
           end
         }
 
-        context 'and the clutch is up' do
-          let(:events) { [] }
+        let(:events) { [] }
 
-          it 'can manupulate the event body as part of the action' do
-            dep.handle(event_1)
-            expect(latest_events(1).first.body[:token]).to eq 'secret-identifier'
-          end
-        end
-
-        context 'and the clutch is down' do
-          it "doesn't manipulate events that are already emitted" do
-            [event_1, event_2, event_3, event_4].each do |event|
-              dep.handle(event)
-            end
-            event_tokens = event_source.get_next_from(0, limit: 4).map {|e| e.body[:token] }.compact
-            expect(event_tokens).to eq []
-          end
-
-          it 'can manupulate the event body as part of the action' do
-            [event_1, event_2, event_3, event_4].each do |event|
-              dep.handle(event)
-            end
-            dep.handle(event_5)
-            expect(latest_events(1).first.body[:token]).to eq 'secret-identifier'
-          end
+        it 'can manupulates event body as part of the action' do
+          dep.handle(event_1)
+          expect(latest_events(1).first.body[:token]).to eq 'secret-identifier'
         end
       end
     end

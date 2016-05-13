@@ -8,16 +8,13 @@ module EventSourcery
 
     module HandleMethod
       def handle(event)
-        tracker.processing_event(self.class.handler_name, event.id) do
-          if self.class.handles?(event.type)
-            super(event)
-          end
+        if self.class.handles?(event.type)
+          super(event)
         end
       end
     end
 
-    def initialize(tracker:, db_connection:)
-      @tracker = tracker
+    def initialize(db_connection:)
       @db_connection = db_connection
     end
   end

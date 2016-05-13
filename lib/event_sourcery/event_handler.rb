@@ -34,18 +34,6 @@ module EventSourcery
       attr_reader :event_types
     end
 
-    def setup
-      tracker.setup(self.class.handler_name)
-    end
-
-    def reset
-      tracker.reset_last_processed_event_id(self.class.handler_name)
-    end
-
-    def last_processed_event_id
-      tracker.last_processed_event_id(self.class.handler_name)
-    end
-
     private
 
     attr_reader :tracker

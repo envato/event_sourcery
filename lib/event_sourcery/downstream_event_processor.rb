@@ -37,8 +37,7 @@ module EventSourcery
       end
     end
 
-    def initialize(tracker:, db_connection: nil, event_source: nil, event_sink: nil)
-      @tracker = tracker
+    def initialize(db_connection: nil, event_source: nil, event_sink: nil)
       @event_source = event_source
       @event_sink = event_sink
       @db_connection = db_connection
@@ -57,7 +56,6 @@ module EventSourcery
         if self.class.handles?(event.type)
           super(event)
         end
-        tracker.processed_event(self.class.handler_name, event.id)
         @event = nil
       end
     end

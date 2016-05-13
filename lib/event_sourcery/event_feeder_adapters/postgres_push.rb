@@ -24,8 +24,8 @@ module EventSourcery
       private
 
       def catch_up_subscriber(subscriber, event_id)
-        @event_source.each_by_range(subscriber.last_seen_event_id + 1, event_id, event_types: subscriber.event_types) do |event|
-          subscriber.call(event)
+        @event_source.fetch_in_batches(subscriber.last_seen_event_id + 1, event_id, event_types: subscriber.event_types) do |events|
+          subscriber.call(events) unless events.empty?
         end
       end
 

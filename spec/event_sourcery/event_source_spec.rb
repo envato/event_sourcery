@@ -18,7 +18,7 @@ RSpec.describe EventSourcery::EventSource do
     end
   end
 
-  describe '#each_by_range' do
+  describe '#fetch_in_batches' do
     let(:adapter) { EventSourcery::EventSourceAdapters::Memory.new(events) }
     let(:aggregate_id) { SecureRandom.uuid }
 
@@ -32,8 +32,10 @@ RSpec.describe EventSourcery::EventSource do
 
     def events_by_range(*args)
       [].tap do |events|
-        event_store.each_by_range(*args) do |event|
-          events << event
+        event_store.fetch_in_batches(*args) do |events_batch|
+          events_batch.each do |event|
+            events << event
+          end
         end
       end
     end

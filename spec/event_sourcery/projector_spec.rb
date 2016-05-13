@@ -21,13 +21,10 @@ RSpec.describe EventSourcery::Projector do
     end
   }
   let(:projector_name) { 'my_projector' }
-  let(:tracker_storage) { EventSourcery::EventProcessorTrackerAdapters::Postgres.new(connection) }
-  let(:tracker) { EventSourcery::EventProcessorTracker.new(tracker_storage) }
   let(:events) { [] }
 
   subject(:projector) {
     projector_class.new(
-      tracker: tracker,
       db_connection: connection
     )
   }
@@ -43,21 +40,6 @@ RSpec.describe EventSourcery::Projector do
     it 'creates the defines table' do
       projector.setup
       expect(connection[:profiles].count).to eq 0
-    end
-  end
-
-  describe '#reset' do
-    let(:event) { EventSourcery::Event.new(body: {}, aggregate_id: aggregate_id, type: :terms_accepted, id: 1) }
-
-    before do
-      connection.execute('DROP TABLE IF EXISTS profiles')
-      projector.setup
-      projector.handle(event)
-    end
-
-    it 'resets last processed event ID' do
-      projector.reset
-      expect(tracker.last_processed_event_id(:test_processor)).to eq 0
     end
   end
 
@@ -91,22 +73,6 @@ RSpec.describe EventSourcery::Projector do
           attr_reader :processed_event
         end
       }
-
-      it "the projection insert is rolled back by the transaction" do
-        connection[:profiles].delete
-        expect(connection[:profiles].count).to eq 0
-        projector.handle(event) rescue nil
-        expect(connection[:profiles].count).to eq 0
-      end
-
-      it "doesn't update the tracker" do
-        expect {
-          begin
-            projector.handle(event)
-          rescue
-          end
-        }.to change { tracker.last_processed_event_id(:test_processor) }.by 0
-      end
     end
 
     context 'with more than one table' do

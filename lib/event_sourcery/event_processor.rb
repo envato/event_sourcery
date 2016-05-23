@@ -44,12 +44,6 @@ module EventSourcery
       tracker.last_processed_event_id(self.class.processor_name)
     end
 
-    def subscribe_to(feeder)
-      feeder.subscribe(last_processed_event_id, event_types: self.class.processes_event_types) do |event|
-        process(event)
-      end
-    end
-
     private
 
     attr_reader :tracker

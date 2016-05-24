@@ -43,7 +43,7 @@ begin
     if _expectedVersion = 0 or _expectedVersion is null then
       insert into aggregates(aggregate_id, type, version) values(_aggregateId, _aggregateType, 1);
     else
-      raise 'Concurrency conflict. Current version: 0, expected version: %', _expectedVersion  using hint = 'Please try to write again.';
+      raise 'Concurrency conflict. Current version: 0, expected version: %', _expectedVersion;
     end if;
     currentVersion := 0;
   else
@@ -52,7 +52,7 @@ begin
     else
       update aggregates set version = version + 1 where aggregate_id = _aggregateId and version = _expectedVersion;
       if not found then
-        raise 'Concurrency conflict. Current version: %, expected version: %', currentVersion, _expectedVersion  using hint = 'Please try to write again.';
+        raise 'Concurrency conflict. Current version: %, expected version: %', currentVersion, _expectedVersion;
         rollback;
       end if;
     end if;

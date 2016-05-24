@@ -12,7 +12,11 @@ module EventSourcery
             select writeEvent('#{aggregate_id}'::uuid, '#{type}'::varchar(256), #{expected_version ? expected_version : "null"}::int, #{connection.literal(Sequel.pg_json(body))});
           SQL
         rescue Sequel::DatabaseError => e
-          raise ConcurrencyError, "expected version was not #{expected_version}. Error: #{e.message}"
+          if e.message =~ /Concurrency conflict/
+            raise ConcurrencyError, "expected version was not #{expected_version}. Error: #{e.message}"
+          else
+            raise
+          end
         end
         true
       end
@@ -20,14 +24,6 @@ module EventSourcery
       private
 
       attr_reader :connection
-
-      def events_table
-        @connection[:events]
-      end
-
-      def aggregates_table
-        @connection[:aggregates]
-      end
     end
   end
 end

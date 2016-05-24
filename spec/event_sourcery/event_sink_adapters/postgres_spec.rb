@@ -119,5 +119,15 @@ RSpec.describe EventSourcery::EventSinkAdapters::Postgres do
         end
       end
     end
+
+    context 'when a database error occurs that is not a concurrency error' do
+      before do
+        allow(connection).to receive(:run).and_raise(Sequel::DatabaseError)
+      end
+
+      it 'raises it' do
+        expect { add_event }.to raise_error(Sequel::DatabaseError)
+      end
+    end
   end
 end

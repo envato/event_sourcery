@@ -1,9 +1,8 @@
-RSpec.describe EventSourcery::EventFeederAdapters::PostgresPush do
+RSpec.describe EventSourcery::EventFeeder do
   let(:events) { [] }
   let(:event_source_adapter) { EventSourcery::EventSourceAdapters::Postgres.new(connection) }
   let(:event_source) { EventSourcery::EventSource.new(event_source_adapter) }
   let(:event_bus) { EventSourcery::EventBusAdapters::Postgres.new(connection) }
-  let(:event_feeder_adapter) { EventSourcery::EventFeederAdapters::PostgresPush.new(connection, event_source, loop: false, after_listen: proc { notify_new_event(3) }) }
   subject(:event_feeder) { EventSourcery::EventFeeder.new(event_bus, event_source) }
 
   def notify_new_event(event_id)

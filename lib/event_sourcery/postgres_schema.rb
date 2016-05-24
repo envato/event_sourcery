@@ -31,7 +31,6 @@ module EventSourcery
     end
 
     def create_functions(db)
-      db.run "DROP FUNCTION writeEvent(uuid,character varying,integer,json)"
       db.run <<-SQL
 create or replace function writeEvent(_aggregateId uuid, _aggregateType varchar(256), _expectedVersion int, _body json) returns void as $$
 declare

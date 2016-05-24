@@ -20,8 +20,12 @@ module EventSourcery
         end
       end
 
-      def latest_event_id
-        latest_event = events_table.order(:id).last
+      def latest_event_id(event_types: nil)
+        latest_event = events_table
+        if event_types
+          latest_event = latest_event.where(type: event_types)
+        end
+        latest_event = latest_event.order(:id).last
         if latest_event
           latest_event[:id]
         else

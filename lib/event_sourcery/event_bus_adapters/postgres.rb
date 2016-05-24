@@ -1,8 +1,3 @@
-# EventBus
-#   subscribe {|e| }
-# EventSubscription
-#   subscribe(0, event_types: [], aggregate_id: )
-
 module EventSourcery
   module EventBusAdapters
     class Postgres

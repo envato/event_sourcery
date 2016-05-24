@@ -5,6 +5,7 @@ module EventSourcery
     def create(db)
       create_events(db)
       create_aggregates(db)
+      create_functions(db)
     end
 
     def create_events(db)
@@ -27,6 +28,43 @@ module EventSourcery
         column :type, 'varchar(255) not null'
         column :version, 'bigint default 1'
       end
+    end
+
+    def create_functions(db)
+      db.run "DROP FUNCTION writeEvent(uuid,character varying,integer,json)"
+      db.run <<-SQL
+create or replace function writeEvent(_aggregateId uuid, _aggregateType varchar(256), _expectedVersion int, _body json) returns void as $$
+declare
+  currentVersion int;
+  event json;
+  eventId text;
+begin
+  select version into currentVersion from aggregates where aggregate_id = _aggregateId;
+  if not found then
+    if _expectedVersion = 0 or _expectedVersion is null then
+      insert into aggregates(aggregate_id, type, version) values(_aggregateId, _aggregateType, 1);
+    else
+      raise 'Concurrency conflict. Current version: 0, expected version: %', _expectedVersion  using hint = 'Please try to write again.';
+    end if;
+    currentVersion := 0;
+  else
+    if _expectedVersion is null then
+      update aggregates set version=version + 1 where aggregate_id = _aggregateId returning version into _expectedVersion;
+    else
+      update aggregates set version = version + 1 where aggregate_id = _aggregateId and version = _expectedVersion;
+      if not found then
+        raise 'Concurrency conflict. Current version: %, expected version: %', currentVersion, _expectedVersion  using hint = 'Please try to write again.';
+        rollback;
+      end if;
+    end if;
+  end if;
+
+  insert into events(aggregate_id, type, body, version) values(_aggregateId, _aggregateType, _body, currentVersion + 1) returning id into eventId;
+
+  perform pg_notify('new_event', eventId);
+end;
+$$ language plpgsql;
+SQL
     end
   end
 end

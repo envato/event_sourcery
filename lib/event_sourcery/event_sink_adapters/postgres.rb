@@ -7,17 +7,13 @@ module EventSourcery
 
       def sink(aggregate_id:, type:, body:, expected_version: nil)
         event_id = nil
-        connection.transaction do
-          new_version = resolve_new_aggregate_version(aggregate_id, type, expected_version)
-          result = events_table.
-            returning(:id).
-            insert(aggregate_id: aggregate_id,
-                   type: type.to_s,
-                   body: ::Sequel.pg_json(body),
-                   version: new_version)
-          event_id = result.first.fetch(:id)
+        begin
+          connection.run <<-SQL
+            select writeEvent('#{aggregate_id}'::uuid, '#{type}'::varchar(256), #{expected_version ? expected_version : "null"}::int, #{connection.literal(Sequel.pg_json(body))});
+          SQL
+        rescue Sequel::DatabaseError => e
+          raise ConcurrencyError, "expected version was not #{expected_version}. Error: #{e.message}"
         end
-        connection.notify('new_event', payload: event_id)
         true
       end
 

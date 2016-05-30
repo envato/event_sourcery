@@ -20,7 +20,6 @@ module EventSourcery
       self.class.tables.each do |table_name, schema_block|
         @db_connection.create_table?(table_name, &schema_block)
       end
-      super
     end
 
     def reset

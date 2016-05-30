@@ -63,6 +63,18 @@ RSpec.describe EventSourcery::EventSourceAdapters::Postgres do
         expect(adapter.latest_event_id).to eq 0
       end
     end
+
+    context 'with event type filtering' do
+      it 'gets the latest event ID for a set of event types' do
+        add_event(aggregate_id: aggregate_id, type: 'type_1')
+        add_event(aggregate_id: aggregate_id, type: 'type_1')
+        add_event(aggregate_id: aggregate_id, type: 'type_2')
+
+        expect(adapter.latest_event_id(event_types: ['type_1'])).to eq 2
+        expect(adapter.latest_event_id(event_types: ['type_2'])).to eq 3
+        expect(adapter.latest_event_id(event_types: ['type_1', 'type_2'])).to eq 3
+      end
+    end
   end
 
   describe '#get_events_for_aggregate_id' do

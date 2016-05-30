@@ -30,8 +30,6 @@ module EventSourcery
       def processor_name
         @processor_name || self.name
       end
-
-      attr_reader :event_types
     end
 
     def setup

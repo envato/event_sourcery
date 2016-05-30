@@ -19,7 +19,8 @@ RSpec.describe EventSourcery::EventFeederAdapters::PostgresPush::NewEventSubscri
       connection[:events].insert(
         aggregate_id: SecureRandom.uuid,
         type: 'blah',
-        body: Sequel.pg_json({})
+        body: Sequel.pg_json({}),
+        version: 1 # TODO: use event sink
       )
     end
 

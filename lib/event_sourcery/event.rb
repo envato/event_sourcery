@@ -6,6 +6,7 @@ module EventSourcery
       attribute :id, Integer
       attribute :aggregate_id, String
       attribute :type, String
+      attribute :version, Integer
       attribute :body, Hash
       attribute :created_at, Time
     end

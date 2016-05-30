@@ -1,15 +1,15 @@
 RSpec.describe EventSourcery::EventSourceAdapters::Postgres do
   let(:aggregate_id) { SecureRandom.uuid }
   let(:event_body) { { 'my_event' => 'data' } }
+  let(:event_sink) { EventSourcery::EventSink.new(EventSourcery::EventSinkAdapters::Postgres.new(connection)) }
   let(:event_1) { EventSourcery::Event.new(id: 1, type: 'item_added', aggregate_id: aggregate_id, body: event_body) }
   let(:event_2) { EventSourcery::Event.new(id: 2, type: 'item_added', aggregate_id: aggregate_id, body: event_body) }
   subject(:adapter) { described_class.new(connection) }
 
   def add_event(aggregate_id:, type: 'item_added')
-    connection[:events].
-      insert(aggregate_id: aggregate_id,
-             type: type,
-             body: ::Sequel.pg_json(event_body))
+    event_sink.sink(aggregate_id: aggregate_id,
+                    type: type,
+                    body: event_body)
   end
 
   def events
@@ -18,6 +18,7 @@ RSpec.describe EventSourcery::EventSourceAdapters::Postgres do
 
   before do
     connection.execute('truncate table events')
+    connection.execute('truncate table aggregates')
     connection.execute('alter sequence events_id_seq restart with 1')
   end
 
@@ -35,6 +36,7 @@ RSpec.describe EventSourcery::EventSourceAdapters::Postgres do
       event = adapter.get_next_from(1, limit: 1).first
       expect(event.aggregate_id).to eq aggregate_id
       expect(event.type).to eq 'item_added'
+      expect(event.version).to eq 1
       expect(event.body).to eq event_body
       expect(event.created_at).to be_instance_of(Time)
     end

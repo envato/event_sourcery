@@ -9,6 +9,7 @@ Sequel.default_timezone = :utc
 require 'event_sourcery/version'
 require 'event_sourcery/aggregate_root'
 require 'event_sourcery/event'
+require 'event_sourcery/event_body_serializer'
 require 'event_sourcery/event_store/event_sink'
 require 'event_sourcery/event_store/event_source'
 require 'event_sourcery/event_feeder'

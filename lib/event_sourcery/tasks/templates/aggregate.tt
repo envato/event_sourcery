@@ -1,0 +1,25 @@
+module Command
+  module <%= aggregate.capitalize %>
+    class Aggregate
+      include EventSourcery::AggregateRoot
+
+      def <%= command %>(payload)
+        # Perform any relevant contextual validations on aggregate, e.g.
+        # raise Error::RejectedCommandError if @<%= event %>_occurred
+
+        # Set the event body
+        event_body = payload
+
+        # Apply and persist the event
+        apply_event EventSourcery::Event.new(type: :<%= event %>, body: event_body)
+      end
+
+      private
+
+      def apply_<%= event %>(event)
+        # Mutate state of aggregate based on event, e.g.
+        # @<%= event %>_occurred = true
+      end
+    end
+  end
+end

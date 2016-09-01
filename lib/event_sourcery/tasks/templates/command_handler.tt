@@ -1,0 +1,14 @@
+module Command
+  module <%= aggregate.capitalize %>
+    module <%= command.gsub(/(^|_)(.)/){ |x| x[-1..-1].upcase } %>
+      class CommandHandler
+        include EventSourcery::CommandHandler
+
+        def handle(command)
+          <%= aggregate %> = Repository.load(command.aggregate_id, event_source, event_sink)
+          <%= aggregate %>.<%= command %>(command)
+        end
+      end
+    end
+  end
+end

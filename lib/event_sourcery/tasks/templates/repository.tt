@@ -1,0 +1,13 @@
+module Command
+  module <%= aggregate.capitalize %>
+    class Repository
+      def self.load(aggregate_id, event_source, event_sink)
+        events = event_source.load(aggregate_id)
+
+        <%= aggregate %> = Aggregate.new(aggregate_id, event_sink)
+        <%= aggregate %>.load_history(events)
+        <%= aggregate %>
+      end
+    end
+  end
+end

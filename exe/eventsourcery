@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require 'event_sourcery/tasks'
+
+EventSourcery::CLI.start

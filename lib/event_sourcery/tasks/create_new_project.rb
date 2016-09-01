@@ -18,8 +18,8 @@ module EventSourcery
       end
 
       def bundle_install
-        inside project_name do
-          run('bundle install')
+        inside(project_name) do
+          run('bundle install', capture: true)
         end
       end
     end

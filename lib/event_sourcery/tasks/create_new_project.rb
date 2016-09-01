@@ -13,6 +13,10 @@ module EventSourcery
         template('templates/gemfile.tt', "#{project_name}/Gemfile")
       end
 
+      def create_rakefile
+        template('templates/rakefile.tt', "#{project_name}/Rakefile")
+      end
+
       def bundle_install
         inside project_name do
           run('bundle install')

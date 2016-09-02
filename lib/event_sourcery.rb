@@ -8,12 +8,6 @@ Sequel.default_timezone = :utc
 
 require 'event_sourcery/version'
 require 'event_sourcery/event'
-require 'event_sourcery/event_source_adapters/memory'
-require 'event_sourcery/event_source_adapters/postgres'
-require 'event_sourcery/event_source'
-require 'event_sourcery/event_sink_adapters/memory'
-require 'event_sourcery/event_sink_adapters/memory_with_stdout'
-require 'event_sourcery/event_sink_adapters/postgres'
 require 'event_sourcery/event_sink'
 require 'event_sourcery/event_feeder'
 require 'event_sourcery/event_feeder_adapters/postgres_push'

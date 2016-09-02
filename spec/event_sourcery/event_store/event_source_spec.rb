@@ -1,4 +1,4 @@
-RSpec.describe EventSourcery::EventSource do
+RSpec.describe EventSourcery::EventStore::EventSource do
   let(:event_store) { double(:event_store) }
   subject(:event_source) { described_class.new(adapter) }
 

@@ -125,4 +125,53 @@ RSpec.shared_examples 'an event store' do
       expect(events.first.created_at).to be_instance_of(Time)
     end
   end
+
+  describe '#each_by_range' do
+    before do
+      (1..2001).each do |i|
+        event_store.sink(new_event(aggregate_id: aggregate_id,
+                                   type: 'item_added',
+                                   body: {}))
+      end
+    end
+
+    def events_by_range(*args)
+      [].tap do |events|
+        event_store.each_by_range(*args) do |event|
+          events << event
+        end
+      end
+    end
+
+    context "the range doesn't include the latest event ID" do
+      it 'returns only the events in the range' do
+        events = events_by_range(1, 20)
+        expect(events.count).to eq 20
+        expect(events.map(&:id)).to eq((1..20).to_a)
+      end
+    end
+
+    context 'the range includes the latest event ID' do
+      it 'returns all the events' do
+        events = events_by_range(1, 2001)
+        expect(events.count).to eq 2001
+        expect(events.map(&:id)).to eq((1..2001).to_a)
+      end
+    end
+
+    context 'the range exceeds the latest event ID' do
+      it 'returns all the events' do
+        events = events_by_range(1, 2050)
+        expect(events.count).to eq 2001
+        expect(events.map(&:id)).to eq((1..2001).to_a)
+      end
+    end
+
+    context 'the range filters by event type' do
+      it 'returns only events of the given type' do
+        expect(events_by_range(1, 2001, event_types: ['user_signed_up']).count).to eq 0
+        expect(events_by_range(1, 2001, event_types: ['item_added']).count).to eq 2001
+      end
+    end
+  end
 end

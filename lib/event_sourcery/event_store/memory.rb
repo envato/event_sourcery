@@ -1,6 +1,8 @@
 module EventSourcery
   module EventStore
     class Memory
+      include EachByRange
+
       def initialize(events = [])
         @events = events
       end

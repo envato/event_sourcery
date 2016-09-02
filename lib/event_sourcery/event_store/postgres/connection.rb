@@ -2,6 +2,8 @@ module EventSourcery
   module EventStore
     module Postgres
       class Connection
+        include EachByRange
+
         def initialize(pg_connection, events_table_name: :events)
           @pg_connection = pg_connection
           @events_table_name = events_table_name

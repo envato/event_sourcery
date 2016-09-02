@@ -27,11 +27,10 @@ RSpec.describe EventSourcery::DownstreamEventProcessor do
   let(:tracker_storage) { EventSourcery::EventProcessorTrackerAdapters::Memory.new }
   let(:tracker) { EventSourcery::EventProcessorTracker.new(tracker_storage) }
   let(:dep_name) { 'my_dep' }
-  let(:event_source_adapter) { EventSourcery::EventSourceAdapters::Memory.new(events) }
-  let(:event_source) { EventSourcery::EventSource.new(event_source_adapter) }
+  let(:event_store) { EventSourcery::EventStore::Memory.new(events) }
+  let(:event_source) { EventSourcery::EventStore::EventSource.new(event_store) }
 
-  let(:event_sink_adapter) { EventSourcery::EventSinkAdapters::Memory.new(events) }
-  let(:event_sink) { EventSourcery::EventSink.new(event_sink_adapter) }
+  let(:event_sink) { EventSourcery::EventStore::EventSink.new(event_store) }
   let(:aggregate_id) { SecureRandom.uuid }
   let(:events) { [] }
   subject(:dep) { dep_class.new(tracker: tracker, event_source: event_source, event_sink: event_sink) }

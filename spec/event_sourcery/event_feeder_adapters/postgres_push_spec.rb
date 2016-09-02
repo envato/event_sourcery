@@ -1,7 +1,7 @@
 RSpec.describe EventSourcery::EventFeederAdapters::PostgresPush do
   let(:events) { [] }
-  let(:event_source_adapter) { EventSourcery::EventSourceAdapters::Postgres.new(connection) }
-  let(:event_source) { EventSourcery::EventSource.new(event_source_adapter) }
+  let(:event_store) { EventSourcery::EventStore::Postgres::Connection.new(pg_connection) }
+  let(:event_source) { EventSourcery::EventStore::EventSource.new(event_store) }
   let(:event_feeder_adapter) { EventSourcery::EventFeederAdapters::PostgresPush.new(connection, event_source, loop: false, after_listen: proc { notify_new_event(3) }) }
   subject(:event_feeder) { EventSourcery::EventFeeder.new(event_feeder_adapter) }
 

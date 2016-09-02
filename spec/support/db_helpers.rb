@@ -1,6 +1,11 @@
 module DBHelpers
-  def connection
+  def pg_connection
     @connection ||= new_connection
+  end
+
+  # TODO: switch references to connection to use pg_connection instead
+  def connection
+    @connection ||= pg_connection
   end
 
   def new_connection
@@ -12,9 +17,13 @@ module DBHelpers
   end
 
   def postgres_url
-    ENV.fetch('BOXEN_POSTGRESQL_URL') {
+    if ENV['BUILDKITE']
       'postgres://buildkite-agent:127.0.0.1:5432/'
-    }
+    else
+      ENV.fetch('BOXEN_POSTGRESQL_URL') {
+        'postgres://127.0.0.1:5432/'
+      }
+    end
   end
 
   def reset_database
@@ -30,7 +39,7 @@ end
 RSpec.configure do |config|
   config.include(DBHelpers)
   config.before do
-    connection.execute("drop table if exists events")
-    EventSourcery::PostgresSchema.create(connection)
+    pg_connection.execute("drop table if exists events")
+    EventSourcery::PostgresSchema.create(pg_connection)
   end
 end

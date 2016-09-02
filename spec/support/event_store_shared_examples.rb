@@ -1,7 +1,7 @@
 RSpec.shared_examples 'an event store' do
   let(:aggregate_id) { SecureRandom.uuid }
 
-  def new_event(aggregate_id: SecureRandom.uuid, type: :test_event, body: {})
+  def new_event(aggregate_id: SecureRandom.uuid, type: 'test_event', body: {})
     EventSourcery::Event.new(aggregate_id: aggregate_id,
                              type: type,
                              body: body)
@@ -24,14 +24,14 @@ RSpec.shared_examples 'an event store' do
     context 'with no existing aggregate stream' do
       it 'saves an event' do
         event = new_event(aggregate_id: aggregate_id,
-                         type: :test_event_2,
-                         body: { my: 'data' })
+                          type: :test_event_2,
+                          body: { 'my' => 'data' })
         event_store.sink(event)
         events = event_store.get_next_from(1)
         expect(events.count).to eq 1
         expect(events.first.id).to eq 1
         expect(events.first.aggregate_id).to eq aggregate_id
-        expect(events.first.type).to eq :test_event_2.to_s # shouldn't you get back what you put in, a symbol?
+        expect(events.first.type).to eq 'test_event_2'
         expect(events.first.body).to eq({ 'my' => 'data' }) # should we symbolize keys when hydrating events?
       end
     end
@@ -44,7 +44,7 @@ RSpec.shared_examples 'an event store' do
       it 'saves an event' do
         event = new_event(aggregate_id: aggregate_id,
                          type: :test_event_2,
-                         body: { my: 'data' })
+                         body: { 'my' => 'data' })
         event_store.sink(event)
         events = event_store.get_next_from(1)
         expect(events.count).to eq 2

@@ -29,6 +29,7 @@ require 'event_sourcery/command'
 require 'event_sourcery/postgres_schema'
 require 'event_sourcery/errors'
 require 'event_sourcery/event_store/postgres/connection'
+require 'event_sourcery/event_store/memory'
 
 module EventSourcery
 end

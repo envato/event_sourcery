@@ -1,12 +1,6 @@
 RSpec.shared_examples 'an event store' do
   let(:aggregate_id) { SecureRandom.uuid }
 
-  def new_event(aggregate_id: SecureRandom.uuid, type: 'test_event', body: {})
-    EventSourcery::Event.new(aggregate_id: aggregate_id,
-                             type: type,
-                             body: body)
-  end
-
   describe '#sink' do
     it 'assigns auto incrementing event IDs' do
       event_store.sink(new_event)
@@ -126,6 +120,7 @@ RSpec.shared_examples 'an event store' do
     end
   end
 
+  # TODO: this is a slow spec, optimise
   describe '#each_by_range' do
     before do
       (1..2001).each do |i|

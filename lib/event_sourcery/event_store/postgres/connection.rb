@@ -16,7 +16,7 @@ module EventSourcery
                    type: event.type.to_s,
                    body: ::Sequel.pg_json(event.body))
           event_id = result.first.fetch(:id)
-          # @pg_connection.notify('new_event', payload: event_id)
+          @pg_connection.notify('new_event', payload: event_id)
           true
         end
 

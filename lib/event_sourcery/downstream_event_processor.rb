@@ -100,7 +100,8 @@ module EventSourcery
 
     def invoke_action_and_emit_event(aggregate_id, type, body, action)
       action.call(body) if action
-      event_sink.sink(aggregate_id: aggregate_id, type: type, body: body)
+      # TODO: emit_event should probably take an event object rather than these params
+      event_sink.sink(Event.new(aggregate_id: aggregate_id, type: type, body: body))
     end
 
     def keep_track_of_previously_emitted_events

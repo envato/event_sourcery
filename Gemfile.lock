@@ -43,7 +43,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.3.0)
     rspec-support (3.3.0)
-    sequel (4.26.0)
+    sequel (4.38.0)
     slop (3.6.0)
     thread_safe (0.3.5)
     virtus (1.0.5)
@@ -63,4 +63,4 @@ DEPENDENCIES
   rspec
 
 BUNDLED WITH
-   1.11.2
+   1.12.5

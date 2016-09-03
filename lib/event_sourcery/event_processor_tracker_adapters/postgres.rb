@@ -59,7 +59,7 @@ module EventSourcery
 
       def create_table_if_not_exists
         @connection.create_table?(@table_name) do
-          primary_key :id, type: Bignum
+          primary_key :id, type: :Bignum
           column :name, 'varchar(255) not null'
           column :last_processed_event_id, 'bigint not null default 0'
           index :name, unique: true

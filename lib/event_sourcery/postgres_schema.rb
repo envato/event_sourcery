@@ -4,7 +4,7 @@ module EventSourcery
 
     def create(db)
       db.create_table(:events) do
-        primary_key :id, type: Bignum
+        primary_key :id, type: :Bignum
         column :aggregate_id, 'uuid not null'
         column :type, 'varchar(255) not null'
         column :body, 'json not null'

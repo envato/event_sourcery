@@ -7,7 +7,9 @@ Sequel.extension :pg_json
 Sequel.default_timezone = :utc
 
 require 'event_sourcery/version'
+require 'event_sourcery/aggregate_root'
 require 'event_sourcery/event'
+require 'event_sourcery/event_body_serializer'
 require 'event_sourcery/event_store/event_sink'
 require 'event_sourcery/event_store/event_source'
 require 'event_sourcery/event_feeder'
@@ -21,6 +23,7 @@ require 'event_sourcery/table_owner'
 require 'event_sourcery/downstream_event_processor'
 require 'event_sourcery/projector'
 require 'event_sourcery/command'
+require 'event_sourcery/command_handler'
 require 'event_sourcery/postgres_schema'
 require 'event_sourcery/errors'
 require 'event_sourcery/event_store/each_by_range'

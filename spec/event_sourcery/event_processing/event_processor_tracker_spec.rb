@@ -1,4 +1,4 @@
-RSpec.describe EventSourcery::EventProcessorTracker do
+RSpec.describe EventSourcery::EventProcessing::EventProcessorTracker do
   let(:adapter) { double }
   subject(:processed_event_tracker) { described_class.new(adapter) }
 

@@ -40,6 +40,6 @@ RSpec.configure do |config|
   config.include(DBHelpers)
   config.before do
     pg_connection.execute("drop table if exists events")
-    EventSourcery::PostgresSchema.create(pg_connection)
+    EventSourcery::EventStore::Postgres::Schema.create(pg_connection)
   end
 end

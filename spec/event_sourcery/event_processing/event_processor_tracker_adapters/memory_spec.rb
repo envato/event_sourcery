@@ -1,4 +1,4 @@
-RSpec.describe EventSourcery::EventProcessorTrackerAdapters::Memory do
+RSpec.describe EventSourcery::EventProcessing::EventProcessorTrackerAdapters::Memory do
   let(:processor_name) { 'test-processor' }
   subject(:adapter) { described_class.new }
 

@@ -21,11 +21,12 @@ RSpec.describe EventSourcery::EventStore::Postgres::Connection do
     let(:event) { new_event(aggregate_id: aggregate_id) }
 
     it 'notifies of new events' do
-      event_store.subscribe(after_listen: proc { event_store.sink(event) }) do |event|
-        @event = event
+      event_store.subscribe(from_id: 0, after_listen: proc { event_store.sink(event) }) do |events|
+        @events = events
         throw :stop
       end
-      expect(@event.aggregate_id).to eq aggregate_id
+      expect(@events.count).to eq 1
+      expect(@events.first.aggregate_id).to eq aggregate_id
     end
   end
 end

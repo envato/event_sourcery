@@ -54,11 +54,14 @@ module EventSourcery
         end
 
         def subscribe(event_types: nil, after_listen: nil, &block)
-          Subscription.new(pg_connection: @pg_connection,
+          poll_waiter = OptimisedEventPollWaiter.new(pg_connection: @pg_connection, after_listen: after_listen)
+          Subscription.new(poll_waiter: poll_waiter,
+                           event_store: self,
+                           from_event_id: latest_event_id + 1,
                            event_types: event_types,
                            events_table_name: @events_table_name,
                            on_new_event: block).tap do |s|
-                             s.start(after_listen: after_listen)
+                             s.start
                            end
         end
 

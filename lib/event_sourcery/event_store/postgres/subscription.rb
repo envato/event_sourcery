@@ -2,50 +2,37 @@ module EventSourcery
   module EventStore
     module Postgres
       class Subscription
-        def initialize(pg_connection:,
+        def initialize(event_store:,
+                       poll_waiter:,
+                       from_event_id:,
                        event_types: nil,
                        on_new_event:,
                        events_table_name: :events)
-          @pg_connection = pg_connection
+          @event_store = event_store
+          @from_event_id = from_event_id
+          @poll_waiter = poll_waiter
           @event_types = event_types
           @on_new_event = on_new_event
-          @events_queue = ::Queue.new
+          @current_event_id = from_event_id
         end
 
-        def start(after_listen: nil, timeout: 30)
-          start_async(after_listen: after_listen, timeout: timeout)
-          catch(:stop) {
-            loop do
-              break if !@listen_thread.alive?
-              @on_new_event.call(@events_queue.pop)
-            end
-          }
-        end
-
-        def start_async(after_listen: nil, timeout: 30)
-          @listen_thread = Thread.new { listen_for_new_events(loop: true,
-                                                              after_listen: after_listen,
-                                                              timeout: timeout) }
+        def start
+          @poll_waiter.poll(after_listen: proc { read_events }) do
+            read_events
+          end
         end
 
         private
 
-        def listen_for_new_events(loop: true, after_listen: nil, timeout: 30)
-          @after_listen = after_listen
-          @pg_connection.listen('new_event',
-                                loop: loop,
-                                after_listen: after_listen,
-                                timeout: @timeout) do |channel, pid, payload|
-            new_event_id = Integer(payload)
-            new_event = load_event(new_event_id)
-            @events_queue.push(new_event)
+        def read_events
+          loop do
+            events = @event_store.get_next_from(@current_event_id)
+            break if events.empty?
+            events.each do |event|
+              @on_new_event.call(event)
+              @current_event_id = event.id
+            end
           end
-        end
-
-        def load_event(event_id)
-          return if event_id.nil?
-          event_hash = @pg_connection[:events].where(id: event_id).order(:id).first
-          Event.new(event_hash)
         end
       end
     end

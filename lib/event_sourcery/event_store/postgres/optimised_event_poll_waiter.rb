@@ -47,11 +47,8 @@ module EventSourcery
                                 loop: loop,
                                 after_listen: after_listen,
                                 timeout: timeout) do |channel, pid, payload|
-            new_event_id = Integer(payload)
             @events_queue.push(:new_event)
           end
-        rescue Exception => e
-          binding.pry
         end
       end
     end

@@ -55,12 +55,15 @@ module EventSourcery
 
         def subscribe(from_id:, event_types: nil, after_listen: nil, &block)
           poll_waiter = OptimisedEventPollWaiter.new(pg_connection: @pg_connection, after_listen: after_listen)
-          Subscription.new(poll_waiter: poll_waiter,
-                           event_store: self,
-                           from_event_id: from_id,
-                           event_types: event_types,
-                           events_table_name: @events_table_name,
-                           on_new_events: block).tap do |s|
+          args = {
+            poll_waiter: poll_waiter,
+            event_store: self,
+            from_event_id: from_id,
+            event_types: event_types,
+            events_table_name: @events_table_name,
+            on_new_events: block
+          }
+          Subscription.new(args).tap do |s|
                              s.start
                            end
         end

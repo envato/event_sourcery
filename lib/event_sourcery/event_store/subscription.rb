@@ -27,7 +27,7 @@ module EventSourcery
 
       def read_events
         loop do
-          events = @event_store.get_next_from(@current_event_id + 1)
+          events = @event_store.get_next_from(@current_event_id + 1, event_types: @event_types)
           break if events.empty?
           @on_new_events.call(events)
           @current_event_id = events.last.id

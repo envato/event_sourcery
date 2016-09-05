@@ -15,4 +15,17 @@ RSpec.describe EventSourcery::EventStore::Postgres::Connection do
       end
     end
   end
+
+  describe '#subscribe' do
+    let(:aggregate_id) { SecureRandom.uuid }
+    let(:event) { new_event(aggregate_id: aggregate_id) }
+
+    it 'notifies of new events' do
+      event_store.subscribe(after_listen: proc { event_store.sink(event) }) do |event|
+        @event = event
+        throw :stop
+      end
+      expect(@event.aggregate_id).to eq aggregate_id
+    end
+  end
 end

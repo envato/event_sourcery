@@ -53,6 +53,15 @@ module EventSourcery
           end
         end
 
+        def subscribe(event_types: nil, after_listen: nil, &block)
+          Subscription.new(pg_connection: @pg_connection,
+                           event_types: event_types,
+                           events_table_name: @events_table_name,
+                           on_new_event: block).tap do |s|
+                             s.start(after_listen: after_listen)
+                           end
+        end
+
         private
 
         def events_table

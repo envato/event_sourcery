@@ -8,6 +8,15 @@ RSpec.describe EventSourcery::EventStore::Postgres::OptimisedEventPollWaiter do
     end
   end
 
+  it 'does an initial call' do
+    waiter.poll(after_listen: proc { }) do
+      @called = true
+      throw :stop
+    end
+
+    expect(@called).to eq true
+  end
+
   it 'calls on new event' do
     waiter.poll(after_listen: proc { notify_event_ids(1) }) do
       @called = true

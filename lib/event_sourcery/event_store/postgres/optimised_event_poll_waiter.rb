@@ -13,6 +13,7 @@ module EventSourcery
         def poll(after_listen: proc { }, &block)
           start_async(after_listen: after_listen)
           catch(:stop) {
+            block.call
             loop do
               break if !@listen_thread.alive?
               clear_queue

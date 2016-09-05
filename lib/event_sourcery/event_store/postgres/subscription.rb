@@ -18,7 +18,7 @@ module EventSourcery
 
         def start
           catch(:stop) do
-            @poll_waiter.poll(after_listen: proc { read_events }) do
+            @poll_waiter.poll do
               read_events
             end
           end

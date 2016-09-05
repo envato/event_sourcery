@@ -26,7 +26,7 @@ RSpec.describe EventSourcery::EventStore::Postgres::OptimisedEventPollWaiter do
     expect(@called).to eq true
   end
 
-  it 'calls with the highest event ID when multiple are in the queue' do
+  it 'calls once when multiple events are in the queue' do
     waiter.poll(after_listen: proc { notify_event_ids(1, 2) }) do
       @called = true
       throw :stop

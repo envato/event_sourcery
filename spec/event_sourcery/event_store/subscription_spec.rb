@@ -10,7 +10,7 @@ class TestPoller
   end
 end
 
-RSpec.describe EventSourcery::EventStore::Postgres::Subscription do
+RSpec.describe EventSourcery::EventStore::Subscription do
   def on_new_events_callback(events)
     @events = events
     throw :stop

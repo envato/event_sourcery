@@ -21,7 +21,7 @@ RSpec.describe EventSourcery::EventStore::Postgres::Subscription do
   subject(:subscription) { described_class.new(event_store: event_store,
                                                poll_waiter: TestPoller.new,
                                                event_types: event_types,
-                                               from_event_id: 0,
+                                               from_event_id: 1,
                                                on_new_events: method(:on_new_events_callback)) }
 
   let(:waiter) { TestPoller.new }

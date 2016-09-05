@@ -13,7 +13,7 @@ module EventSourcery
           @poll_waiter = poll_waiter
           @event_types = event_types
           @on_new_events = on_new_events
-          @current_event_id = from_event_id
+          @current_event_id = from_event_id - 1
         end
 
         def start

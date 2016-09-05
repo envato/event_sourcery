@@ -16,7 +16,8 @@ module EventSourcery
             block.call
             loop do
               break if !@listen_thread.alive?
-              clear_queue
+              wait_for_new_event_to_appear
+              clear_new_event_queue
               block.call
             end
           }
@@ -24,8 +25,11 @@ module EventSourcery
 
         private
 
-        def clear_queue
+        def wait_for_new_event_to_appear
           @events_queue.pop
+        end
+
+        def clear_new_event_queue
           @events_queue.clear
         end
 

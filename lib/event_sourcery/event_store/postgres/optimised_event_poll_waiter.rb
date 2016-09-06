@@ -3,19 +3,25 @@ module EventSourcery
     module Postgres
       # Optimise poll interval with Postgres listen/notify
       class OptimisedEventPollWaiter
+        ListenThreadDied = Class.new(StandardError)
+
         def initialize(pg_connection:, timeout: 30, after_listen: proc { })
           @pg_connection = pg_connection
           @timeout = timeout
-          @events_queue = ::Queue.new
+          @events_queue = Utils::QueueWithIntervalCallback.new
           @after_listen = after_listen
         end
 
         def poll(after_listen: proc { }, &block)
+          @events_queue.interval_callback = proc do
+            ensure_listen_thread_alive!
+            block.call
+          end
           start_async(after_listen: after_listen)
           catch(:stop) {
             block.call
             loop do
-              break if !@listen_thread.alive?
+              ensure_listen_thread_alive!
               wait_for_new_event_to_appear
               clear_new_event_queue
               block.call
@@ -24,6 +30,12 @@ module EventSourcery
         end
 
         private
+
+        def ensure_listen_thread_alive!
+          if !@listen_thread.alive?
+            raise ListenThreadDied
+          end
+        end
 
         def wait_for_new_event_to_appear
           @events_queue.pop

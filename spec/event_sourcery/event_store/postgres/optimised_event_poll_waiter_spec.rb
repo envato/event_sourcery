@@ -34,4 +34,16 @@ RSpec.describe EventSourcery::EventStore::Postgres::OptimisedEventPollWaiter do
 
     expect(@called).to eq true
   end
+
+  context 'when the listening thread dies' do
+    before do
+      allow(pg_connection).to receive(:listen).and_raise(StandardError)
+    end
+
+    it 'raise an error' do
+      expect {
+        waiter.poll { }
+      }.to raise_error(described_class::ListenThreadDied)
+    end
+  end
 end

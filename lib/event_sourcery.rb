@@ -26,6 +26,7 @@ require 'event_sourcery/event_processing/event_processor'
 require 'event_sourcery/event_processing/table_owner'
 require 'event_sourcery/event_processing/downstream_event_processor'
 require 'event_sourcery/event_processing/projector'
+require 'event_sourcery/utils/queue_with_interval_callback'
 
 module EventSourcery
 end

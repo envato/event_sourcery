@@ -56,6 +56,8 @@ module EventSourcery
             process_event(event_processor, event, last_processed_event_id)
           end
         end
+      rescue => e
+        process_one_by_one(event_processor, events, last_processed_event_id)
       end
 
       def process_one_by_one(event_processor, events, last_processed_event_id)

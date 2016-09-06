@@ -100,15 +100,17 @@ RSpec.describe EventSourcery::EventProcessing::EventProcessorManager do
 
     context 'when an error occurs in batch processing' do
       before do
-        allow(processor_1).to receive(:process).and_raise(StandardError)
+        def processor_1.process(event)
+          raise 'boo' if event.id >= 3
+        end
       end
 
-      it "raises an error and doesn't update the track entry" do
+      it "reverts to one by one processing and fails on the problematic event" do
         expect(tracker.last_processed_event_id(processor_1.class.processor_name)).to eq 1
         expect {
           manager.process_events(events)
         }.to raise_error(StandardError)
-        expect(tracker.last_processed_event_id(processor_1.class.processor_name)).to eq 1
+        expect(tracker.last_processed_event_id(processor_1.class.processor_name)).to eq 2
       end
     end
   end

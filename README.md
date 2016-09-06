@@ -1,2 +1,119 @@
 # EventSourcery
 
+## Event Source and Sink
+
+Read events with the event source, save events to the event sink.
+
+```ruby
+event_source = EventSourcery::EventSource.build(:postgres, db_connection)
+
+event_sink = EventSourcery::EventSink.build(:postgres, db_connection)
+
+# world view container
+config = EventSourcery::Config.new do |config|
+  config.event_source = :postgres, db_connection
+  config.event_sink = :postgres, db_connection
+  config.event_feeder = :postgres, db_connection
+  config.processor_tracker = :postgres, db_connection
+
+  # or to use all postgres
+  config.use :postgres, db_connection
+end
+
+event_source = config.event_source
+event_sink = config.event_sink
+```
+
+### Saving events
+
+```ruby
+user_id = SecureRandom.uuid
+event_sink.sink(aggregate_id: user_id, type: :signed_up, body: { email: 'me@example.com' })
+```
+
+### Reading events
+
+```ruby
+# get raw events
+events = event_source.get_events_for_aggregate_id(user_id)
+```
+
+## Event Processors
+
+### Projectors
+
+```ruby
+class UserProjector
+  include EventSourcery::Projector
+  self.processor_name = 'users'
+  processes_events :signup
+
+  table :users do
+    column :uuid, 'UUID NOT NULL'
+    column :name, 'VARCHAR(255) NOT NULL'
+    column :email, 'VARCHAR(255) NOT NULL'
+  end
+
+  def process(event)
+    table.insert(event.aggregate_uuid, event.body[:name], event.body[:email])
+  end
+end
+
+db_connection = Sequel.connect('...')
+tracker = EventSourcery::ProcessedEventTrackers::Postgres.new(db_connection)
+projector = UserProjector.new(tracker: tracker,
+                              db_connection: db_connection)
+projector.process(event)
+```
+
+### Downstream Event Processors
+
+```ruby
+class WelcomeEmailDownstreamEventProcessor
+  include EventSourcery::DownstreamEventProcessor
+  self.processor_name = 'welcome_email'
+  processes_events :signup
+  emits_events :welcome_email_sent
+
+  def process(event)
+    name = event.body[:name]
+    email = event.body[:email]
+    UserMailer.deliver_welcome_email(name, email)
+    emit_event(type: :welcome_email_sent, aggregate_id: event.aggregate_id) do |body|
+      body[:sent_to] = email
+      body[:sent_at] = Time.now
+    end
+  end
+end
+```
+
+### Subscribing to events
+
+```ruby
+# publisher.add_subscription(0) do |event|
+#   processor_1.process(event)
+# end
+# publisher.add_subscription(0, types: [:name_changed]) do |event|
+#   processor_2.process(event)
+# end
+
+# Feeder or Publisher, or ?
+event_feeder = EventSourcery::EventFeeder.build(:postgres, db_connection)
+
+event_feeder.add_subscription(0, types: [:signup]) do |event|
+  puts event.id
+end
+
+# subscribing projectors to events
+
+user_projector = UserProjector.new(tracker: tracker, db_connection: db_connection)
+user_projector.register_subscription(event_feeder)
+
+event_feeder.start! # block and start feeding events
+```
+
+# Roadmap/TODO
+
+```ruby
+user_aggregate = EventSourcery::AggregateRepository.load(User, user_id)
+```

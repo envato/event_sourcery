@@ -32,8 +32,6 @@ module EventSourcery
         def processor_name
           @processor_name || self.name
         end
-
-        attr_reader :event_types
       end
 
       module ProcessHandler
@@ -44,6 +42,9 @@ module EventSourcery
           end
           @event = nil
         end
+      end
+
+      def setup
       end
     end
   end

@@ -10,8 +10,8 @@ module EventSourcery
         super()
       end
 
-      def pop(non_block = false)
-        return super if non_block
+      def pop(non_block_without_callback = false)
+        return super if non_block_without_callback
         pop_with_interval_callback
       end
 

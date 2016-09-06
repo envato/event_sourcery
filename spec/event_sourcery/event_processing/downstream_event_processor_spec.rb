@@ -211,34 +211,6 @@ RSpec.describe EventSourcery::EventProcessing::DownstreamEventProcessor do
         event_source.get_next_from(0, limit: 100)[-n..-1]
       end
 
-      xit "doesn't action if the event is not newer than or the latest event captured in setup" do
-        dep.process(event_1)
-        expect(TestActioner.actioned).to eq []
-        dep.process(event_2)
-        expect(TestActioner.actioned).to eq []
-        dep.process(event_3)
-        expect(TestActioner.actioned).to eq []
-        dep.process(event_4)
-        expect(TestActioner.actioned).to eq [3, 4]
-        dep.process(event_5)
-        expect(TestActioner.actioned).to eq [3, 4, 5]
-      end
-
-      xit "emits events when it reaches the end of the stream as captured in setup" do
-        dep.process(event_1)
-        expect(event_count).to eq 4
-        dep.process(event_2)
-        expect(event_count).to eq 4
-        dep.process(event_3)
-        expect(event_count).to eq 4
-        dep.process(event_4)
-        expect(event_count).to eq 6
-        expect(latest_events(2).map(&:type)).to eq ['echo_event', 'echo_event']
-        expect(latest_events(2).map(&:body).map{|b| b[EventSourcery::EventProcessing::DownstreamEventProcessor::DRIVEN_BY_EVENT_PAYLOAD_KEY]}).to eq [3, 4]
-        dep.process(event_5)
-        expect(event_count).to eq 7
-      end
-
       it 'releases the clutch after it has processes the latest event captured in setup, not before' do
         [event_1, event_2, event_3, event_4, event_5, event_6].each do |event|
           dep.process(event)

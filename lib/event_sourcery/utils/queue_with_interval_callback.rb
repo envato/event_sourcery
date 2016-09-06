@@ -1,7 +1,7 @@
 module EventSourcery
   module Utils
     class QueueWithIntervalCallback < ::Queue
-      attr_accessor :interval_callback
+      attr_accessor :callback
 
       def initialize(callback: proc { }, callback_interval: 1, poll_interval: 0.1)
         @callback = callback

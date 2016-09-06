@@ -3,9 +3,9 @@ module EventSourcery
     class QueueWithIntervalCallback < ::Queue
       attr_accessor :interval_callback
 
-      def initialize(interval_callback: proc { }, interval: 1, poll_interval: 0.1)
-        @interval_callback = interval_callback
-        @interval = interval
+      def initialize(callback: proc { }, callback_interval: 1, poll_interval: 0.1)
+        @callback = callback
+        @callback_interval = callback_interval
         @poll_interval = poll_interval
         super()
       end
@@ -21,8 +21,8 @@ module EventSourcery
         time = Time.now
         loop do
           return pop(true) if !empty?
-          if Time.now > time + @interval
-            @interval_callback.call
+          if Time.now > time + @callback_interval
+            @callback.call
             time = Time.now
           end
           sleep @poll_interval

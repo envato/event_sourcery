@@ -21,6 +21,7 @@ module EventSourcery
           catch(:stop) {
             block.call
             loop do
+              ensure_listen_thread_alive!
               wait_for_new_event_to_appear
               clear_new_event_queue
               block.call

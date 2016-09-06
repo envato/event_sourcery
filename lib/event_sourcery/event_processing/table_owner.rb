@@ -21,7 +21,6 @@ module EventSourcery
         self.class.tables.each do |table_name, schema_block|
           @db_connection.create_table?(table_name, &schema_block)
         end
-        super
       end
 
       def reset
@@ -30,17 +29,7 @@ module EventSourcery
             @db_connection.drop_table(table_name)
           end
         end
-        super
         setup
-      end
-
-      def truncate
-        self.class.tables.each do |table_name, _|
-          @db_connection.transaction do
-            @db_connection[table_name].truncate
-            tracker.reset_last_processed_event_id(self.class.processor_name)
-          end
-        end
       end
 
       private

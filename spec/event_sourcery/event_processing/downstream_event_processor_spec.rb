@@ -33,18 +33,18 @@ RSpec.describe EventSourcery::EventProcessing::DownstreamEventProcessor do
   let(:event_sink) { EventSourcery::EventStore::EventSink.new(event_store) }
   let(:aggregate_id) { SecureRandom.uuid }
   let(:events) { [] }
-  subject(:dep) { dep_class.new(tracker: tracker, event_source: event_source, event_sink: event_sink) }
+  subject(:dep) { dep_class.new(db_connection: pg_connection, event_source: event_source, event_sink: event_sink) }
 
   context "a processor that doesn't emit events" do
     it "doesn't require an event sink" do
       expect {
-        dep_class.new(tracker: tracker, event_source: event_source)
+        dep_class.new(event_source: event_source)
       }.to_not raise_error(ArgumentError)
     end
 
     it "doesn't require an event source" do
       expect {
-        dep_class.new(tracker: tracker, event_sink: event_sink)
+        dep_class.new(event_sink: event_sink)
       }.to_not raise_error(ArgumentError)
       expect { dep.setup }.to_not raise_error
     end
@@ -53,36 +53,41 @@ RSpec.describe EventSourcery::EventProcessing::DownstreamEventProcessor do
   context 'a processor that does emit events' do
     it 'requires an event sink' do
       expect {
-        dep_class_with_emit.new(tracker, event_source, nil)
+        dep_class_with_emit.new(event_source: event_source)
       }.to raise_error(ArgumentError)
     end
 
     it 'requires an event source' do
       expect {
-        dep_class_with_emit.new(tracker, nil, event_sink)
+        dep_class_with_emit.new(event_sink: event_sink)
       }.to raise_error(ArgumentError)
     end
   end
 
-  describe '#setup' do
-    context 'a processor that emits events' do
-      it 'grabs latest event id from event source' do
-        expect(event_source).to receive(:latest_event_id)
-        dep_class_with_emit.new(tracker: tracker, event_source: event_source, event_sink: event_sink).setup
-      end
-    end
-
-    it 'sets up the tracker to ensure we have a track entry' do
-      expect(tracker).to receive(:setup).with(dep_class.processor_name)
-      dep.setup
-    end
-  end
-
   describe '#reset' do
+    let(:dep_class) {
+      Class.new do
+        include EventSourcery::EventProcessing::DownstreamEventProcessor
+
+        processes_events :terms_accepted
+        emits_events :blah
+
+        table :test_dep do
+          column :uuid, 'UUID NOT NULL'
+        end
+
+        def process(event)
+          table.insert(uuid: SecureRandom.uuid)
+        end
+      end
+    }
+
     it 'resets last processed event ID' do
+      dep.setup
       dep.process(OpenStruct.new(type: :terms_accepted, id: 1))
+      expect(pg_connection[:test_dep].count).to eq 1
       dep.reset
-      expect(tracker.last_processed_event_id(:test_processor)).to eq 0
+      expect(pg_connection[:test_dep].count).to eq 0
     end
   end
 
@@ -125,13 +130,6 @@ RSpec.describe EventSourcery::EventProcessing::DownstreamEventProcessor do
     expect(dep_class.processor_name).to eq 'EventSourcery::EventSource'
   end
 
-  describe '#last_processed_event_id' do
-    it "delegates to the tracker to get it's last processed event id" do
-      dep.process(OpenStruct.new(type: :terms_accepted, id: 1))
-      expect(dep.last_processed_event_id).to eq tracker.last_processed_event_id(dep_class.processor_name)
-    end
-  end
-
   describe '#process' do
     let(:event) { OpenStruct.new(type: :terms_accepted, id: 1) }
 
@@ -147,18 +145,6 @@ RSpec.describe EventSourcery::EventProcessing::DownstreamEventProcessor do
         dep.process(event)
         expect(dep.processed_event).to eq(nil)
       end
-
-      it "tracks the event if it doesn't care about them" do
-        expect(tracker.last_processed_event_id(dep.class.name)).to eq 0
-        dep.process(event)
-        expect(tracker.last_processed_event_id(dep.class.name)).to eq 1
-      end
-    end
-
-    it 'tracks that events have been projected using the tracker' do
-      expect(tracker.last_processed_event_id(dep.class.name)).to eq 0
-      dep.process(event)
-      expect(tracker.last_processed_event_id(dep.class.name)).to eq 1
     end
 
     context 'with a DEP that emits events' do

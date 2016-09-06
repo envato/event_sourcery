@@ -25,12 +25,7 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
   let(:tracker) { EventSourcery::EventProcessing::EventProcessorTracker.new(tracker_storage) }
   let(:events) { [] }
 
-  subject(:projector) {
-    projector_class.new(
-      tracker: tracker,
-      db_connection: connection
-    )
-  }
+  subject(:projector) { projector_class.new(db_connection: connection) }
   let(:aggregate_id) { SecureRandom.uuid }
 
   after { release_advisory_locks }
@@ -53,11 +48,6 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
       connection.execute('DROP TABLE IF EXISTS profiles')
       projector.setup
       projector.process(event)
-    end
-
-    it 'resets last processed event ID' do
-      projector.reset
-      expect(tracker.last_processed_event_id(:test_processor)).to eq 0
     end
   end
 
@@ -97,15 +87,6 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
         expect(connection[:profiles].count).to eq 0
         projector.process(event) rescue nil
         expect(connection[:profiles].count).to eq 0
-      end
-
-      it "doesn't update the tracker" do
-        expect {
-          begin
-            projector.process(event)
-          rescue
-          end
-        }.to change { tracker.last_processed_event_id(:test_processor) }.by 0
       end
     end
 

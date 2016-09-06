@@ -3,6 +3,7 @@ module EventSourcery
     module EventProcessor
       def self.included(base)
         base.extend(ClassMethods)
+        base.prepend(ProcessHandler)
       end
 
       module ClassMethods
@@ -35,21 +36,15 @@ module EventSourcery
         attr_reader :event_types
       end
 
-      def setup
-        tracker.setup(self.class.processor_name)
+      module ProcessHandler
+        def process(event)
+          @event = event
+          if self.class.processes?(event.type)
+            super(event)
+          end
+          @event = nil
+        end
       end
-
-      def reset
-        tracker.reset_last_processed_event_id(self.class.processor_name)
-      end
-
-      def last_processed_event_id
-        tracker.last_processed_event_id(self.class.processor_name)
-      end
-
-      private
-
-      attr_reader :tracker
     end
   end
 end

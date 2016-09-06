@@ -32,6 +32,14 @@ module EventSourcery
         def processor_name
           @processor_name || self.name
         end
+
+        def disable_batch_processing!
+          @batch_processing_disabled = true
+        end
+
+        def batch_processing_enabled?
+          !@batch_processing_disabled
+        end
       end
 
       module ProcessHandler

@@ -30,6 +30,10 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
 
   after { release_advisory_locks }
 
+  it 'has batch processing enabled' do
+    expect(projector_class.batch_processing_enabled?).to eq true
+  end
+
   describe '#setup' do
     before do
       connection.execute('DROP TABLE IF EXISTS profiles')

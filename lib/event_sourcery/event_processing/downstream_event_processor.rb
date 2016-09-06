@@ -7,6 +7,7 @@ module EventSourcery
         base.include(EventProcessor)
         base.extend(ClassMethods)
         base.prepend(TableOwner)
+        base.disable_batch_processing!
       end
 
       module ClassMethods

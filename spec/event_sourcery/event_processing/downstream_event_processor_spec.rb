@@ -33,6 +33,10 @@ RSpec.describe EventSourcery::EventProcessing::DownstreamEventProcessor do
   let(:events) { [] }
   subject(:dep) { dep_class.new(db_connection: pg_connection, event_source: event_source, event_sink: event_sink) }
 
+  it 'disables batch processing' do
+    expect(dep_class.batch_processing_enabled?).to eq false
+  end
+
   context "a processor that doesn't emit events" do
     it "doesn't require an event sink" do
       expect {

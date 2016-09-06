@@ -85,5 +85,17 @@ RSpec.describe EventSourcery::EventProcessing::EventProcessorManager do
         expect(@processed[:processor_2]).to eq 3
       end
     end
+
+    context 'with processors that have batch processing disabled' do
+      before do
+        processor_1.class.disable_batch_processing!
+        processor_1.class.disable_batch_processing!
+      end
+
+      it 'wraps the tracker around each event being processed' do
+        expect(tracker).to receive(:processing_event).exactly(4).times.and_yield
+        manager.process_events(events)
+      end
+    end
   end
 end

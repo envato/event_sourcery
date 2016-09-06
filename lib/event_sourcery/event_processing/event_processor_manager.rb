@@ -38,14 +38,34 @@ module EventSourcery
       def track_and_send_to_processor(event_processor, events)
         last_processed_event_id = @tracker.last_processed_event_id(event_processor.class.processor_name) || 0
         last_event_id = events.last.id
-        @tracker.processing_event(event_processor.class.processor_name, last_event_id) do
-          events.each do |event|
-            if last_processed_event_id < event.id
-              event_processor.process(event)
-            end
-          end
+        if event_processor.class.batch_processing_enabled?
+          process_in_batches(event_processor, events, last_processed_event_id, last_event_id)
+        else
+          process_one_by_one(event_processor, events, last_processed_event_id)
         end
         @on_events_processed.call(event_processor.class.processor_name, last_event_id)
+      end
+
+      def process_in_batches(event_processor, events, last_processed_event_id, last_event_id)
+        @tracker.processing_event(event_processor.class.processor_name, last_event_id) do
+          events.each do |event|
+            process_event(event_processor, event, last_processed_event_id)
+          end
+        end
+      end
+
+      def process_one_by_one(event_processor, events, last_processed_event_id)
+        events.each do |event|
+          @tracker.processing_event(event_processor.class.processor_name, event.id) do
+            process_event(event_processor, event, last_processed_event_id)
+          end
+        end
+      end
+
+      def process_event(event_processor, event, last_processed_event_id)
+        if last_processed_event_id < event.id
+          event_processor.process(event)
+        end
       end
 
       def lowest_event_id

@@ -52,7 +52,9 @@ module EventSourcery
                                 loop: loop,
                                 after_listen: after_listen,
                                 timeout: timeout) do |_channel, _pid, _payload|
-            @events_queue.push(:new_event_arrived)
+            if @events_queue.empty?
+              @events_queue.push(:new_event_arrived)
+            end
           end
         end
       end

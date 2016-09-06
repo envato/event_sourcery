@@ -51,8 +51,8 @@ module EventSourcery
           @pg_connection.listen('new_event',
                                 loop: loop,
                                 after_listen: after_listen,
-                                timeout: timeout) do |channel, pid, payload|
-            @events_queue.push(:new_event)
+                                timeout: timeout) do |_channel, _pid, _payload|
+            @events_queue.push(:new_event_arrived)
           end
         end
       end

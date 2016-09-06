@@ -6,6 +6,11 @@ module EventSourcery
         @tracker = tracker
         @event_processors = event_processors
         @event_store = event_store
+        @on_events_processed = proc { }
+      end
+
+      def on_events_processed(&block)
+        @on_events_processed = block
       end
 
       def process_events(events)
@@ -17,7 +22,6 @@ module EventSourcery
       def start!(after_listen: nil)
         setup_processors_and_trackers
         @event_store.subscribe(from_id: lowest_event_id, event_types: combined_event_types, after_listen: after_listen) do |events|
-          puts events.inspect
           process_events(events)
         end
       end
@@ -33,13 +37,15 @@ module EventSourcery
 
       def track_and_send_to_processor(event_processor, events)
         last_processed_event_id = @tracker.last_processed_event_id(event_processor.class.processor_name) || 0
-        @tracker.processing_event(event_processor.class.processor_name, events.last.id) do
+        last_event_id = events.last.id
+        @tracker.processing_event(event_processor.class.processor_name, last_event_id) do
           events.each do |event|
             if last_processed_event_id < event.id
               event_processor.process(event)
             end
           end
         end
+        @on_events_processed.call(event_processor.class.processor_name, last_event_id)
       end
 
       def lowest_event_id

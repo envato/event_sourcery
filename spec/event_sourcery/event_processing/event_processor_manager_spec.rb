@@ -70,5 +70,20 @@ RSpec.describe EventSourcery::EventProcessing::EventProcessorManager do
       expect(tracker.last_processed_event_id(processor_1.class.processor_name)).to eq 3
       expect(tracker.last_processed_event_id(processor_2.class.processor_name)).to eq 3
     end
+
+    context 'with an events callback hook' do
+      before do
+        @processed = {}
+        manager.on_events_processed do |processor_name, up_to_event_id|
+          @processed[processor_name] = up_to_event_id
+        end
+      end
+
+      it do
+        manager.process_events(events)
+        expect(@processed[:processor_1]).to eq 3
+        expect(@processed[:processor_2]).to eq 3
+      end
+    end
   end
 end

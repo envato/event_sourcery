@@ -7,8 +7,7 @@ module EventSourcery
         base.include(EventProcessor)
         base.extend(ClassMethods)
         base.prepend(TableOwner)
-        base.prepend(ProcessHandler)
-        base.prepend(EventProcessorOverrides)
+        base.disable_batch_processing!
       end
 
       module ClassMethods
@@ -29,17 +28,7 @@ module EventSourcery
         end
       end
 
-      module EventProcessorOverrides
-        def setup
-          if event_source
-            @latest_event_id_on_setup = event_source.latest_event_id
-          end
-          super
-        end
-      end
-
-      def initialize(tracker:, db_connection: nil, event_source: nil, event_sink: nil)
-        @tracker = tracker
+      def initialize(db_connection: nil, event_source: nil, event_sink: nil)
         @event_source = event_source
         @event_sink = event_sink
         @db_connection = db_connection
@@ -52,28 +41,13 @@ module EventSourcery
 
       DRIVEN_BY_EVENT_PAYLOAD_KEY = :_driven_by_event_id
 
-      module ProcessHandler
-        def process(event)
-          @event = event
-          if self.class.processes?(event.type)
-            super(event)
-          end
-          tracker.processed_event(self.class.processor_name, event.id)
-          @event = nil
-        end
-      end
-
-      def last_processed_event_id
-        tracker.last_processed_event_id(self.class.processor_name)
-      end
-
       private
 
       attr_reader :event_sink, :event_source, :event, :latest_event_id_on_setup
 
       def emit_event(aggregate_id:, type:, body: {}, &block)
         raise UndeclaredEventEmissionError unless self.class.emits_event?(type)
-        body = body.merge(DRIVEN_BY_EVENT_PAYLOAD_KEY => event.id)
+        body = body.merge(DRIVEN_BY_EVENT_PAYLOAD_KEY => @event.id)
         invoke_action_and_emit_event(aggregate_id, type, body, block)
       end
 

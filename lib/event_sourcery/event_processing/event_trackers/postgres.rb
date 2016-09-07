@@ -1,6 +1,6 @@
 module EventSourcery
   module EventProcessing
-    module EventProcessorTrackerAdapters
+    module EventTrackers
       class Postgres
         DEFAULT_TABLE_NAME = :projector_tracker
 

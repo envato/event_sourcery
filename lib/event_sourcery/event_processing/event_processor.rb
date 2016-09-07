@@ -55,6 +55,12 @@ module EventSourcery
         self.class.processor_name
       end
 
+      def process_events(events)
+        events.each do |event|
+          process(event)
+        end
+      end
+
       private
 
       attr_reader :tracker

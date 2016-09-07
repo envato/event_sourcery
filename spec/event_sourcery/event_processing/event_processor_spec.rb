@@ -5,6 +5,13 @@ RSpec.describe EventSourcery::EventProcessing::EventProcessor do
     Class.new do
       include EventSourcery::EventProcessing::EventProcessor
       instance_eval(&block) if block_given?
+
+      attr_reader :events
+
+      def process(event)
+        @events ||= []
+        @events << event
+      end
     end.new(tracker: tracker)
   end
 
@@ -21,6 +28,15 @@ RSpec.describe EventSourcery::EventProcessing::EventProcessor do
       processor = new_event_processor
       expect(processor.class.processor_name).to eq processor.class.name
       expect(processor.processor_name).to eq processor.class.name
+    end
+  end
+
+  describe '#process_events' do
+    it 'calls process for each event' do
+      event_processor = new_event_processor
+      events = [new_event, new_event]
+      event_processor.process_events(events)
+      expect(event_processor.events).to eq events
     end
   end
 end

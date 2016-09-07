@@ -24,15 +24,19 @@ module EventSourcery
           processes_event_types.include?(event_type.to_s)
         end
 
-        def processor_name=(name)
-          @processor_name = name
-        end
-
-        def processor_name
-          @processor_name || self.name
+        def processor_name(name = nil)
+          if name
+            @processor_name = name
+          else
+            @processor_name || self.name
+          end
         end
 
         attr_reader :event_types
+      end
+
+      def initialize(tracker:)
+        @tracker = tracker
       end
 
       def setup
@@ -45,6 +49,10 @@ module EventSourcery
 
       def last_processed_event_id
         tracker.last_processed_event_id(self.class.processor_name)
+      end
+
+      def processor_name
+        self.class.processor_name
       end
 
       private

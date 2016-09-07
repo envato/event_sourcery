@@ -29,4 +29,11 @@ require 'event_sourcery/utils/queue_with_interval_callback'
 require 'event_sourcery/config'
 
 module EventSourcery
+  def self.configure
+    yield config
+  end
+
+  def self.config
+    @config ||= Config.new
+  end
 end

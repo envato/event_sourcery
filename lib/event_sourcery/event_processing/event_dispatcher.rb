@@ -1,7 +1,7 @@
 module EventSourcery
   module EventProcessing
     # Responsible for sending events to processors and tracking position in the stream
-    class EventProcessorManager
+    class EventDispatcher
       def initialize(tracker:, event_processors:, event_store:)
         @tracker = tracker
         @event_processors = event_processors

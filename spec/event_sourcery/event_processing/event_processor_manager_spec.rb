@@ -1,4 +1,4 @@
-RSpec.describe EventSourcery::EventProcessing::EventProcessorManager do
+RSpec.describe EventSourcery::EventProcessing::EventDispatcher do
   subject(:manager) { described_class.new(tracker: tracker, event_processors: [processor_1, processor_2], event_store: event_store) }
   let(:event_store) { EventSourcery::EventStore::Postgres::Connection.new(pg_connection) }
   let(:tracker) { EventSourcery::EventProcessing::EventTrackers::Postgres.new(pg_connection, obtain_processor_lock: false) }

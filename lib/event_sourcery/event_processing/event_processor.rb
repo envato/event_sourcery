@@ -7,7 +7,7 @@ module EventSourcery
 
       module ClassMethods
         def processes_event_types
-          @processes_event_types ||= []
+          @processes_event_types
         end
 
         def processes_events(*event_types)

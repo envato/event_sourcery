@@ -4,9 +4,11 @@ module EventSourcery
                   :event_source,
                   :event_store,
                   :projections_database,
+                  :event_store_database,
                   :event_tracker
 
     def event_store_database=(sequel_connection)
+      @event_store_database = sequel_connection
       @event_store = EventStore::Postgres::Connection.new(sequel_connection)
       @event_sink = EventStore::EventSink.new(@event_store_connection)
       @event_source = EventStore::EventSource.new(@event_store_connection)

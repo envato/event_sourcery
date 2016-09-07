@@ -2,6 +2,14 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+echo
+echo "--- Bundling"
+echo
+
 bundle install
 
-# Do any other automated setup that you need to do here
+echo
+echo "--- Preparing databases"
+echo
+
+createdb event_sourcery_test

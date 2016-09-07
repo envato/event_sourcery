@@ -35,12 +35,12 @@ RSpec.describe EventSourcery::EventProcessing::EventDispatcher do
     let(:event_store) { double }
 
     it 'subscribes from the lowest event ID' do
-      expect(event_store).to receive(:subscribe).with(from_id: 1, event_types: nil, after_listen: nil).and_yield([new_event(id: 2)])
+      expect(event_store).to receive(:subscribe).with(from_id: 1, event_types: nil).and_yield([new_event(id: 2)])
       manager.start!
     end
 
     it 'sends events to process_events' do
-      allow(event_store).to receive(:subscribe).with(from_id: 1, event_types: nil, after_listen: nil).and_yield([new_event(id: 3)])
+      allow(event_store).to receive(:subscribe).with(from_id: 1, event_types: nil).and_yield([new_event(id: 3)])
       manager.start!
       expect(processor_1.events.count).to eq 1
       expect(processor_2.events.count).to eq 1
@@ -52,7 +52,7 @@ RSpec.describe EventSourcery::EventProcessing::EventDispatcher do
       end
 
       it 'subscribes to the combined event types of the processors' do
-        expect(event_store).to receive(:subscribe).with(from_id: 1, event_types: %w[item_added item_removed], after_listen: nil).and_yield([new_event(id: 2)])
+        expect(event_store).to receive(:subscribe).with(from_id: 1, event_types: %w[item_added item_removed]).and_yield([new_event(id: 2)])
         manager.start!
       end
     end

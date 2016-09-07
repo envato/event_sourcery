@@ -19,9 +19,9 @@ module EventSourcery
         end
       end
 
-      def start!(after_listen: nil)
+      def start!
         setup_processors_and_trackers
-        @event_store.subscribe(from_id: lowest_event_id, event_types: combined_event_types, after_listen: after_listen) do |events|
+        @event_store.subscribe(from_id: lowest_event_id, event_types: combined_event_types) do |events|
           process_events(events)
         end
       end

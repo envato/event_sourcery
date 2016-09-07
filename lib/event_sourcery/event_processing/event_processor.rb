@@ -55,6 +55,10 @@ module EventSourcery
         self.class.processor_name
       end
 
+      def processes?(event_type)
+        self.class.processes?(event_type)
+      end
+
       def process_events(events)
         events.each do |event|
           process(event)

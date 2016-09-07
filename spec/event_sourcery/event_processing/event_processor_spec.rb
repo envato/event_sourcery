@@ -31,6 +31,20 @@ RSpec.describe EventSourcery::EventProcessing::EventProcessor do
     end
   end
 
+  describe '#processes?' do
+    it 'returns true for events the processor is interested in' do
+      event_processor = new_event_processor do
+        processes_events :item_added, :item_removed
+      end
+      expect(event_processor.processes?(:item_added)).to eq true
+      expect(event_processor.processes?('item_added')).to eq true
+      expect(event_processor.processes?(:item_removed)).to eq true
+      expect(event_processor.processes?('item_removed')).to eq true
+      expect(event_processor.processes?(:blah)).to eq false
+      expect(event_processor.processes?('blah')).to eq false
+    end
+  end
+
   describe '#process_events' do
     it 'calls process for each event' do
       event_processor = new_event_processor

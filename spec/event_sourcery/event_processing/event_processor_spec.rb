@@ -12,7 +12,7 @@ RSpec.describe EventSourcery::EventProcessing::EventProcessor do
         @events ||= []
         @events << event
       end
-    end.new(tracker: tracker)
+    end.new.tap { |p| p.tracker = tracker }
   end
 
   describe '#processor_name' do
@@ -47,7 +47,9 @@ RSpec.describe EventSourcery::EventProcessing::EventProcessor do
 
   describe '#process_events' do
     it 'calls process for each event' do
-      event_processor = new_event_processor
+      event_processor = new_event_processor do
+        processes_all_events
+      end
       events = [new_event, new_event]
       event_processor.process_events(events)
       expect(event_processor.events).to eq events

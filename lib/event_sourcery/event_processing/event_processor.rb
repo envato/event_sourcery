@@ -35,10 +35,6 @@ module EventSourcery
         attr_reader :event_types
       end
 
-      def initialize(tracker:)
-        @tracker = tracker
-      end
-
       def setup
         tracker.setup(self.class.processor_name)
       end
@@ -65,9 +61,7 @@ module EventSourcery
         end
       end
 
-      private
-
-      attr_reader :tracker
+      attr_accessor :tracker
     end
   end
 end

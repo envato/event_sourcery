@@ -27,6 +27,7 @@ require 'event_sourcery/event_processing/event_reactor'
 require 'event_sourcery/event_processing/projector'
 require 'event_sourcery/utils/queue_with_interval_callback'
 require 'event_sourcery/domain/aggregate_root'
+require 'event_sourcery/domain/repository'
 
 module EventSourcery
 end

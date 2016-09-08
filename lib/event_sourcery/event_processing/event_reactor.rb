@@ -48,7 +48,12 @@ module EventSourcery
 
       attr_reader :event_sink, :event_source
 
-      def emit_event(event, &block)
+      def emit_event(event_or_hash, &block)
+        event = if Event === event_or_hash
+          event_or_hash
+        else
+          Event.new(event_or_hash)
+        end
         raise UndeclaredEventEmissionError unless self.class.emits_event?(event.type)
         body = event.body.merge(DRIVEN_BY_EVENT_PAYLOAD_KEY => _event.id)
         event = Event.new(aggregate_id: event.aggregate_id,

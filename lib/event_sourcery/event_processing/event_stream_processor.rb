@@ -1,6 +1,6 @@
 module EventSourcery
   module EventProcessing
-    module EventProcessor
+    module EventStreamProcessor
       def self.included(base)
         base.extend(ClassMethods)
         base.include(InstanceMethods)

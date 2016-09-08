@@ -1,9 +1,9 @@
-RSpec.describe EventSourcery::EventProcessing::EventProcessor do
+RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
   let(:tracker) { EventSourcery::EventProcessing::EventTrackers::Memory.new }
 
   def new_event_processor(&block)
     Class.new do
-      include EventSourcery::EventProcessing::EventProcessor
+      include EventSourcery::EventProcessing::EventStreamProcessor
       instance_eval(&block) if block_given?
 
       attr_reader :events

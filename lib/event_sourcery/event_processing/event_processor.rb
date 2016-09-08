@@ -34,15 +34,15 @@ module EventSourcery
       end
 
       def setup
-        tracker.setup(self.class.processor_name)
+        tracker.setup(processor_name)
       end
 
       def reset
-        tracker.reset_last_processed_event_id(self.class.processor_name)
+        tracker.reset_last_processed_event_id(processor_name)
       end
 
       def last_processed_event_id
-        tracker.last_processed_event_id(self.class.processor_name)
+        tracker.last_processed_event_id(processor_name)
       end
 
       def processor_name
@@ -53,13 +53,23 @@ module EventSourcery
         self.class.processes?(event_type)
       end
 
+      def subscribe_to(event_store)
+        setup
+        event_store.subscribe(from_id: last_processed_event_id,
+                              event_types: self.class.processes_event_types) do |events|
+          process_events(events)
+        end
+      end
+
+      attr_accessor :tracker
+
+      private
+
       def process_events(events)
         events.each do |event|
           process(event)
         end
       end
-
-      attr_accessor :tracker
     end
   end
 end

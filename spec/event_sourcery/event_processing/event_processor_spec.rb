@@ -45,13 +45,34 @@ RSpec.describe EventSourcery::EventProcessing::EventProcessor do
     end
   end
 
-  describe '#process_events' do
-    it 'calls process for each event' do
-      event_processor = new_event_processor do
+  describe '#subscribe_to' do
+    let(:event_store) { double(:event_store) }
+    let(:events) { [new_event, new_event] }
+    subject(:event_processor) {
+      new_event_processor do
+        processor_name 'my_processor'
         processes_all_events
       end
-      events = [new_event, new_event]
-      event_processor.process_events(events)
+    }
+
+    before do
+      allow(event_store).to receive(:subscribe).and_yield(events).once
+    end
+
+    it 'sets up the tracker' do
+      expect(tracker).to receive(:setup).with('my_processor')
+      event_processor.subscribe_to(event_store)
+    end
+
+    it 'subscribes to the event store' do
+      allow(tracker).to receive(:last_processed_event_id).with('my_processor').and_return(2)
+      expect(event_store).to receive(:subscribe).with(from_id: 2,
+                                                      event_types: nil)
+      event_processor.subscribe_to(event_store)
+    end
+
+    it 'processes events received on the subscription' do
+      event_processor.subscribe_to(event_store)
       expect(event_processor.events).to eq events
     end
   end

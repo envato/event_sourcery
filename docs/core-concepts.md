@@ -8,7 +8,7 @@ Start off by getting a handle on [CQRS](http://martinfowler.com/bliki/CQRS.html)
 
 Events represent an event that have meaning in the domain. Think of a collection of events as a time series of immutable domain facts.
 
-Events are targetted at an `aggregate`, have a `type`, an `identifier`, a `created_at` date, and a payload (aka. `body`).
+Events are targeted at an `aggregate`, have a `type`, an `identifier`, a `created_at` date, and a payload (aka. `body`).
 
 ```ruby
 module EventSourcery

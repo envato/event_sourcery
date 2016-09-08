@@ -24,8 +24,7 @@ RSpec.describe EventSourcery::EventProcessing::DownstreamEventProcessor do
     end
   }
 
-  let(:tracker_storage) { EventSourcery::EventProcessing::EventProcessorTrackerAdapters::Memory.new }
-  let(:tracker) { EventSourcery::EventProcessing::EventProcessorTracker.new(tracker_storage) }
+  let(:tracker) { EventSourcery::EventProcessing::EventTrackers::Memory.new }
   let(:dep_name) { 'my_dep' }
   let(:event_store) { EventSourcery::EventStore::Memory.new(events) }
   let(:event_source) { EventSourcery::EventStore::EventSource.new(event_store) }
@@ -65,13 +64,6 @@ RSpec.describe EventSourcery::EventProcessing::DownstreamEventProcessor do
   end
 
   describe '#setup' do
-    context 'a processor that emits events' do
-      it 'grabs latest event id from event source' do
-        expect(event_source).to receive(:latest_event_id)
-        dep_class_with_emit.new(tracker: tracker, event_source: event_source, event_sink: event_sink).setup
-      end
-    end
-
     it 'sets up the tracker to ensure we have a track entry' do
       expect(tracker).to receive(:setup).with(dep_class.processor_name)
       dep.setup
@@ -113,16 +105,6 @@ RSpec.describe EventSourcery::EventProcessing::DownstreamEventProcessor do
       expect(dep_class.emits_event?('blah')).to eq false
       expect(dep_class.emits_event?(:blah)).to eq false
     end
-  end
-
-  it 'allows setting of name' do
-    dep_class.processor_name = 'my_processor'
-    expect(dep_class.processor_name).to eq 'my_processor'
-  end
-
-  it 'has a default processor_name of the class name' do
-    allow(dep_class).to receive(:name).and_return('EventSourcery::EventSource')
-    expect(dep_class.processor_name).to eq 'EventSourcery::EventSource'
   end
 
   describe '#last_processed_event_id' do

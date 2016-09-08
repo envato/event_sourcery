@@ -2,7 +2,7 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
   let(:projector_class) {
     Class.new do
       include EventSourcery::EventProcessing::Projector
-      self.processor_name = 'test_processor'
+      processor_name 'test_processor'
 
       processes_events :terms_accepted
 
@@ -21,8 +21,7 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
     end
   }
   let(:projector_name) { 'my_projector' }
-  let(:tracker_storage) { EventSourcery::EventProcessing::EventProcessorTrackerAdapters::Postgres.new(connection) }
-  let(:tracker) { EventSourcery::EventProcessing::EventProcessorTracker.new(tracker_storage) }
+  let(:tracker) { EventSourcery::EventProcessing::EventTrackers::Postgres.new(pg_connection) }
   let(:events) { [] }
 
   subject(:projector) {
@@ -73,7 +72,7 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
       let(:projector_class) {
         Class.new do
           include EventSourcery::Projector
-          self.processor_name = 'test_processor'
+          processor_name 'test_processor'
 
           processes_events :terms_accepted
 

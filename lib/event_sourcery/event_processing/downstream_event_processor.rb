@@ -8,7 +8,6 @@ module EventSourcery
         base.extend(ClassMethods)
         base.prepend(TableOwner)
         base.prepend(ProcessHandler)
-        base.prepend(EventProcessorOverrides)
       end
 
       module ClassMethods
@@ -26,15 +25,6 @@ module EventSourcery
 
         def emits_event?(event_type)
           emit_events.include?(event_type.to_s)
-        end
-      end
-
-      module EventProcessorOverrides
-        def setup
-          if event_source
-            @latest_event_id_on_setup = event_source.latest_event_id
-          end
-          super
         end
       end
 

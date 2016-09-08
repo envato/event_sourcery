@@ -8,6 +8,7 @@ module EventSourcery
         base.extend(ClassMethods)
         base.prepend(TableOwner)
         base.prepend(ProcessHandler)
+        base.include(InstanceMethods)
       end
 
       module ClassMethods
@@ -28,14 +29,16 @@ module EventSourcery
         end
       end
 
-      def initialize(tracker:, db_connection: nil, event_source: nil, event_sink: nil)
-        @tracker = tracker
-        @event_source = event_source
-        @event_sink = event_sink
-        @db_connection = db_connection
-        if self.class.emits_events?
-          if event_sink.nil? || event_source.nil?
-            raise ArgumentError, 'An event sink and source is required for processors that emit events'
+      module InstanceMethods
+        def initialize(tracker:, db_connection: nil, event_source: nil, event_sink: nil)
+          @tracker = tracker
+          @event_source = event_source
+          @event_sink = event_sink
+          @db_connection = db_connection
+          if self.class.emits_events?
+            if event_sink.nil? || event_source.nil?
+              raise ArgumentError, 'An event sink and source is required for processors that emit events'
+            end
           end
         end
       end
@@ -51,10 +54,6 @@ module EventSourcery
           tracker.processed_event(self.class.processor_name, event.id)
           @event = nil
         end
-      end
-
-      def last_processed_event_id
-        tracker.last_processed_event_id(self.class.processor_name)
       end
 
       private

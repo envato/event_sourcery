@@ -60,6 +60,53 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
     end
   end
 
+  describe '#project' do
+    def new_projector(&block)
+      Class.new do
+        include EventSourcery::EventProcessing::Projector
+        processor_name 'test_processor'
+        processes_events :terms_accepted
+
+        table :profiles do
+          column :user_uuid, 'UUID NOT NULL'
+          column :terms_accepted, 'BOOLEAN DEFAULT FALSE'
+        end
+
+        class_eval(&block) if block_given?
+
+        attr_reader :processed_event
+      end.new(tracker: tracker, db_connection: pg_connection)
+    end
+    let(:event) { new_event(type: :terms_accepted) }
+
+    it "processes events via project method" do
+      projector = new_projector do
+        def project(event)
+          @processed_event = event
+        end
+      end
+      projector.project(event)
+      expect(projector.processed_event).to eq(event)
+    end
+
+    it 'projects with event handler methods' do
+      projector = new_projector do
+        def project_terms_accepted(event)
+          @processed_event = event
+        end
+      end
+      projector.project(event)
+      expect(projector.processed_event).to eq(event)
+    end
+
+    it 'raises if neither are defined' do
+      projector = new_projector
+      expect {
+        projector.project(event)
+      }.to raise_error(EventSourcery::UnableToProcessEventError)
+    end
+  end
+
   describe '#process' do
     let(:event) { EventSourcery::Event.new(body: {}, aggregate_id: aggregate_id, type: :terms_accepted, id: 1) }
 

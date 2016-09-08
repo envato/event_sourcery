@@ -5,6 +5,9 @@ module EventSourcery
         base.include(EventStreamProcessor)
         base.prepend(TableOwner)
         base.include(InstanceMethods)
+        base.class_eval do
+          alias project process
+        end
       end
 
       module InstanceMethods
@@ -14,6 +17,10 @@ module EventSourcery
         end
 
         private
+
+        def process_method_name
+          'project'
+        end
 
         def process_events(events)
           events.each do |event|

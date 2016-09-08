@@ -11,13 +11,19 @@ module EventSourcery
         def initialize(tracker:)
           @tracker = tracker
         end
+
+        private
+
+        def process_method_name
+          'process'
+        end
       end
 
       module ProcessHandler
         def process(event)
           @_event = event
           if self.class.processes?(event.type)
-            handler_method_name = "process_#{event.type}"
+            handler_method_name = "#{process_method_name}_#{event.type}"
             if respond_to?(handler_method_name)
               send(handler_method_name, event)
             else

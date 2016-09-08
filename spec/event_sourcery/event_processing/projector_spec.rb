@@ -68,46 +68,6 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
       expect(projector.processed_event).to eq(event)
     end
 
-    context 'when an error occurs processing the event' do
-      let(:projector_class) {
-        Class.new do
-          include EventSourcery::Projector
-          processor_name 'test_processor'
-
-          processes_events :terms_accepted
-
-          table :profiles do
-            column :user_uuid, 'UUID NOT NULL'
-            column :terms_accepted, 'BOOLEAN DEFAULT FALSE'
-          end
-
-          def process(event)
-            table.insert(user_uuid: event.aggregate_id,
-                         terms_accepted: true)
-            raise 'boo'
-          end
-
-          attr_reader :processed_event
-        end
-      }
-
-      it "the projection insert is rolled back by the transaction" do
-        connection[:profiles].delete
-        expect(connection[:profiles].count).to eq 0
-        projector.process(event) rescue nil
-        expect(connection[:profiles].count).to eq 0
-      end
-
-      it "doesn't update the tracker" do
-        expect {
-          begin
-            projector.process(event)
-          rescue
-          end
-        }.to change { tracker.last_processed_event_id(:test_processor) }.by 0
-      end
-    end
-
     context 'with more than one table' do
       let(:projector_class) {
         Class.new do
@@ -138,6 +98,58 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
         expect {
           projector.process(event)
         }.to raise_error(EventSourcery::EventProcessing::TableOwner::DefaultTableError)
+      end
+    end
+  end
+
+  describe '#subscribe_to' do
+    let(:event_store) { double(:event_store) }
+    let(:events) { [new_event(id: 1), new_event(id: 2)] }
+    let(:projector_class) {
+      Class.new do
+        include EventSourcery::EventProcessing::Projector
+        processor_name 'test_processor'
+
+        processes_events :terms_accepted
+
+        table :profiles do
+          column :user_uuid, 'UUID NOT NULL'
+          column :terms_accepted, 'BOOLEAN DEFAULT FALSE'
+        end
+
+        attr_accessor :raise_error
+
+        def process(event)
+          table.insert(user_uuid: event.aggregate_id,
+                       terms_accepted: true)
+          raise 'boo' if raise_error
+        end
+      end
+    }
+
+    before do
+      allow(event_store).to receive(:subscribe).and_yield(events).once
+      connection[:profiles].delete
+    end
+
+    context 'when an error occurs processing the event' do
+
+      it "rolls back the projected changes" do
+        projector.raise_error = true
+        projector.subscribe_to(event_store) rescue nil
+        expect(connection[:profiles].count).to eq 0
+      end
+    end
+
+    context 'when an error occurs tracking the position' do
+      before do
+        projector.raise_error = false
+        allow(tracker).to receive(:processed_event).and_raise(StandardError)
+      end
+
+      it "rolls back the projected changes" do
+        projector.subscribe_to(event_store) rescue nil
+        expect(connection[:profiles].count).to eq 0
       end
     end
   end

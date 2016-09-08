@@ -64,9 +64,9 @@ RSpec.describe EventSourcery::EventProcessing::EventProcessor do
       event_processor.subscribe_to(event_store)
     end
 
-    it 'subscribes to the event store' do
+    it 'subscribes to the event store from the last processed ID + 1' do
       allow(tracker).to receive(:last_processed_event_id).with('my_processor').and_return(2)
-      expect(event_store).to receive(:subscribe).with(from_id: 2,
+      expect(event_store).to receive(:subscribe).with(from_id: 3,
                                                       event_types: nil)
       event_processor.subscribe_to(event_store)
     end

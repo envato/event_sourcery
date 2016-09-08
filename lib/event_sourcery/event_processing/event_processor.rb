@@ -55,7 +55,7 @@ module EventSourcery
 
       def subscribe_to(event_store)
         setup
-        event_store.subscribe(from_id: last_processed_event_id,
+        event_store.subscribe(from_id: last_processed_event_id + 1,
                               event_types: self.class.processes_event_types) do |events|
           process_events(events)
         end

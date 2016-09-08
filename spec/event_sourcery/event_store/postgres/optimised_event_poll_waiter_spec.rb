@@ -2,6 +2,10 @@ RSpec.describe EventSourcery::EventStore::Postgres::OptimisedEventPollWaiter do
   let(:after_listen) { proc { } }
   subject(:waiter) { described_class.new(pg_connection: pg_connection, after_listen: after_listen) }
 
+  after do
+    waiter.shutdown!
+  end
+
   def notify_event_ids(*ids)
     ids.each do |id|
       pg_connection.notify('new_event', payload: id)

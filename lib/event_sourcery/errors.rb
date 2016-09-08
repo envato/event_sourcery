@@ -1,3 +1,5 @@
 module EventSourcery
-  UnableToLockProcessorError = Class.new(StandardError)
+  Error = Class.new(StandardError)
+  UnableToLockProcessorError = Class.new(Error)
+  UnableToProcessEventError = Class.new(Error)
 end

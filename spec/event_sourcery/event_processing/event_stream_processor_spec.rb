@@ -47,7 +47,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
 
   describe '#subscribe_to' do
     let(:event_store) { double(:event_store) }
-    let(:events) { [new_event, new_event] }
+    let(:events) { [new_event(id: 1), new_event(id: 2)] }
     subject(:event_processor) {
       new_event_processor do
         processor_name 'my_processor'
@@ -90,6 +90,12 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
     it 'processes events received on the subscription' do
       event_processor.subscribe_to(event_store)
       expect(event_processor.events).to eq events
+    end
+
+    it 'updates the tracker after each event has been processed' do
+      expect(tracker).to receive(:processed_event).with(event_processor.processor_name, events[0].id)
+      expect(tracker).to receive(:processed_event).with(event_processor.processor_name, events[1].id)
+      event_processor.subscribe_to(event_store)
     end
   end
 

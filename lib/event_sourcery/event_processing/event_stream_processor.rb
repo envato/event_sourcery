@@ -84,6 +84,7 @@ module EventSourcery
       def process_events(events)
         events.each do |event|
           process(event)
+          tracker.processed_event(processor_name, event.id)
         end
       end
     end

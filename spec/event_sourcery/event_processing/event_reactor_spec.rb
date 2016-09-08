@@ -107,40 +107,12 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
     end
   end
 
-  describe '#last_processed_event_id' do
-    it "delegates to the tracker to get it's last processed event id" do
-      dep.process(OpenStruct.new(type: :terms_accepted, id: 1))
-      expect(dep.last_processed_event_id).to eq tracker.last_processed_event_id(dep_class.processor_name)
-    end
-  end
-
   describe '#process' do
     let(:event) { OpenStruct.new(type: :terms_accepted, id: 1) }
 
     it "projects events it's interested in" do
       dep.process(event)
       expect(dep.processed_event).to eq(event)
-    end
-
-    context "with a type the EventProcessing::EventReactor isn't interested in" do
-      let(:event) { OpenStruct.new(type: :item_viewed, id: 1) }
-
-      it "doesn't process unexpected events" do
-        dep.process(event)
-        expect(dep.processed_event).to eq(nil)
-      end
-
-      it "tracks the event if it doesn't care about them" do
-        expect(tracker.last_processed_event_id(dep.class.name)).to eq 0
-        dep.process(event)
-        expect(tracker.last_processed_event_id(dep.class.name)).to eq 1
-      end
-    end
-
-    it 'tracks that events have been projected using the tracker' do
-      expect(tracker.last_processed_event_id(dep.class.name)).to eq 0
-      dep.process(event)
-      expect(tracker.last_processed_event_id(dep.class.name)).to eq 1
     end
 
     context 'with a DEP that emits events' do

@@ -7,6 +7,10 @@ module EventSourcery
         base.include(InstanceMethods)
         base.class_eval do
           alias project process
+
+          class << self
+            alias projects_events processes_events
+          end
         end
       end
 

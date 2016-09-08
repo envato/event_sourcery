@@ -23,6 +23,22 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
   let(:projector_name) { 'my_projector' }
   let(:tracker) { EventSourcery::EventProcessing::EventTrackers::Postgres.new(pg_connection) }
   let(:events) { [] }
+  def new_projector(&block)
+    Class.new do
+      include EventSourcery::EventProcessing::Projector
+      processor_name 'test_processor'
+      processes_events :terms_accepted
+
+      table :profiles do
+        column :user_uuid, 'UUID NOT NULL'
+        column :terms_accepted, 'BOOLEAN DEFAULT FALSE'
+      end
+
+      class_eval(&block) if block_given?
+
+      attr_reader :processed_event
+    end.new(tracker: tracker, db_connection: pg_connection)
+  end
 
   subject(:projector) {
     projector_class.new(
@@ -61,22 +77,6 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
   end
 
   describe '#project' do
-    def new_projector(&block)
-      Class.new do
-        include EventSourcery::EventProcessing::Projector
-        processor_name 'test_processor'
-        processes_events :terms_accepted
-
-        table :profiles do
-          column :user_uuid, 'UUID NOT NULL'
-          column :terms_accepted, 'BOOLEAN DEFAULT FALSE'
-        end
-
-        class_eval(&block) if block_given?
-
-        attr_reader :processed_event
-      end.new(tracker: tracker, db_connection: pg_connection)
-    end
     let(:event) { new_event(type: :terms_accepted) }
 
     it "processes events via project method" do
@@ -104,6 +104,16 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
       expect {
         projector.project(event)
       }.to raise_error(EventSourcery::UnableToProcessEventError)
+    end
+  end
+
+  describe '.projects_events' do
+    it 'is aliased to processes_events' do
+      projector_class = Class.new do
+        include EventSourcery::EventProcessing::Projector
+        projects_events :item_added
+      end
+      expect(projector_class.processes?(:item_added)).to eq true
     end
   end
 

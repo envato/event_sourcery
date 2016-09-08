@@ -53,10 +53,6 @@ module EventSourcery
         end
       end
 
-      def last_processed_event_id
-        tracker.last_processed_event_id(self.class.processor_name)
-      end
-
       private
 
       attr_reader :event_sink, :event_source, :event, :latest_event_id_on_setup

@@ -1,7 +1,7 @@
-RSpec.describe EventSourcery::EventProcessing::DownstreamEventProcessor do
+RSpec.describe EventSourcery::EventProcessing::EventReactor do
   let(:dep_class) {
     Class.new do
-      include EventSourcery::EventProcessing::DownstreamEventProcessor
+      include EventSourcery::EventProcessing::EventReactor
 
       processes_events :terms_accepted
 
@@ -14,7 +14,7 @@ RSpec.describe EventSourcery::EventProcessing::DownstreamEventProcessor do
   }
   let(:dep_class_with_emit) {
     Class.new do
-      include EventSourcery::EventProcessing::DownstreamEventProcessor
+      include EventSourcery::EventProcessing::EventReactor
 
       processes_events :terms_accepted
       emits_events :blah
@@ -122,7 +122,7 @@ RSpec.describe EventSourcery::EventProcessing::DownstreamEventProcessor do
       expect(dep.processed_event).to eq(event)
     end
 
-    context "with a type the EventProcessing::DownstreamEventProcessor isn't interested in" do
+    context "with a type the EventProcessing::EventReactor isn't interested in" do
       let(:event) { OpenStruct.new(type: :item_viewed, id: 1) }
 
       it "doesn't process unexpected events" do
@@ -145,11 +145,11 @@ RSpec.describe EventSourcery::EventProcessing::DownstreamEventProcessor do
 
     context 'with a DEP that emits events' do
       let(:event_1) { EventSourcery::Event.new(id: 1, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
-      let(:event_2) { EventSourcery::Event.new(id: 2, type: 'echo_event', aggregate_id: aggregate_id, body: event_1.body.merge(EventSourcery::EventProcessing::DownstreamEventProcessor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 1)) }
+      let(:event_2) { EventSourcery::Event.new(id: 2, type: 'echo_event', aggregate_id: aggregate_id, body: event_1.body.merge(EventSourcery::EventProcessing::EventReactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 1)) }
       let(:event_3) { EventSourcery::Event.new(id: 3, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
       let(:event_4) { EventSourcery::Event.new(id: 4, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
       let(:event_5) { EventSourcery::Event.new(id: 5, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
-      let(:event_6) { EventSourcery::Event.new(id: 6, type: 'echo_event', aggregate_id: aggregate_id, body: event_3.body.merge(EventSourcery::EventProcessing::DownstreamEventProcessor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 3)) }
+      let(:event_6) { EventSourcery::Event.new(id: 6, type: 'echo_event', aggregate_id: aggregate_id, body: event_3.body.merge(EventSourcery::EventProcessing::EventReactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 3)) }
       let(:events) { [event_1, event_2, event_3, event_4] }
       let(:action_stub_class) {
         Class.new do
@@ -164,7 +164,7 @@ RSpec.describe EventSourcery::EventProcessing::DownstreamEventProcessor do
       }
       let(:dep_class) {
         Class.new do
-          include EventSourcery::EventProcessing::DownstreamEventProcessor
+          include EventSourcery::EventProcessing::EventReactor
 
           processes_events :terms_accepted
           emits_events :echo_event
@@ -197,13 +197,13 @@ RSpec.describe EventSourcery::EventProcessing::DownstreamEventProcessor do
         [event_1, event_2, event_3, event_4, event_5, event_6].each do |event|
           dep.process(event)
         end
-        expect(latest_events(2).map(&:body).map{|b| b[EventSourcery::EventProcessing::DownstreamEventProcessor::DRIVEN_BY_EVENT_PAYLOAD_KEY]}).to eq [4, 5]
+        expect(latest_events(2).map(&:body).map{|b| b[EventSourcery::EventProcessing::EventReactor::DRIVEN_BY_EVENT_PAYLOAD_KEY]}).to eq [4, 5]
       end
 
       context "when the event emitted doesn't take actions" do
         let(:dep_class) {
           Class.new do
-            include EventSourcery::EventProcessing::DownstreamEventProcessor
+            include EventSourcery::EventProcessing::EventReactor
 
             processes_events :terms_accepted
             emits_events :echo_event
@@ -225,7 +225,7 @@ RSpec.describe EventSourcery::EventProcessing::DownstreamEventProcessor do
       context "when the event emitted hasn't been defined in emit_events" do
         let(:dep_class) {
           Class.new do
-            include EventSourcery::EventProcessing::DownstreamEventProcessor
+            include EventSourcery::EventProcessing::EventReactor
 
             processes_events :terms_accepted
             emits_events :echo_event
@@ -239,14 +239,14 @@ RSpec.describe EventSourcery::EventProcessing::DownstreamEventProcessor do
         it 'raises an error' do
           expect {
             dep.process(event_1)
-          }.to raise_error(EventSourcery::EventProcessing::DownstreamEventProcessor::UndeclaredEventEmissionError)
+          }.to raise_error(EventSourcery::EventProcessing::EventReactor::UndeclaredEventEmissionError)
         end
       end
 
       context 'when body is yielded to the emit block' do
         let(:dep_class) {
           Class.new do
-            include EventSourcery::EventProcessing::DownstreamEventProcessor
+            include EventSourcery::EventProcessing::EventReactor
 
             processes_events :terms_accepted
             emits_events :echo_event

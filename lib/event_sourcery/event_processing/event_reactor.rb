@@ -1,6 +1,6 @@
 module EventSourcery
   module EventProcessing
-    module DownstreamEventProcessor
+    module EventReactor
       UndeclaredEventEmissionError = Class.new(StandardError)
 
       def self.included(base)

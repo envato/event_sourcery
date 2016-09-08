@@ -48,16 +48,19 @@ module EventSourcery
 
       attr_reader :event_sink, :event_source
 
-      def emit_event(aggregate_id:, type:, body: {}, &block)
-        raise UndeclaredEventEmissionError unless self.class.emits_event?(type)
-        body = body.merge(DRIVEN_BY_EVENT_PAYLOAD_KEY => _event.id)
-        invoke_action_and_emit_event(aggregate_id, type, body, block)
+      def emit_event(event, &block)
+        raise UndeclaredEventEmissionError unless self.class.emits_event?(event.type)
+        body = event.body.merge(DRIVEN_BY_EVENT_PAYLOAD_KEY => _event.id)
+        Event.new(aggregate_id: event.aggregate_id,
+                  type: event.type,
+                  body: body)
+        invoke_action_and_emit_event(event, block)
       end
 
-      def invoke_action_and_emit_event(aggregate_id, type, body, action)
-        action.call(body) if action
+      def invoke_action_and_emit_event(event, action)
+        action.call(event.body) if action
         # TODO: emit_event should probably take an event object rather than these params
-        event_sink.sink(Event.new(aggregate_id: aggregate_id, type: type, body: body))
+        event_sink.sink(event)
       end
     end
   end

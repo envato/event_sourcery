@@ -143,7 +143,7 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
 
           def process(event)
             @event = event
-            emit_event(aggregate_id: event.aggregate_id, type: 'echo_event', body: event.body) do
+            emit_event(EventSourcery::Event.new(aggregate_id: event.aggregate_id, type: 'echo_event', body: event.body)) do
               TestActioner.action(event.id)
             end
           end
@@ -165,13 +165,6 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
         event_source.get_next_from(0, limit: 100)[-n..-1]
       end
 
-      it 'releases the clutch after it has processes the latest event captured in setup, not before' do
-        [event_1, event_2, event_3, event_4, event_5, event_6].each do |event|
-          dep.process(event)
-        end
-        expect(latest_events(2).map(&:body).map{|b| b[EventSourcery::EventProcessing::EventReactor::DRIVEN_BY_EVENT_PAYLOAD_KEY]}).to eq [4, 5]
-      end
-
       context "when the event emitted doesn't take actions" do
         let(:dep_class) {
           Class.new do
@@ -181,7 +174,7 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
             emits_events :echo_event
 
             def process(event)
-              emit_event(aggregate_id: event.aggregate_id, type: 'echo_event', body: event.body)
+              emit_event(EventSourcery::Event.new(aggregate_id: event.aggregate_id, type: 'echo_event', body: event.body))
             end
           end
         }
@@ -203,7 +196,7 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
             emits_events :echo_event
 
             def process(event)
-              emit_event(aggregate_id: event.aggregate_id, type: 'echo_event_2', body: event.body)
+              emit_event(EventSourcery::Event.new(aggregate_id: event.aggregate_id, type: 'echo_event_2', body: event.body))
             end
           end
         }
@@ -224,7 +217,7 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
             emits_events :echo_event
 
             def process(event)
-              emit_event(aggregate_id: event.aggregate_id, type: 'echo_event') do |body|
+              emit_event(EventSourcery::Event.new(aggregate_id: event.aggregate_id, type: 'echo_event')) do |body|
                 body[:token] = 'secret-identifier'
               end
             end

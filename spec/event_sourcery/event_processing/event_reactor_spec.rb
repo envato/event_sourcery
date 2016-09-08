@@ -231,6 +231,11 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
             dep.process(event_1)
             expect(latest_events(1).first.body[:token]).to eq 'secret-identifier'
           end
+
+          it 'stores the driven by event id in the body' do
+            dep.process(event_1)
+            expect(latest_events(1).first.body[:_driven_by_event_id]).to eq event_1.id
+          end
         end
 
         context 'and the clutch is down' do

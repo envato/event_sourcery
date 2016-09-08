@@ -4,14 +4,14 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
   def new_event_processor(&block)
     Class.new do
       include EventSourcery::EventProcessing::EventStreamProcessor
-      instance_eval(&block) if block_given?
-
       attr_reader :events
 
       def process(event)
         @events ||= []
         @events << event
       end
+
+      instance_eval(&block) if block_given?
     end.new(tracker: tracker)
   end
 
@@ -100,12 +100,30 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
   end
 
   describe '#process' do
+    let(:event) { new_event(type: 'item_added') }
     subject(:event_processor) {
-      new_event_processor do
+      Class.new do
+        include EventSourcery::EventProcessing::EventStreamProcessor
+        attr_reader :events
         processor_name 'my_processor'
         processes_events :item_added
-      end
+
+        attr_reader :internal_event_ref
+
+        def process(event)
+          @internal_event_ref = _event.dup
+          @events ||= []
+          @events << event
+        end
+      end.new(tracker: tracker)
     }
+
+    context 'making event available to internals' do
+      it 'makes the current event available to the instance' do
+        event_processor.process(event)
+        expect(event_processor.internal_event_ref).to eq event
+      end
+    end
 
     context "given an event the processor doesn't care about" do
       let(:event) { new_event(type: 'item_starred') }

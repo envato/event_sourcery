@@ -15,9 +15,11 @@ module EventSourcery
 
       module ProcessHandler
         def process(event)
+          @_event = event
           if self.class.processes?(event.type)
             super(event)
           end
+          @_event = nil
         end
       end
 
@@ -80,6 +82,8 @@ module EventSourcery
       attr_accessor :tracker
 
       private
+
+      attr_reader :_event
 
       def process_events(events)
         events.each do |event|

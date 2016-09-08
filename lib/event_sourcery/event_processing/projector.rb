@@ -2,7 +2,7 @@ module EventSourcery
   module EventProcessing
     module Projector
       def self.included(base)
-        base.include(EventProcessor)
+        base.include(EventStreamProcessor)
         base.prepend(TableOwner)
         base.prepend(ProcessHandler)
         base.include(InstanceMethods)

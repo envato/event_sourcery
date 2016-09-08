@@ -4,7 +4,7 @@ module EventSourcery
       UndeclaredEventEmissionError = Class.new(StandardError)
 
       def self.included(base)
-        base.include(EventProcessor)
+        base.include(EventStreamProcessor)
         base.extend(ClassMethods)
         base.prepend(TableOwner)
         base.prepend(ProcessHandler)

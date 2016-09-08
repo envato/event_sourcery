@@ -61,7 +61,6 @@ module EventSourcery
 
       def invoke_action_and_emit_event(event, action)
         action.call(event.body) if action
-        # TODO: emit_event should probably take an event object rather than these params
         event_sink.sink(event)
       end
     end

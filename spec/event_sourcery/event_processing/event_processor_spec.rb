@@ -71,6 +71,22 @@ RSpec.describe EventSourcery::EventProcessing::EventProcessor do
       event_processor.subscribe_to(event_store)
     end
 
+    context 'when processing specific event types' do
+      subject(:event_processor) {
+        new_event_processor do
+          processor_name 'my_processor'
+          processes_events :item_added
+        end
+      }
+
+      it 'subscribes to the event store for the given types' do
+        allow(tracker).to receive(:last_processed_event_id).with('my_processor').and_return(2)
+        expect(event_store).to receive(:subscribe).with(from_id: 3,
+                                                        event_types: ['item_added'])
+        event_processor.subscribe_to(event_store)
+      end
+    end
+
     it 'processes events received on the subscription' do
       event_processor.subscribe_to(event_store)
       expect(event_processor.events).to eq events

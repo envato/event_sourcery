@@ -107,40 +107,12 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
     end
   end
 
-  describe '#last_processed_event_id' do
-    it "delegates to the tracker to get it's last processed event id" do
-      dep.process(OpenStruct.new(type: :terms_accepted, id: 1))
-      expect(dep.last_processed_event_id).to eq tracker.last_processed_event_id(dep_class.processor_name)
-    end
-  end
-
   describe '#process' do
     let(:event) { OpenStruct.new(type: :terms_accepted, id: 1) }
 
     it "projects events it's interested in" do
       dep.process(event)
       expect(dep.processed_event).to eq(event)
-    end
-
-    context "with a type the EventProcessing::EventReactor isn't interested in" do
-      let(:event) { OpenStruct.new(type: :item_viewed, id: 1) }
-
-      it "doesn't process unexpected events" do
-        dep.process(event)
-        expect(dep.processed_event).to eq(nil)
-      end
-
-      it "tracks the event if it doesn't care about them" do
-        expect(tracker.last_processed_event_id(dep.class.name)).to eq 0
-        dep.process(event)
-        expect(tracker.last_processed_event_id(dep.class.name)).to eq 1
-      end
-    end
-
-    it 'tracks that events have been projected using the tracker' do
-      expect(tracker.last_processed_event_id(dep.class.name)).to eq 0
-      dep.process(event)
-      expect(tracker.last_processed_event_id(dep.class.name)).to eq 1
     end
 
     context 'with a DEP that emits events' do
@@ -171,7 +143,7 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
 
           def process(event)
             @event = event
-            emit_event(aggregate_id: event.aggregate_id, type: 'echo_event', body: event.body) do
+            emit_event(EventSourcery::Event.new(aggregate_id: event.aggregate_id, type: 'echo_event', body: event.body)) do
               TestActioner.action(event.id)
             end
           end
@@ -193,13 +165,6 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
         event_source.get_next_from(0, limit: 100)[-n..-1]
       end
 
-      it 'releases the clutch after it has processes the latest event captured in setup, not before' do
-        [event_1, event_2, event_3, event_4, event_5, event_6].each do |event|
-          dep.process(event)
-        end
-        expect(latest_events(2).map(&:body).map{|b| b[EventSourcery::EventProcessing::EventReactor::DRIVEN_BY_EVENT_PAYLOAD_KEY]}).to eq [4, 5]
-      end
-
       context "when the event emitted doesn't take actions" do
         let(:dep_class) {
           Class.new do
@@ -209,7 +174,7 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
             emits_events :echo_event
 
             def process(event)
-              emit_event(aggregate_id: event.aggregate_id, type: 'echo_event', body: event.body)
+              emit_event(EventSourcery::Event.new(aggregate_id: event.aggregate_id, type: 'echo_event', body: event.body))
             end
           end
         }
@@ -231,7 +196,7 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
             emits_events :echo_event
 
             def process(event)
-              emit_event(aggregate_id: event.aggregate_id, type: 'echo_event_2', body: event.body)
+              emit_event(EventSourcery::Event.new(aggregate_id: event.aggregate_id, type: 'echo_event_2', body: event.body))
             end
           end
         }
@@ -252,7 +217,7 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
             emits_events :echo_event
 
             def process(event)
-              emit_event(aggregate_id: event.aggregate_id, type: 'echo_event') do |body|
+              emit_event(EventSourcery::Event.new(aggregate_id: event.aggregate_id, type: 'echo_event')) do |body|
                 body[:token] = 'secret-identifier'
               end
             end

@@ -1,6 +1,6 @@
 module DBHelpers
   def pg_connection
-    @connection ||= new_connection
+    $connection ||= new_connection
   end
 
   # TODO: switch references to connection to use pg_connection instead

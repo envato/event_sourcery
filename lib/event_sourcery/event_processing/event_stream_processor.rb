@@ -4,11 +4,35 @@ module EventSourcery
       def self.included(base)
         base.extend(ClassMethods)
         base.include(InstanceMethods)
+        base.prepend(ProcessHandler)
       end
 
       module InstanceMethods
         def initialize(tracker:)
           @tracker = tracker
+        end
+
+        private
+
+        def process_method_name
+          'process'
+        end
+      end
+
+      module ProcessHandler
+        def process(event)
+          @_event = event
+          if self.class.processes?(event.type)
+            handler_method_name = "#{process_method_name}_#{event.type}"
+            if respond_to?(handler_method_name)
+              send(handler_method_name, event)
+            elsif defined?(super)
+              super(event)
+            else
+              raise UnableToProcessEventError
+            end
+          end
+          @_event = nil
         end
       end
 
@@ -72,9 +96,12 @@ module EventSourcery
 
       private
 
+      attr_reader :_event
+
       def process_events(events)
         events.each do |event|
           process(event)
+          tracker.processed_event(processor_name, event.id)
         end
       end
     end

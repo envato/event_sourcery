@@ -1,6 +1,6 @@
 # EventSourcery Core Concepts
 
-This document outlines some core concepts used by EventSourcery.
+This document outlines some core concepts in EventSourcery.
 
 Start off by getting a handle on [CQRS](http://martinfowler.com/bliki/CQRS.html) and [Event Sourcing](http://www.martinfowler.com/eaaDev/EventSourcing.html).
 

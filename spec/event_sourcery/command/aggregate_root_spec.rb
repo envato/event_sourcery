@@ -1,7 +1,7 @@
-RSpec.describe EventSourcery::Domain::AggregateRoot do
+RSpec.describe EventSourcery::Command::AggregateRoot do
   def new_aggregate(id, &block)
     Class.new do
-      include EventSourcery::Domain::AggregateRoot
+      include EventSourcery::Command::AggregateRoot
 
       def initialize(id, event_sink)
         super
@@ -35,7 +35,7 @@ RSpec.describe EventSourcery::Domain::AggregateRoot do
         events = [new_event(type: :item_removed)]
         expect {
           aggregate.load_history(events)
-        }.to raise_error(EventSourcery::Domain::AggregateRoot::UnknownEventError)
+        }.to raise_error(EventSourcery::Command::AggregateRoot::UnknownEventError)
       end
     end
   end

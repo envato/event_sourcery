@@ -1,5 +1,5 @@
 module EventSourcery
-  module Domain
+  module Command
     module AggregateRoot
       UnknownEventError = Class.new(RuntimeError)
 

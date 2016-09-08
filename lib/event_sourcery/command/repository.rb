@@ -1,5 +1,5 @@
 module EventSourcery
-  module Domain
+  module Command
     class Repository
       def self.load(aggregate_class, aggregate_id, event_source, event_sink)
         events = event_source.get_events_for_aggregate_id(aggregate_id)

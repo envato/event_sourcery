@@ -55,10 +55,7 @@ module EventSourcery
           Event.new(event_or_hash)
         end
         raise UndeclaredEventEmissionError unless self.class.emits_event?(event.type)
-        body = event.body.merge(DRIVEN_BY_EVENT_PAYLOAD_KEY => _event.id)
-        event = Event.new(aggregate_id: event.aggregate_id,
-                  type: event.type,
-                  body: body)
+        event.body.merge!(DRIVEN_BY_EVENT_PAYLOAD_KEY => _event.id)
         invoke_action_and_emit_event(event, block)
       end
 

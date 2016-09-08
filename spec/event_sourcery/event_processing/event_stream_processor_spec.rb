@@ -92,4 +92,31 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
       expect(event_processor.events).to eq events
     end
   end
+
+  describe '#process' do
+    subject(:event_processor) {
+      new_event_processor do
+        processor_name 'my_processor'
+        processes_events :item_added
+      end
+    }
+
+    context "given an event the processor doesn't care about" do
+      let(:event) { new_event(type: 'item_starred') }
+
+      it 'does not process them' do
+        event_processor.process(event)
+        expect(event_processor.events).to be_nil
+      end
+    end
+
+    context 'given an event the processor cares about' do
+      let(:event) { new_event(type: 'item_added') }
+
+      it 'processes them' do
+        event_processor.process(event)
+        expect(event_processor.events).to eq [event]
+      end
+    end
+  end
 end

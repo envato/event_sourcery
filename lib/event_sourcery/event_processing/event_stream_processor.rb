@@ -4,11 +4,20 @@ module EventSourcery
       def self.included(base)
         base.extend(ClassMethods)
         base.include(InstanceMethods)
+        base.prepend(ProcessHandler)
       end
 
       module InstanceMethods
         def initialize(tracker:)
           @tracker = tracker
+        end
+      end
+
+      module ProcessHandler
+        def process(event)
+          if self.class.processes?(event.type)
+            super(event)
+          end
         end
       end
 

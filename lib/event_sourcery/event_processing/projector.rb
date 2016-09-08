@@ -5,11 +5,14 @@ module EventSourcery
         base.include(EventProcessor)
         base.prepend(TableOwner)
         base.prepend(ProcessHandler)
+        base.include(InstanceMethods)
       end
 
-      def initialize(tracker:, db_connection:)
-        @tracker = tracker
-        @db_connection = db_connection
+      module InstanceMethods
+        def initialize(tracker:, db_connection:)
+          @tracker = tracker
+          @db_connection = db_connection
+        end
       end
 
       module ProcessHandler

@@ -12,7 +12,7 @@ RSpec.describe EventSourcery::EventProcessing::EventProcessor do
         @events ||= []
         @events << event
       end
-    end.new.tap { |p| p.tracker = tracker }
+    end.new(tracker: tracker)
   end
 
   describe '#processor_name' do

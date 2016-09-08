@@ -3,6 +3,13 @@ module EventSourcery
     module EventProcessor
       def self.included(base)
         base.extend(ClassMethods)
+        base.include(InstanceMethods)
+      end
+
+      module InstanceMethods
+        def initialize(tracker:)
+          @tracker = tracker
+        end
       end
 
       module ClassMethods

@@ -44,17 +44,17 @@ The event store can ensure serial storage of events against a specific aggregate
 
 Event Stream Processors (ESPs) subscribe to an event store. They read events from the event store and take some action.
 
-When newly created an ESP will process the event stream from the beginning. When catching up like this an ESP will process events in batches (currently set to 1,000 events). This allows them to optimise processing if desired.
+When newly created, an ESP will process the event stream from the beginning. When catching up like this an ESP can process events in batches (currently set to 1,000 events). This allows them to optimise processing as desired.
 
 ESPs track the position in the event stream that they've processed in a way that suits them. This allows for them to optimise transaction handling in the case where they are catching up for example.
 
-They provide an interface to report this position to upstream supervisors.
+They provide an interface to report their position in the stream to upstream supervisors and monitors.
 
 ## Projectors
 
 A Projector is an EventStreamProcessor that listens for events and projects data into a projection. These projections are generally consumed on the read side of the CQRS world.
 
-Projectors tend to be built for specific read-side needs. They are intended to be specific to a singular read case.
+Projectors tend to be built for specific read-side needs and are generally specific to a single read case.
 
 Modifying a projection is achieved by creating a new projector.
 
@@ -70,3 +70,7 @@ They typically record any external side effects they've triggered as events in t
 
 ![Execution](./images/event-sourcery-execution.png)
 
+## TODO
+
+- [ ] Mention the web layer
+- [ ] Mention the command side

@@ -6,12 +6,16 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
       include EventSourcery::EventProcessing::EventStreamProcessor
       attr_reader :events
 
+      def initialize(tracker:)
+        super
+        @events = []
+      end
+
       def process(event)
-        @events ||= []
         @events << event
       end
 
-      instance_eval(&block) if block_given?
+      class_eval(&block) if block_given?
     end.new(tracker: tracker)
   end
 
@@ -140,6 +144,60 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
       it 'processes them' do
         event_processor.process(event)
         expect(event_processor.events).to eq [event]
+      end
+    end
+
+    context 'event handler methods' do
+      context 'when an event handler method exists' do
+        subject(:event_processor) {
+          new_event_processor do
+            processor_name 'my_processor'
+            processes_events :item_added
+
+            def process_item_added(event)
+              @event = event
+            end
+
+            attr_reader :event
+          end
+        }
+
+        it 'is used to process the event' do
+          event_processor.process(event)
+          expect(event_processor.event).to eq event
+        end
+      end
+
+      context 'when the event handler method does not exist' do
+        context 'when a generic process method is defined' do
+          subject(:event_processor) {
+            new_event_processor do
+              processor_name 'my_processor'
+              processes_events :item_added
+            end
+          }
+
+          it 'is used to process the event' do
+            event_processor.process(event)
+            expect(event_processor.events).to eq [event]
+          end
+        end
+
+        context 'and no process method is defined' do
+          subject(:event_processor) {
+            Class.new do
+              include EventSourcery::EventProcessing::EventStreamProcessor
+              processor_name 'my_processor'
+              processes_events :item_added
+            end.new(tracker: tracker)
+          }
+
+          it 'is used to process the event' do
+            expect {
+              event_processor.process(event)
+            }.to raise_error(EventSourcery::UnableToProcessEventError)
+          end
+        end
       end
     end
   end

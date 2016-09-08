@@ -17,7 +17,16 @@ module EventSourcery
         def process(event)
           @_event = event
           if self.class.processes?(event.type)
-            super(event)
+            handler_method_name = "process_#{event.type}"
+            if respond_to?(handler_method_name)
+              send(handler_method_name, event)
+            else
+              if defined?(super)
+                super(event)
+              else
+                raise UnableToProcessEventError
+              end
+            end
           end
           @_event = nil
         end

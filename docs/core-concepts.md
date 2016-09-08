@@ -40,8 +40,6 @@ Naturally, it provides the ability to store events. The event store is append-on
 # TODO Add example of storing an event
 ```
 
-The event store provides the option to ensure serial storage of events against a specific aggregate ID. It currently achieves this via optimisitic locking.
-
 ### Reading Events
 
 The event store also allows clients to read events. Clients can poll the store for events of specific types after a specific event ID. They can also subscribe to the event store to be notified when new events are added to the event that match the above criteria.

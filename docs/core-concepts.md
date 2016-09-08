@@ -6,9 +6,9 @@ Start off by getting a handle on [CQRS](http://martinfowler.com/bliki/CQRS.html)
 
 ## Events
 
-Events represent an event that have meaning in the domain. Think of a collection of events as a time series of immutable domain facts.
+Events are objects that record something of meaning in the domain. Think of a sequence of events as a time series of immutable domain facts.
 
-Events are targeted at an `aggregate`, have a `type`, an `identifier`, a `created_at` date, and a payload (aka. `body`).
+Events are targeted at an aggregate via an `aggregate_id`, have a `type`, an `identifier`, a `created_at` date, and a payload (aka. `body`).
 
 ```ruby
 module EventSourcery
@@ -28,13 +28,23 @@ end
 
 ## EventStores
 
-The event store is a persistent store of events. It provides the ability to store and read events. It is currently implemented on top of a Postgres database.
+The event store is a persistent store of events.
 
-It is an immutable store of events. This time series of events can be viewed as a stream of events.
+EventSourcery currently supports a Postgres-based event store.
 
-Clients can poll the store for events of specific types after a specific event ID. They can also subscribe to the event store to be notified when new events are added to the event that match the above criteria.
+### Storing Events
 
-The event store can ensure serial storage of events against a specific aggregate ID. It currently achieves this via optimisitic locking.
+Naturally, it provides the ability to store events. The event store is append-only and immutable. The events in the store form a time-ordered sequence which can be viewed as a stream of events.
+
+```ruby
+# TODO Add example of storing an event
+```
+
+The event store provides the option to ensure serial storage of events against a specific aggregate ID. It currently achieves this via optimisitic locking.
+
+### Reading Events
+
+The event store also allows clients to read events. Clients can poll the store for events of specific types after a specific event ID. They can also subscribe to the event store to be notified when new events are added to the event that match the above criteria.
 
 ```ruby
 # TODO Add example of subscribing to the event store

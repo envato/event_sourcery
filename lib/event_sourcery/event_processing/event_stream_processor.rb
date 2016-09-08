@@ -26,12 +26,10 @@ module EventSourcery
             handler_method_name = "#{process_method_name}_#{event.type}"
             if respond_to?(handler_method_name)
               send(handler_method_name, event)
+            elsif defined?(super)
+              super(event)
             else
-              if defined?(super)
-                super(event)
-              else
-                raise UnableToProcessEventError
-              end
+              raise UnableToProcessEventError
             end
           end
           @_event = nil

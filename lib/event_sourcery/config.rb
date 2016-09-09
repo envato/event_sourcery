@@ -22,8 +22,8 @@ module EventSourcery
     end
 
     def logger
-      @logger = ::Logger.new(STDOUT).tap do |logger|
-        logger.level = :debug
+      @logger ||= ::Logger.new(STDOUT).tap do |logger|
+        logger.level = Logger::DEBUG
       end
     end
   end

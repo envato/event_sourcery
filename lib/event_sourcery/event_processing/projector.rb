@@ -32,6 +32,8 @@ module EventSourcery
               process(event)
               tracker.processed_event(processor_name, event.id)
             end
+            EventSourcery.logger.debug { "[#{processor_name}] Processed event: #{event.inspect}" }
+            EventSourcery.logger.info { "[#{processor_name}] Processed up to event id: #{events.last.id}" }
           end
         end
       end

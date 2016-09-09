@@ -76,6 +76,12 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
     end
   end
 
+  describe '.projector_name' do
+    it 'delegates to processor_name' do
+      expect(projector_class.projector_name).to eq 'test_processor'
+    end
+  end
+
   describe '#project' do
     let(:event) { new_event(type: :terms_accepted) }
 

@@ -29,8 +29,10 @@ module EventSourcery
         loop do
           events = @event_store.get_next_from(@current_event_id + 1, event_types: @event_types)
           break if events.empty?
+          EventSourcery.logger.debug { "New events in subscription: #{events.inspect}" }
           @on_new_events.call(events)
           @current_event_id = events.last.id
+          EventSourcery.logger.debug { "Position in stream: #{@current_event_id}" }
         end
       end
     end

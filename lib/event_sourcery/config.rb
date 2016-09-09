@@ -7,6 +7,8 @@ module EventSourcery
                   :event_store_database,
                   :event_tracker
 
+    attr_writer :logger
+
     def event_store_database=(sequel_connection)
       @event_store_database = sequel_connection
       @event_store = EventStore::Postgres::Connection.new(sequel_connection)
@@ -17,6 +19,12 @@ module EventSourcery
     def projections_database=(sequel_connection)
       @projections_database = sequel_connection
       @event_tracker = EventProcessing::EventTrackers::Postgres.new(sequel_connection)
+    end
+
+    def logger
+      @logger = ::Logger.new(STDOUT).tap do |logger|
+        logger.level = :debug
+      end
     end
   end
 end

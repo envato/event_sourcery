@@ -38,4 +38,8 @@ module EventSourcery
   def self.config
     @config ||= Config.new
   end
+
+  def self.logger
+    config.logger
+  end
 end

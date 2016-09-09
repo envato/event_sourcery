@@ -1,6 +1,6 @@
 # EventSourcery
 
-A library for building event sourced, CQRS applications.
+A framework for building event sourced, CQRS applications.
 
 ## Core Concepts
 

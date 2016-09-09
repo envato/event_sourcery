@@ -8,7 +8,7 @@ This document outlines some core concepts in EventSourcery.
 
 Events are objects that record something of meaning in the domain. Think of a sequence of events as a time series of immutable domain facts.
 
-Events are targeted at an aggregate via an `aggregate_id`, have a `type`, an `identifier`, a `created_at` date, and a payload (aka. `body`).
+Events are targeted at an aggregate via an `aggregate_id`, have a `type`, an identifier (`id`), a `created_at` date, and a payload (aka. `body`).
 
 ```ruby
 module EventSourcery

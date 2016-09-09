@@ -57,6 +57,7 @@ module EventSourcery
         raise UndeclaredEventEmissionError unless self.class.emits_event?(event.type)
         event.body.merge!(DRIVEN_BY_EVENT_PAYLOAD_KEY => _event.id)
         invoke_action_and_emit_event(event, block)
+        EventSourcery.logger.debug { "[#{self.processor_name}] Emitted event: #{event.inspect}" }
       end
 
       def invoke_action_and_emit_event(event, action)

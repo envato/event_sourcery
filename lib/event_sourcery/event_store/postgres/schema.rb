@@ -18,7 +18,7 @@ module EventSourcery
             column :body, 'json not null'
             column :version, 'bigint not null'
             column :created_at, 'timestamp without time zone not null default (now() at time zone \'utc\')'
-            index :aggregate_id
+            index [:aggregate_id, :version], unique: true
             index :type
             index :created_at
           end

@@ -2,7 +2,7 @@
 
 This document outlines some core concepts in EventSourcery.
 
-Start off by getting a handle on [CQRS](http://martinfowler.com/bliki/CQRS.html) and [Event Sourcing](http://www.martinfowler.com/eaaDev/EventSourcing.html).
+[CQRS](http://martinfowler.com/bliki/CQRS.html) and [Event Sourcing](http://www.martinfowler.com/eaaDev/EventSourcing.html) are often mentioned alongside [Domain-Driven Design](https://en.wikipedia.org/wiki/Domain-driven_design).
 
 ## Events
 

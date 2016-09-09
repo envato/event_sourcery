@@ -6,11 +6,13 @@ module EventSourcery
       def initialize(id, event_sink)
         @id = id
         @event_sink = event_sink
+        @current_version = 0
       end
 
       def load_history(events)
         events.each do |event|
           apply_event(event)
+          @current_version = event.id
         end
       end
 
@@ -24,7 +26,8 @@ module EventSourcery
           event_with_aggregate_id = Event.new(aggregate_id: @id,
                                               type: event.type,
                                               body: event.body)
-          event_sink.sink(event_with_aggregate_id)
+          event_sink.sink(event_with_aggregate_id, expected_version: @current_version)
+          @current_version += 1
         end
       end
 

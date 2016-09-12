@@ -8,8 +8,6 @@ Start off by reading about [CQRS](http://martinfowler.com/bliki/CQRS.html), [Eve
 
 Below is a high level view of a CQRS, event-sourced application built using EventSourcery. All of the pieces in blue in the diagram below are provided by EventSourcery.
 
-A typical EventSourcery application will have one or more aggregates with multiple commands and multiple projectors and event reactors running. 
-
 ![Application Tour](./images/application-tour.png)
 
 ## Web Layer
@@ -106,5 +104,8 @@ An EventSourcery application will typically have multiple ESPs running. Each ESP
 
 The web layer will take a query and pass it to the appropriate query handler. The query handler reads from a projection into a model and returns it as JSON over the web.
 
+## A Typical EventSourcery Application
+
+A typical EventSourcery application will have one or more aggregates with multiple commands and multiple projectors and event reactors running. 
 
 

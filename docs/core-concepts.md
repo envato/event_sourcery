@@ -4,28 +4,29 @@ This document outlines some core concepts in EventSourcery.
 
 Start off by reading about [CQRS](http://martinfowler.com/bliki/CQRS.html), [Event Sourcing](http://www.martinfowler.com/eaaDev/EventSourcing.html), and [Domain-Driven Design](https://en.wikipedia.org/wiki/Domain-driven_design).
 
-## System Tour
+## Tour of an EventSourcery Application
 
-Below is a high level view of a system built using EventSourcery. EventSourcery is a framework for building all of the pieces in white in the diagram below.
+Below is a high level view of a CQRS, event-sourced application built using EventSourcery. All of the pieces in blue in the diagram below are provided by EventSourcery.
 
-![System Map](./images/system-map.png)
+A typical EventSourcery application will have one or more aggregates with multiple commands and multiple projectors and event reactors running. 
+
+![Application Tour](./images/application-tour.png)
 
 ## Web Layer
 
-EventSourcery's primary channel for interacting with clients is a web interface. EventSourcery uses Sinatra to provide a web layer in front of Command and Query handlers.
+EventSourcery's primary channel for interacting with clients is via HTTP. EventSourcery uses Sinatra to provide a web layer in front of command and query handlers.
 
-## Commands
+## Aggregates and Command Handling
 
-A larger unit of encapsulation than just a class. Every transaction is scoped to a single aggregate. The lifetimes of the components of an aggregate are bounded by the lifetime of the entire aggregate.
+> An aggregate is a cluster of domain objects that can be treated as a single unit. Every transaction is scoped to a single aggregate. An aggregate will have one of its component objects be the aggregate root. Any references from outside the aggregate should only go to the aggregate root. The root can thus ensure the integrity of the aggregate as a whole.
+>
+> <cite>— [DDD Aggregate](http://martinfowler.com/bliki/DDD_Aggregate.html)</cite>
 
-Concretely, an aggregate will handle commands, apply events, and have a state model encapsulated within it that allows it to implement the required command validation, thus upholding the invariants (business rules) of the aggregate.
+Clients execute domain transactions against the system by issuing commands against aggregates.
 
-Clients make changes to the system by issuing commands against aggregates. Commands are handled by CommandHandlers.
+The web layer will take a command and pass it to the appropriate command handler. The command handler instantiates the aggregate in question and defers to it to process the command.
 
-The general flow is 
-
-## AggregateRoots
-
+When created, an aggregate loads its state by loading all events that pertain to it from the event store. The aggregate then processes the command by either rejecting it or accepting it. The aggregate emits events into the event store when it successfully processes a command.
 
 ## Events
 
@@ -49,7 +50,7 @@ module EventSourcery
 end
 ```
 
-## EventStores
+## The Event Store
 
 The event store is a persistent store of events.
 
@@ -59,21 +60,19 @@ EventSourcery currently supports a Postgres-based event store.
 
 Naturally, it provides the ability to store events. The event store is append-only and immutable. The events in the store form a time-ordered sequence which can be viewed as a stream of events.
 
-```ruby
-# TODO Add example of storing an event
-```
-
-EventStore clients can optionally provide an expected version of event when calling store. This provides a mechanism for EventStore clients to effectively serialise the processing they perform against an instance of an aggregate.
+EventStore clients can optionally provide an expected version of event when saving to the store. This provides a mechanism for EventStore clients to effectively serialise the processing they perform against an instance of an aggregate.
 
 ### Reading Events
 
 The event store also allows clients to read events. Clients can poll the store for events of specific types after a specific event ID. They can also subscribe to the event store to be notified when new events are added to the event that match the above criteria.
 
-```ruby
-# TODO Add example of subscribing to the event store
-```
+## Event Processing
 
-## Event Stream Processors
+A central part of EventSourcery is the processing of events in the store. We'll cover the concepts involved in event processing.
+
+![Event Processing Concepts](./images/event-processing-concepts.png)
+
+### Event Stream Processors
 
 Event Stream Processors (ESPs) subscribe to an event store. They read events from the event store and take some action.
 
@@ -83,9 +82,7 @@ ESPs track the position in the event stream that they've processed in a way that
 
 They provide an interface to report their position in the stream to upstream supervisors and monitors.
 
-![Concepts](./images/concepts.png)
-
-## Projectors
+### Projectors
 
 A Projector is an EventStreamProcessor that listens for events and projects data into a projection. These projections are generally consumed on the read side of the CQRS world.
 
@@ -93,14 +90,21 @@ Projectors tend to be built for specific read-side needs and are generally speci
 
 Modifying a projection is achieved by creating a new projector.
 
-## EventReactors
+### EventReactors
 
 An EventReactor is an EventStreamProcessor that listens to events and emits events back into the store and/or trigger side effects in the world.
 
 They typically record any external side effects they've triggered as events in the store.
 
-## Diagrams
+### Running Multiple ESPs
 
-![Execution](./images/process-view.png)
+An EventSourcery application will typically have multiple ESPs running. Each ESP runs in its own thread so each can process the event store independently.
+
+![Process View](./images/process-view.png)
+
+## Query Handlers
+
+The web layer will take a query and pass it to the appropriate query handler. The query handler reads from a projection into a model and returns it as JSON over the web.
+
 
 

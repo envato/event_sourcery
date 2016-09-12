@@ -102,7 +102,9 @@ module EventSourcery
         events.each do |event|
           process(event)
           tracker.processed_event(processor_name, event.id)
+          EventSourcery.logger.debug { "[#{processor_name}] Processed event: #{event.inspect}" }
         end
+        EventSourcery.logger.info { "[#{processor_name}] Processed up to event id: #{events.last.id}" }
       end
     end
   end

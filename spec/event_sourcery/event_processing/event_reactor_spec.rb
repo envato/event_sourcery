@@ -209,6 +209,7 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
       end
 
       context 'when body is yielded to the emit block' do
+        let(:events) { [] }
         let(:dep_class) {
           Class.new do
             include EventSourcery::EventProcessing::EventReactor
@@ -224,32 +225,35 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
           end
         }
 
-        context 'and the clutch is up' do
-          let(:events) { [] }
-
-          it 'can manupulate the event body as part of the action' do
-            dep.process(event_1)
-            expect(latest_events(1).first.body[:token]).to eq 'secret-identifier'
-          end
+        it 'can manupulate the event body as part of the action' do
+          dep.process(event_1)
+          expect(latest_events(1).first.body[:token]).to eq 'secret-identifier'
         end
 
-        context 'and the clutch is down' do
-          it "doesn't manipulate events that are already emitted" do
-            [event_1, event_2, event_3, event_4].each do |event|
-              dep.process(event)
-            end
-            event_tokens = event_source.get_next_from(0, limit: 4).map {|e| e.body[:token] }.compact
-            expect(event_tokens).to eq []
-          end
-
-          it 'can manupulate the event body as part of the action' do
-            [event_1, event_2, event_3, event_4].each do |event|
-              dep.process(event)
-            end
-            dep.process(event_5)
-            expect(latest_events(1).first.body[:token]).to eq 'secret-identifier'
-          end
+        it 'stores the driven by event id in the body' do
+          dep.process(event_1)
+          expect(latest_events(1).first.body[:_driven_by_event_id]).to eq event_1.id
         end
+      end
+
+      it 'can emit events with a hash instead of an event object' do
+        dep = Class.new do
+          include EventSourcery::EventProcessing::EventReactor
+
+          processes_events :terms_accepted
+          emits_events :echo_event
+
+          def process(event)
+            emit_event(aggregate_id: event.aggregate_id, type: 'echo_event') do |body|
+              body[:token] = 'secret-identifier'
+            end
+          end
+        end.new(tracker: tracker, event_source: event_source, event_sink: event_sink)
+        event = new_event(id: 1, type: :terms_accepted, aggregate_id: SecureRandom.uuid)
+        dep.process(event)
+        expect(latest_events(1).first.body[:_driven_by_event_id]).to eq event.id
+        expect(latest_events(1).first.body[:token]).to eq 'secret-identifier'
+        expect(latest_events(1).first.aggregate_id).to eq event.aggregate_id
       end
     end
   end

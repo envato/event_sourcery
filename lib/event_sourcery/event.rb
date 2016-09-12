@@ -9,5 +9,9 @@ module EventSourcery
       attribute :body, Hash
       attribute :created_at, Time
     end
+
+    def persisted?
+      !id.nil?
+    end
   end
 end

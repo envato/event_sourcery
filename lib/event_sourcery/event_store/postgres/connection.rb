@@ -17,6 +17,7 @@ module EventSourcery
                    body: ::Sequel.pg_json(event.body))
           event_id = result.first.fetch(:id)
           @pg_connection.notify('new_event', payload: event_id)
+          EventSourcery.logger.debug { "Saved event: #{event.inspect}" }
           true
         end
 

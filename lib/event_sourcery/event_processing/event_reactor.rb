@@ -48,18 +48,20 @@ module EventSourcery
 
       attr_reader :event_sink, :event_source
 
-      def emit_event(event, &block)
+      def emit_event(event_or_hash, &block)
+        event = if Event === event_or_hash
+          event_or_hash
+        else
+          Event.new(event_or_hash)
+        end
         raise UndeclaredEventEmissionError unless self.class.emits_event?(event.type)
-        body = event.body.merge(DRIVEN_BY_EVENT_PAYLOAD_KEY => _event.id)
-        Event.new(aggregate_id: event.aggregate_id,
-                  type: event.type,
-                  body: body)
+        event.body.merge!(DRIVEN_BY_EVENT_PAYLOAD_KEY => _event.id)
         invoke_action_and_emit_event(event, block)
+        EventSourcery.logger.debug { "[#{self.processor_name}] Emitted event: #{event.inspect}" }
       end
 
       def invoke_action_and_emit_event(event, action)
         action.call(event.body) if action
-        # TODO: emit_event should probably take an event object rather than these params
         event_sink.sink(event)
       end
     end

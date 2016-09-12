@@ -2,7 +2,30 @@
 
 This document outlines some core concepts in EventSourcery.
 
-[CQRS](http://martinfowler.com/bliki/CQRS.html) and [Event Sourcing](http://www.martinfowler.com/eaaDev/EventSourcing.html) are often mentioned alongside [Domain-Driven Design](https://en.wikipedia.org/wiki/Domain-driven_design).
+Start off by reading about [CQRS](http://martinfowler.com/bliki/CQRS.html), [Event Sourcing](http://www.martinfowler.com/eaaDev/EventSourcing.html), and [Domain-Driven Design](https://en.wikipedia.org/wiki/Domain-driven_design).
+
+## System Tour
+
+Below is a high level view of a system built using EventSourcery. EventSourcery is a framework for building all of the pieces in white in the diagram below.
+
+![System Map](./images/system-map.png)
+
+## Web Layer
+
+EventSourcery's primary channel for interacting with clients is a web interface. EventSourcery uses Sinatra to provide a web layer in front of Command and Query handlers.
+
+## Commands
+
+A larger unit of encapsulation than just a class. Every transaction is scoped to a single aggregate. The lifetimes of the components of an aggregate are bounded by the lifetime of the entire aggregate.
+
+Concretely, an aggregate will handle commands, apply events, and have a state model encapsulated within it that allows it to implement the required command validation, thus upholding the invariants (business rules) of the aggregate.
+
+Clients make changes to the system by issuing commands against aggregates. Commands are handled by CommandHandlers.
+
+The general flow is 
+
+## AggregateRoots
+
 
 ## Events
 
@@ -40,6 +63,8 @@ Naturally, it provides the ability to store events. The event store is append-on
 # TODO Add example of storing an event
 ```
 
+EventStore clients can optionally provide an expected version of event when calling store. This provides a mechanism for EventStore clients to effectively serialise the processing they perform against an instance of an aggregate.
+
 ### Reading Events
 
 The event store also allows clients to read events. Clients can poll the store for events of specific types after a specific event ID. They can also subscribe to the event store to be notified when new events are added to the event that match the above criteria.
@@ -58,6 +83,8 @@ ESPs track the position in the event stream that they've processed in a way that
 
 They provide an interface to report their position in the stream to upstream supervisors and monitors.
 
+![Concepts](./images/concepts.png)
+
 ## Projectors
 
 A Projector is an EventStreamProcessor that listens for events and projects data into a projection. These projections are generally consumed on the read side of the CQRS world.
@@ -74,11 +101,6 @@ They typically record any external side effects they've triggered as events in t
 
 ## Diagrams
 
-![Concepts](./images/event-sourcery-concepts.png)
+![Execution](./images/process-view.png)
 
-![Execution](./images/event-sourcery-execution.png)
 
-## TODO
-
-- [ ] Mention the web layer
-- [ ] Mention the command side

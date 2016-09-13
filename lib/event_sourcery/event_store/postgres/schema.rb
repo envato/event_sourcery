@@ -60,7 +60,6 @@ begin
       if not found then
         -- version was not at expected_version, raise an error
         raise 'Concurrency conflict. Current version: %, expected version: %', currentVersion, _expectedVersion;
-        rollback;
       end if;
     end if;
   end if;

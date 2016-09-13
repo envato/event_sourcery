@@ -46,10 +46,10 @@ begin
     if _expectedVersion = 0 or _expectedVersion is null then
       -- set the version to 1 if expected version is null or 0
       insert into aggregates(aggregate_id, type, version) values(_aggregateId, _aggregateType, 1);
+      currentVersion := 0;
     else
       raise 'Concurrency conflict. Current version: 0, expected version: %', _expectedVersion;
     end if;
-    currentVersion := 0;
   else
     if _expectedVersion is null then
       -- automatically increment the version

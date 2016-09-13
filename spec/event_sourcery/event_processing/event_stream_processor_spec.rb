@@ -26,7 +26,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
       include EventSourcery::EventProcessing::EventStreamProcessor
       processor_name 'test'
     end
-    expect(registry.find('test')).to eq esb
+    expect(registry.find('test')).to eq esp
   end
 
   describe '#processor_name' do

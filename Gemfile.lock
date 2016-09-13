@@ -4,7 +4,7 @@ PATH
     event_sourcery (0.1.0)
       pg
       rollbar
-      sequel
+      sequel (~> 4.38.0)
       virtus
 
 GEM

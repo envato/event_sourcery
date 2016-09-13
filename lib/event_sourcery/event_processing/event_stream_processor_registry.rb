@@ -15,6 +15,18 @@ module EventSourcery
         end
       end
 
+      def projectors
+        @processors.select do |processor|
+          processor.included_modules.include?(EventSourcery::EventProcessing::Projector)
+        end
+      end
+
+      def event_reactors
+        @processors.select do |processor|
+          processor.included_modules.include?(EventSourcery::EventProcessing::EventReactor)
+        end
+      end
+
       def all
         @processors
       end

@@ -1,18 +1,27 @@
 RSpec.describe EventSourcery::EventProcessing::EventStreamProcessorRegistry do
   subject(:registry) { described_class.new }
-  let(:processor_1) { double(:processor_1, processor_name: 'processor_1') }
-  let(:processor_2) { double(:processor_2, processor_name: 'processor_2') }
+  let(:projector) { Class.new { include EventSourcery::EventProcessing::Projector; processor_name 'projector' } }
+  let(:event_reactor) { Class.new { include EventSourcery::EventProcessing::EventReactor; processor_name 'event_reactor' } }
 
   before do
-    registry.register(processor_1)
-    registry.register(processor_2)
+    registry.register(projector)
+    registry.register(event_reactor)
   end
 
   it 'registers ESPs by processor_name' do
-    expect(registry.find('processor_1')).to eq processor_1
+    expect(registry.find('projector')).to eq projector
+    expect(registry.find('event_reactor')).to eq event_reactor
   end
 
   it 'returns all ESPs' do
-    expect(registry.all).to eq [processor_1, processor_2]
+    expect(registry.all).to eq [projector, event_reactor]
+  end
+
+  it 'can filter to projectors' do
+    expect(registry.projectors).to eq [projector]
+  end
+
+  it 'can filter to event reactors' do
+    expect(registry.event_reactors).to eq [event_reactor]
   end
 end

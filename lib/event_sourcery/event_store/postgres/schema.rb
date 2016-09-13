@@ -53,7 +53,7 @@ begin
   else
     if _expectedVersion is null then
       -- automatically increment the version
-      update aggregates set version = version + 1 where aggregate_id = _aggregateId returning version into _expectedVersion;
+      update aggregates set version = version + 1 where aggregate_id = _aggregateId;
     else
       -- increment the version if it's at our expected versionn
       update aggregates set version = version + 1 where aggregate_id = _aggregateId and version = _expectedVersion;

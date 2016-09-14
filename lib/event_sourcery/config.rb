@@ -19,8 +19,8 @@ module EventSourcery
     def event_store_database=(sequel_connection)
       @event_store_database = sequel_connection
       @event_store = EventStore::Postgres::Connection.new(sequel_connection)
-      @event_sink = EventStore::EventSink.new(@event_store_connection)
-      @event_source = EventStore::EventSource.new(@event_store_connection)
+      @event_sink = EventStore::EventSink.new(@event_store)
+      @event_source = EventStore::EventSource.new(@event_store)
     end
 
     def projections_database=(sequel_connection)

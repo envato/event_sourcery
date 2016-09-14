@@ -10,7 +10,8 @@ module EventSourcery
                      :get_next_from,
                      :latest_event_id,
                      :get_events_for_aggregate_id,
-                     :each_by_range
+                     :each_by_range,
+                     :subscribe
 
       private
 

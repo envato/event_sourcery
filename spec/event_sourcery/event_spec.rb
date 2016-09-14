@@ -10,28 +10,13 @@ RSpec.describe EventSourcery::Event do
   describe '#initialize' do
     subject(:initializer) { described_class.new(aggregate_id: aggregate_id, type: type, body: body) }
 
-    it 'converts body keys to strings' do
-      expect(initializer.body.keys).to eq ["symbol"]
+    before do
+      allow(EventSourcery::EventBodySerializer).to receive(:serialize)
     end
 
-    context 'key already a string' do
-      let(:body) do
-        {
-          "string" => "value",
-        }
-      end
-
-      it 'keeps string keys in body as strings' do
-        expect(initializer.body.keys).to eq ["string"]
-      end
-    end
-
-    context 'body is nil' do
-      let(:body) { nil }
-
-      it 'body is nil' do
-        expect(initializer.body).to be_nil
-      end
+    it 'serializes event body' do
+      expect(EventSourcery::EventBodySerializer).to receive(:serialize).with(body)
+      initializer
     end
   end
 

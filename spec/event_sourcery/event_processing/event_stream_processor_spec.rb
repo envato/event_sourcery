@@ -19,6 +19,16 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
     end.new(tracker: tracker)
   end
 
+  it 'registers with the ESP registry' do
+    registry = EventSourcery::EventProcessing::EventStreamProcessorRegistry.new
+    allow(EventSourcery).to receive(:event_stream_processor_registry).and_return(registry)
+    esp = Class.new do
+      include EventSourcery::EventProcessing::EventStreamProcessor
+      processor_name 'test'
+    end
+    expect(registry.find('test')).to eq esp
+  end
+
   describe '#processor_name' do
     it 'sets processor name' do
       processor = new_event_processor do

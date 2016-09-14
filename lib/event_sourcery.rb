@@ -24,6 +24,7 @@ require 'event_sourcery/event_processing/event_trackers/postgres'
 require 'event_sourcery/event_processing/event_stream_processor'
 require 'event_sourcery/event_processing/table_owner'
 require 'event_sourcery/event_processing/event_reactor'
+require 'event_sourcery/event_processing/event_stream_processor_registry'
 require 'event_sourcery/event_processing/projector'
 require 'event_sourcery/utils/queue_with_interval_callback'
 require 'event_sourcery/config'
@@ -41,5 +42,9 @@ module EventSourcery
 
   def self.logger
     config.logger
+  end
+
+  def self.event_stream_processor_registry
+    @event_stream_processor_registry ||= EventProcessing::EventStreamProcessorRegistry.new
   end
 end

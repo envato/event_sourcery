@@ -22,7 +22,7 @@ RSpec.describe EventSourcery::Command::Repository do
   end
 
   it 'news up an aggregate and loads history' do
-    aggregate = described_class.load(aggregate_class, aggregate_id, event_store, event_sink)
+    aggregate = described_class.load(aggregate_class, aggregate_id, event_source: event_store, event_sink: event_sink)
     expect(aggregate.item_added_events).to eq event_store.get_events_for_aggregate_id(aggregate_id)
   end
 end

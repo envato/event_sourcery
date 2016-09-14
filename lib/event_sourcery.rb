@@ -28,6 +28,7 @@ require 'event_sourcery/event_processing/event_stream_processor_registry'
 require 'event_sourcery/event_processing/projector'
 require 'event_sourcery/utils/queue_with_interval_callback'
 require 'event_sourcery/config'
+require 'event_sourcery/event_body_serializer'
 require 'event_sourcery/command/aggregate_root'
 require 'event_sourcery/command/repository'
 

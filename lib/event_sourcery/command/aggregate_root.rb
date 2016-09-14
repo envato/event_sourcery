@@ -3,9 +3,10 @@ module EventSourcery
     module AggregateRoot
       UnknownEventError = Class.new(RuntimeError)
 
-      def initialize(id, event_sink)
+      def initialize(id, event_sink, on_unknown_event: EventSourcery.config.on_unknown_event)
         @id = id
         @event_sink = event_sink
+        @on_unknown_event = on_unknown_event
       end
 
       def load_history(events)
@@ -34,7 +35,7 @@ module EventSourcery
         if respond_to?(method_name, true)
           send(method_name, event)
         else
-          raise UnknownEventError.new("#{event.type} is unknown to #{self.class.name}")
+          @on_unknown_event.call(event)
         end
       end
     end

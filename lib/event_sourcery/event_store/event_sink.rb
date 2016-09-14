@@ -1,16 +1,16 @@
 module EventSourcery
   module EventStore
     class EventSink
-      def initialize(adapter)
-        @adapter = adapter
+      def initialize(event_store)
+        @event_store = event_store
       end
 
       extend Forwardable
-      def_delegators :adapter, :sink
+      def_delegators :event_store, :sink
 
       private
 
-      attr_reader :adapter
+      attr_reader :event_store
     end
   end
 end

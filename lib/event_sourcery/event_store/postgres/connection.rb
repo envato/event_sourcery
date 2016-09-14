@@ -10,11 +10,12 @@ module EventSourcery
         end
 
         def sink(event)
+          serialized_body = EventBodySerializer.serialize(event.body)
           result = events_table.
             returning(:id).
             insert(aggregate_id: event.aggregate_id,
                    type: event.type.to_s,
-                   body: ::Sequel.pg_json(event.body))
+                   body: ::Sequel.pg_json(serialized_body))
           event_id = result.first.fetch(:id)
           @pg_connection.notify('new_event', payload: event_id)
           EventSourcery.logger.debug { "Saved event: #{event.inspect}" }

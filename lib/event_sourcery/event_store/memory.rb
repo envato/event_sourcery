@@ -9,11 +9,12 @@ module EventSourcery
 
       def sink(event)
         id = @events.size + 1
+        serialized_body = EventBodySerializer.serialize(event.body)
         @events << EventSourcery::Event.new(
           id: id,
           aggregate_id: event.aggregate_id,
           type: event.type,
-          body: event.body,
+          body: serialized_body,
           created_at: Time.now
         )
         true

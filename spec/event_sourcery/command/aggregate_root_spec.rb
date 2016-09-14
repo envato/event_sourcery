@@ -56,14 +56,14 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
     it 'updates state' do
       event = aggregate.item_added_events.first
       expect(event.type).to eq 'item_added'
-      expect(event.body).to eq(id: 1234)
+      expect(event.body).to eq("id" => 1234)
     end
 
     it 'saves the event' do
       emitted_event = event_store.get_next_from(0).first
       expect(emitted_event.id).to eq 1
       expect(emitted_event.type).to eq 'item_added'
-      expect(emitted_event.body).to eq(id: 1234)
+      expect(emitted_event.body).to eq("id" => 1234)
       expect(emitted_event.aggregate_id).to eq '123'
     end
   end

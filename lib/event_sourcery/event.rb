@@ -3,7 +3,7 @@ module EventSourcery
     include Virtus.value_object
 
     def initialize(**hash)
-      hash[:body] = EventSourcery::EventBodySerializer.serialize(hash[:body])
+      hash[:body] = EventSourcery::EventBodySerializer.serialize(hash[:body]) if hash[:body]
       super
     end
 

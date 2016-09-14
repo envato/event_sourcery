@@ -18,6 +18,15 @@ RSpec.describe EventSourcery::Event do
       expect(EventSourcery::EventBodySerializer).to receive(:serialize).with(body)
       initializer
     end
+
+    context 'event body is nil' do
+      let(:body) { nil }
+
+      it 'skips serialization of event body' do
+        expect(EventSourcery::EventBodySerializer).to_not receive(:serialize)
+        initializer
+      end
+    end
   end
 
   context 'equality' do

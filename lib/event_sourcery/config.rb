@@ -5,9 +5,16 @@ module EventSourcery
                   :event_store,
                   :projections_database,
                   :event_store_database,
-                  :event_tracker
+                  :event_tracker,
+                  :on_unknown_event
 
     attr_writer :logger
+
+    def initialize
+      @on_unknown_event = proc { |event|
+        raise Command::AggregateRoot::UnknownEventError.new("#{event.type} is unknown to #{self.class.name}")
+      }
+    end
 
     def event_store_database=(sequel_connection)
       @event_store_database = sequel_connection

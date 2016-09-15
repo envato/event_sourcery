@@ -36,7 +36,7 @@ module EventSourcery
 
     def serialize_hash(hash)
       hash.each_with_object({}) do |(key, value), memo|
-        memo[key] = serialize_object(value)
+        memo[key.to_s] = serialize_object(value)
       end
     end
 

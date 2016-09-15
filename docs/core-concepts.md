@@ -6,7 +6,7 @@ Start off by reading about [CQRS](http://martinfowler.com/bliki/CQRS.html), [Eve
 
 ## Tour of an EventSourcery Application
 
-Below is a high level view of a CQRS, event-sourced application built using EventSourcery. All of the pieces in blue in the diagram below are provided by EventSourcery.
+Below is a high level view of a CQRS, event-sourced application built using EventSourcery. The pieces in blue in the diagram below can be created using building blocks provided by EventSourcery.
 
 ![Application Tour](./images/application-tour.png)
 

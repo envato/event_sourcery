@@ -15,6 +15,13 @@ RSpec.shared_examples 'an event store' do
       expect(event_store.sink(new_event)).to eq true
     end
 
+    it 'serializes the event body' do
+      time = Time.now
+      event = new_event(body: { 'time' => time })
+      expect(event_store.sink(event)).to eq true
+      expect(event_store.get_next_from(1, limit: 1).first.body).to eq('time' => time.iso8601)
+    end
+
     context 'with no existing aggregate stream' do
       it 'saves an event' do
         event = new_event(aggregate_id: aggregate_id,

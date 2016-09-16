@@ -1,20 +1,21 @@
 module EventSourcery
   module EventStore
     class EventSource
-      def initialize(adapter)
-        @adapter = adapter
+      def initialize(event_store)
+        @event_store = event_store
       end
 
       extend Forwardable
-      def_delegators :adapter,
+      def_delegators :event_store,
                      :get_next_from,
                      :latest_event_id,
                      :get_events_for_aggregate_id,
-                     :each_by_range
+                     :each_by_range,
+                     :subscribe
 
       private
 
-      attr_reader :adapter
+      attr_reader :event_store
     end
   end
 end

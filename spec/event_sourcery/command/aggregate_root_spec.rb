@@ -54,7 +54,7 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
       aggregate.add_item(OpenStruct.new(id: 1234))
       event = aggregate.item_added_events.first
       expect(event.type).to eq 'item_added'
-      expect(event.body).to eq(id: 1234)
+      expect(event.body).to eq("id" => 1234)
     end
 
     it 'saves the event with an initial version' do

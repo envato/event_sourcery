@@ -5,6 +5,7 @@ module EventSourcery
         base.extend(ClassMethods)
         base.include(InstanceMethods)
         base.prepend(ProcessHandler)
+        EventSourcery.event_stream_processor_registry.register(base)
       end
 
       module InstanceMethods

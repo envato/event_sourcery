@@ -227,12 +227,12 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
 
         it 'can manupulate the event body as part of the action' do
           dep.process(event_1)
-          expect(latest_events(1).first.body[:token]).to eq 'secret-identifier'
+          expect(latest_events(1).first.body["token"]).to eq 'secret-identifier'
         end
 
         it 'stores the driven by event id in the body' do
           dep.process(event_1)
-          expect(latest_events(1).first.body[:_driven_by_event_id]).to eq event_1.id
+          expect(latest_events(1).first.body["_driven_by_event_id"]).to eq event_1.id
         end
       end
 
@@ -251,8 +251,8 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
         end.new(tracker: tracker, event_source: event_source, event_sink: event_sink)
         event = new_event(id: 1, type: :terms_accepted, aggregate_id: SecureRandom.uuid)
         dep.process(event)
-        expect(latest_events(1).first.body[:_driven_by_event_id]).to eq event.id
-        expect(latest_events(1).first.body[:token]).to eq 'secret-identifier'
+        expect(latest_events(1).first.body["_driven_by_event_id"]).to eq event.id
+        expect(latest_events(1).first.body["token"]).to eq 'secret-identifier'
         expect(latest_events(1).first.aggregate_id).to eq event.aggregate_id
       end
     end

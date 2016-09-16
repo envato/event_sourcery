@@ -6,7 +6,8 @@ module EventSourcery
                   :projections_database,
                   :event_store_database,
                   :event_tracker,
-                  :on_unknown_event
+                  :on_unknown_event,
+                  :use_optimistic_concurrency
 
     attr_writer :logger
 
@@ -14,6 +15,7 @@ module EventSourcery
       @on_unknown_event = proc { |event|
         raise Command::AggregateRoot::UnknownEventError.new("#{event.type} is unknown to #{self.class.name}")
       }
+      @use_optimistic_concurrency = true
     end
 
     def event_store_database=(sequel_connection)

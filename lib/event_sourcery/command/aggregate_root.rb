@@ -3,17 +3,18 @@ module EventSourcery
     module AggregateRoot
       UnknownEventError = Class.new(RuntimeError)
 
-      def initialize(id, event_sink, on_unknown_event: EventSourcery.config.on_unknown_event)
+      def initialize(id, event_sink, on_unknown_event: EventSourcery.config.on_unknown_event, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency)
         @id = id
         @event_sink = event_sink
         @current_version = 0
         @on_unknown_event = on_unknown_event
+        @use_optimistic_concurrency = use_optimistic_concurrency
       end
 
       def load_history(events)
         events.each do |event|
           apply_event(event)
-          @current_version = event.version
+          @current_version = event.version if @use_optimistic_concurrency
         end
       end
 
@@ -27,8 +28,12 @@ module EventSourcery
           event_with_aggregate_id = Event.new(aggregate_id: @id,
                                               type: event.type,
                                               body: event.body)
-          event_sink.sink(event_with_aggregate_id, expected_version: @current_version)
-          @current_version += 1
+          if @use_optimistic_concurrency
+            event_sink.sink(event_with_aggregate_id, expected_version: @current_version)
+            @current_version += 1
+          else
+            event_sink.sink(event_with_aggregate_id)
+          end
         end
       end
 

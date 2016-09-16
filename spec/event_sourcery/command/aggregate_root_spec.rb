@@ -1,9 +1,9 @@
 RSpec.describe EventSourcery::Command::AggregateRoot do
-  def new_aggregate(id, &block)
+  def new_aggregate(id, use_optimistic_concurrency: true, &block)
     Class.new do
       include EventSourcery::Command::AggregateRoot
 
-      def initialize(id, event_sink)
+      def initialize(id, event_sink, use_optimistic_concurrency: use_optimistic_concurrency)
         super
         @item_added_events = []
       end
@@ -17,7 +17,7 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
       end
 
       class_eval(&block) if block_given?
-    end.new(id, event_sink)
+    end.new(id, event_sink, use_optimistic_concurrency: use_optimistic_concurrency)
   end
 
   let(:aggregate_uuid) { SecureRandom.uuid }
@@ -57,6 +57,24 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
         end
       end
     }
+
+    context 'when optimistic concurrency is turned off' do
+      subject(:aggregate) {
+        new_aggregate(aggregate_uuid, use_optimistic_concurrency: false) do
+          def add_item(item)
+            apply_event(EventSourcery::Event.new(type: :item_added, body: { id: item.id }))
+          end
+        end
+      }
+
+      it "doesn't set version" do
+        aggregate.add_item(OpenStruct.new(id: 1234))
+        event = aggregate.item_added_events.first
+        expect(event.type).to eq 'item_added'
+        expect(event.body).to eq("id" => 1234)
+        expect(event.version).to eq(nil)
+      end
+    end
 
     it 'updates state' do
       aggregate.add_item(OpenStruct.new(id: 1234))

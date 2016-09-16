@@ -1,5 +1,11 @@
 # EventSourcery
 
+A framework for building event sourced, CQRS applications.
+
+## Core Concepts
+
+Refer to [core concepts](./docs/core-concepts.md) to learn about the core pieces of EventSourcery.
+
 ## Development
 
 ### Dependencies

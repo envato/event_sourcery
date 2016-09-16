@@ -5,6 +5,20 @@ module EventHelpers
                              type: type,
                              body: body)
   end
+
+  def create_old_events_schema
+    pg_connection.execute 'drop table events'
+    pg_connection.create_table(:events) do
+      primary_key :id, type: :Bignum
+      column :aggregate_id, 'uuid not null'
+      column :type, 'varchar(255) not null'
+      column :body, 'json not null'
+      column :created_at, 'timestamp without time zone not null default (now() at time zone \'utc\')'
+      index :aggregate_id
+      index :type
+      index :created_at
+    end
+  end
 end
 
 RSpec.configure do |config|

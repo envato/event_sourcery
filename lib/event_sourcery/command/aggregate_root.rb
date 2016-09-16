@@ -13,7 +13,7 @@ module EventSourcery
       def load_history(events)
         events.each do |event|
           apply_event(event)
-          @current_version = event.id
+          @current_version = event.version
         end
       end
 

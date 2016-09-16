@@ -13,6 +13,9 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
       end
       attr_reader :item_added_events
 
+      def apply_dummy(event)
+      end
+
       class_eval(&block) if block_given?
     end.new(id, event_sink)
   end
@@ -42,6 +45,11 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
   end
 
   describe '#apply_event' do
+    before do
+      # add a dummy event so that event.id != event.version
+      event_store.sink(new_event(id: 1, type: :dummy, version: 1, aggregate_id: SecureRandom.uuid))
+    end
+
     subject(:aggregate) {
       new_aggregate(aggregate_uuid) do
         def add_item(item)
@@ -59,8 +67,8 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
 
     it 'saves the event with an initial version' do
       aggregate.add_item(OpenStruct.new(id: 1234))
-      emitted_event = event_store.get_next_from(0).first
-      expect(emitted_event.id).to eq 1
+      emitted_event = event_store.get_next_from(0).last
+      expect(emitted_event.id).to eq 2
       expect(emitted_event.type).to eq 'item_added'
       expect(emitted_event.body).to eq('id' => 1234)
       expect(emitted_event.aggregate_id).to eq aggregate_uuid
@@ -72,7 +80,7 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
         aggregate.add_item(OpenStruct.new(id: 1234))
         aggregate.add_item(OpenStruct.new(id: 1234))
         aggregate.add_item(OpenStruct.new(id: 1234))
-        emitted_versions = event_store.get_next_from(0).map(&:version)
+        emitted_versions = event_store.get_events_for_aggregate_id(aggregate_uuid).map(&:version)
         expect(emitted_versions).to eq([1, 2, 3])
       end
     end

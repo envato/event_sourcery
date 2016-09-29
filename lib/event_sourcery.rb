@@ -1,5 +1,4 @@
 require 'virtus'
-require 'rollbar'
 require 'json'
 require 'sequel'
 

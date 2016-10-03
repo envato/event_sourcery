@@ -1,3 +1,5 @@
+require 'logger'
+
 module EventSourcery
   class Config
     attr_accessor :event_sink,

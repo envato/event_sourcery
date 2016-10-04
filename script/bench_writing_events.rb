@@ -1,10 +1,11 @@
-require 'benchmark/ips'
+require 'benchmark/ips' # gem install benchmark-ips
 require 'sequel'
 
 pg_uri = ENV.fetch('BOXEN_POSTGRESQL_URL') { 'postgres://127.0.0.1:5432/event_sourcery_test' }
 pg_connection = Sequel.connect(pg_uri)
 
 require 'event_sourcery'
+
 EventSourcery.configure do |config|
   config.event_store_database = pg_connection
   config.projections_database = pg_connection

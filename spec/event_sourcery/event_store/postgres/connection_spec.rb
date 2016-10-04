@@ -1,6 +1,10 @@
 RSpec.describe EventSourcery::EventStore::Postgres::Connection do
   subject(:event_store) { described_class.new(pg_connection) }
 
+  before do
+    create_old_events_schema
+  end
+
   include_examples 'an event store'
 
   describe '#sink' do

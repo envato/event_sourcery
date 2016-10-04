@@ -10,16 +10,19 @@ module EventSourcery
           @lock_table = lock_table
         end
 
-        def sink(event)
+        def sink(event_or_events)
+          events = Array(event_or_events)
           maybe_lock_table do
-            result = events_table.
-              returning(:id).
-              insert(aggregate_id: event.aggregate_id,
-                     type: event.type.to_s,
-                     body: ::Sequel.pg_json(event.body))
-            event_id = result.first.fetch(:id)
-            @pg_connection.notify('new_event', payload: event_id)
-            EventSourcery.logger.debug { "Saved event: #{event.inspect}" }
+            events.each do |event|
+              result = events_table.
+                returning(:id).
+                insert(aggregate_id: event.aggregate_id,
+                       type: event.type.to_s,
+                       body: ::Sequel.pg_json(event.body))
+              event_id = result.first.fetch(:id)
+              @pg_connection.notify('new_event', payload: event_id)
+              EventSourcery.logger.debug { "Saved event: #{event.inspect}" }
+            end
             true
           end
         end

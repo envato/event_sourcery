@@ -69,7 +69,7 @@ begin
     end if;
   end if;
   index := 1;
-  eventVersion = currentVersion + 1;
+  eventVersion := currentVersion + 1;
   foreach body IN ARRAY(_bodies)
   loop
     insert into events(aggregate_id, type, body, version) values(_aggregateId, _eventTypes[index], body, eventVersion) returning id into eventId;

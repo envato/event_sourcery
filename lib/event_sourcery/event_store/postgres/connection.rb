@@ -10,7 +10,7 @@ module EventSourcery
           @lock_table = lock_table
         end
 
-        def sink(event)
+        def sink(event, expected_version: nil)
           maybe_lock_table do
             result = events_table.
               returning(:id).

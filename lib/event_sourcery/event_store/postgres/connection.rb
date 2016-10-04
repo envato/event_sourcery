@@ -4,21 +4,24 @@ module EventSourcery
       class Connection
         include EachByRange
 
-        def initialize(pg_connection, events_table_name: :events)
+        def initialize(pg_connection, events_table_name: :events, lock_table: EventSourcery.config.lock_table_to_guarantee_linear_sequence_id_growth)
           @pg_connection = pg_connection
           @events_table_name = events_table_name
+          @lock_table = lock_table
         end
 
         def sink(event)
-          result = events_table.
-            returning(:id).
-            insert(aggregate_id: event.aggregate_id,
-                   type: event.type.to_s,
-                   body: ::Sequel.pg_json(event.body))
-          event_id = result.first.fetch(:id)
-          @pg_connection.notify('new_event', payload: event_id)
-          EventSourcery.logger.debug { "Saved event: #{event.inspect}" }
-          true
+          maybe_lock_table do
+            result = events_table.
+              returning(:id).
+              insert(aggregate_id: event.aggregate_id,
+                     type: event.type.to_s,
+                     body: ::Sequel.pg_json(event.body))
+            event_id = result.first.fetch(:id)
+            @pg_connection.notify('new_event', payload: event_id)
+            EventSourcery.logger.debug { "Saved event: #{event.inspect}" }
+            true
+          end
         end
 
         def get_next_from(id, event_types: nil, limit: 1000)
@@ -73,6 +76,17 @@ module EventSourcery
 
         def events_table
           @pg_connection[@events_table_name]
+        end
+
+        def maybe_lock_table
+          if @lock_table
+            @pg_connection.transaction do
+              @pg_connection.execute "lock #{@events_table_name} in exclusive mode;"
+              yield
+            end
+          else
+            yield
+          end
         end
       end
     end

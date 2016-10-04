@@ -9,8 +9,7 @@ module EventSourcery
           @events_table_name = events_table_name
         end
 
-        def sink(event, expected_version: nil)
-          # ignore expected version
+        def sink(event)
           result = events_table.
             returning(:id).
             insert(aggregate_id: event.aggregate_id,

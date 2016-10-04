@@ -27,14 +27,13 @@ module EventSourcery
         def create_aggregates(db)
           db.create_table(:aggregates) do
             primary_key :aggregate_id, 'uuid not null'
-            column :type, 'varchar(255) not null'
             column :version, 'bigint default 1'
           end
         end
 
         def create_functions(db)
           db.run <<-SQL
-create or replace function writeEvent(_aggregateId uuid, _aggregateType varchar(256), _expectedVersion int, _body json) returns void as $$
+create or replace function writeEvent(_aggregateId uuid, _eventType varchar(256), _expectedVersion int, _body json) returns void as $$
 declare
   currentVersion int;
   event json;
@@ -45,7 +44,7 @@ begin
     -- when we have no existing version for this aggregate
     if _expectedVersion = 0 or _expectedVersion is null then
       -- set the version to 1 if expected version is null or 0
-      insert into aggregates(aggregate_id, type, version) values(_aggregateId, _aggregateType, 1);
+      insert into aggregates(aggregate_id, version) values(_aggregateId, 1);
       currentVersion := 0;
     else
       raise 'Concurrency conflict. Current version: 0, expected version: %', _expectedVersion;
@@ -63,7 +62,7 @@ begin
       end if;
     end if;
   end if;
-  insert into events(aggregate_id, type, body, version) values(_aggregateId, _aggregateType, _body, currentVersion + 1) returning id into eventId;
+  insert into events(aggregate_id, type, body, version) values(_aggregateId, _eventType, _body, currentVersion + 1) returning id into eventId;
   perform pg_notify('new_event', eventId);
 end;
 $$ language plpgsql;

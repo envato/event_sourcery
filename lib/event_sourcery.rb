@@ -1,5 +1,4 @@
 require 'virtus'
-require 'rollbar'
 require 'json'
 require 'sequel'
 
@@ -32,6 +31,7 @@ require 'event_sourcery/config'
 require 'event_sourcery/event_body_serializer'
 require 'event_sourcery/command/aggregate_root'
 require 'event_sourcery/command/repository'
+require 'event_sourcery/command/handler'
 
 module EventSourcery
   def self.configure

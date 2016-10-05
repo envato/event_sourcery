@@ -3,8 +3,7 @@ module EventSourcery
     # Dispatch events to multiple ESPs
     # Has the weakness of if a new ESP is added it will starve the others until it's caught up
     class EventDispatcher
-      def initialize(tracker:, event_processors:, event_store:)
-        @tracker = tracker
+      def initialize(event_processors:, event_store:)
         @event_processors = event_processors
         @event_store = event_store
         @on_events_processed = proc { }
@@ -21,23 +20,20 @@ module EventSourcery
       end
 
       def start!(after_listen: nil)
-        setup_processors_and_trackers
+        setup_processors
         @event_store.subscribe(from_id: lowest_event_id, event_types: combined_event_types, after_listen: after_listen) do |events|
           process_events(events)
         end
       end
 
-      def setup_processors_and_trackers
-        @event_processors.each do |event_processor|
-          @tracker.setup(event_processor.class.processor_name)
-          event_processor.setup
-        end
+      def setup_processors
+        @event_processors.each(&:setup)
       end
 
       private
 
       def send_to_processor(event_processor, events)
-        last_processed_event_id = @tracker.last_processed_event_id(event_processor.class.processor_name) || 0
+        last_processed_event_id = event_processor.last_processed_event_id || 0
         last_event_id = events.last.id
         events_to_process = events.select { |event| last_processed_event_id < event.id }
         event_processor.send(:process_events, events_to_process) if !events_to_process.empty?
@@ -46,7 +42,7 @@ module EventSourcery
 
       def lowest_event_id
         @event_processors.map do |event_processor|
-          @tracker.last_processed_event_id(event_processor.class.processor_name) || 0
+          event_processor.last_processed_event_id || 0
         end.sort.first
       end
 

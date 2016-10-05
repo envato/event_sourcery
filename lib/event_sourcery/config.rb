@@ -9,7 +9,8 @@ module EventSourcery
                   :event_store_database,
                   :event_tracker,
                   :on_unknown_event,
-                  :use_optimistic_concurrency
+                  :use_optimistic_concurrency,
+                  :lock_table_to_guarantee_linear_sequence_id_growth
 
     attr_writer :logger
 
@@ -18,6 +19,7 @@ module EventSourcery
         raise Command::AggregateRoot::UnknownEventError.new("#{event.type} is unknown to #{self.class.name}")
       }
       @use_optimistic_concurrency = true
+      @lock_table_to_guarantee_linear_sequence_id_growth = true
     end
 
     def event_store_database=(sequel_connection)

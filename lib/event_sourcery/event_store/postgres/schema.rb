@@ -33,12 +33,16 @@ module EventSourcery
 
         def create_functions(db)
           db.run <<-SQL
-create or replace function writeEvent(_aggregateId uuid, _eventType varchar(256), _expectedVersion int, _body json) returns void as $$
+create or replace function writeEvent(_aggregateId uuid, _eventType varchar(256), _expectedVersion int, _body json, _lockTable boolean) returns void as $$
 declare
   currentVersion int;
   event json;
   eventId text;
 begin
+  if _lockTable then
+    -- ensure this transaction is the only one writing events to guarantee linear growth of sequence IDs
+    lock events in exclusive mode;
+  end if;
   select version into currentVersion from aggregates where aggregate_id = _aggregateId;
   if not found then
     -- when we have no existing version for this aggregate

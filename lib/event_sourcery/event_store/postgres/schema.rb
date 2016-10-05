@@ -4,14 +4,14 @@ module EventSourcery
       module Schema
         extend self
 
-        def create(db)
-          create_events(db)
+        def create(db, events_table_name: EventSourcery.config.events_table_name)
+          create_events(db, events_table_name: events_table_name)
           create_aggregates(db)
-          create_or_update_functions(db)
+          create_or_update_functions(db, events_table_name: events_table_name)
         end
 
-        def create_events(db)
-          db.create_table(:events) do
+        def create_events(db, events_table_name: EventSourcery.config.events_table_name)
+          db.create_table(events_table_name) do
             primary_key :id, type: :Bignum
             column :aggregate_id, 'uuid not null'
             column :type, 'varchar(255) not null'
@@ -68,7 +68,7 @@ begin
   eventVersion := currentVersion + 1;
   if _lockTable then
     -- ensure this transaction is the only one writing events to guarantee linear growth of sequence IDs
-    lock events in exclusive mode;
+    lock #{events_table_name} in exclusive mode;
   end if;
   foreach body IN ARRAY(_bodies)
   loop

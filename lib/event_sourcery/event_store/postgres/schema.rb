@@ -33,16 +33,14 @@ module EventSourcery
 
         def create_functions(db)
           db.run <<-SQL
-create or replace function writeEvent(_aggregateId uuid, _eventType varchar(256), _expectedVersion int, _body json, _lockTable boolean) returns void as $$
+create or replace function writeEvents(_aggregateId uuid, _eventTypes varchar[], _expectedVersion int, _bodies json[], _lockTable boolean) returns void as $$
 declare
   currentVersion int;
-  event json;
+  body json;
+  eventVersion int;
   eventId text;
+  index int;
 begin
-  if _lockTable then
-    -- ensure this transaction is the only one writing events to guarantee linear growth of sequence IDs
-    lock events in exclusive mode;
-  end if;
   select version into currentVersion from aggregates where aggregate_id = _aggregateId;
   if not found then
     -- when we have no existing version for this aggregate
@@ -66,7 +64,18 @@ begin
       end if;
     end if;
   end if;
-  insert into events(aggregate_id, type, body, version) values(_aggregateId, _eventType, _body, currentVersion + 1) returning id into eventId;
+  index := 1;
+  eventVersion := currentVersion + 1;
+  if _lockTable then
+    -- ensure this transaction is the only one writing events to guarantee linear growth of sequence IDs
+    lock events in exclusive mode;
+  end if;
+  foreach body IN ARRAY(_bodies)
+  loop
+    insert into events(aggregate_id, type, body, version) values(_aggregateId, _eventTypes[index], body, eventVersion) returning id into eventId;
+    eventVersion := eventVersion + 1;
+    index := index + 1;
+  end loop;
   perform pg_notify('new_event', eventId);
 end;
 $$ language plpgsql;

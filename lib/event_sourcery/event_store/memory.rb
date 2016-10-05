@@ -7,16 +7,19 @@ module EventSourcery
         @events = events
       end
 
-      def sink(event)
-        id = @events.size + 1
-        serialized_body = EventBodySerializer.serialize(event.body)
-        @events << EventSourcery::Event.new(
-          id: id,
-          aggregate_id: event.aggregate_id,
-          type: event.type,
-          body: serialized_body,
-          created_at: Time.now
-        )
+      def sink(event_or_events)
+        events = Array(event_or_events)
+        events.each do |event|
+          id = @events.size + 1
+          serialized_body = EventBodySerializer.serialize(event.body)
+          @events << EventSourcery::Event.new(
+            id: id,
+            aggregate_id: event.aggregate_id,
+            type: event.type,
+            body: serialized_body,
+            created_at: Time.now
+          )
+        end
         true
       end
 

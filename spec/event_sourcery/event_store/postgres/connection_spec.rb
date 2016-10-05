@@ -1,4 +1,5 @@
 RSpec.describe EventSourcery::EventStore::Postgres::Connection do
+  let(:supports_versions) { false }
   subject(:event_store) { described_class.new(pg_connection) }
 
   before do

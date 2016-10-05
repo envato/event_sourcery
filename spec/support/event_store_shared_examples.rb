@@ -22,6 +22,19 @@ RSpec.shared_examples 'an event store' do
       expect(event_store.get_next_from(1, limit: 1).first.body).to eq('time' => time.iso8601)
     end
 
+    it 'writes multiple events' do
+      event_store.sink([new_event(aggregate_id: aggregate_id, body: {e: 1}),
+                        new_event(aggregate_id: aggregate_id, body: {e: 2}),
+                        new_event(aggregate_id: aggregate_id, body: {e: 3})])
+      events = event_store.get_next_from(1)
+      expect(events.count).to eq 3
+      expect(events.map(&:id)).to eq [1, 2, 3]
+      expect(events.map(&:body)).to eq [{'e' => 1}, {'e' => 2}, {'e' => 3}]
+      if supports_versions
+        expect(events.map(&:version)).to eq [1, 2, 3]
+      end
+    end
+
     context 'with no existing aggregate stream' do
       it 'saves an event' do
         event = new_event(aggregate_id: aggregate_id,

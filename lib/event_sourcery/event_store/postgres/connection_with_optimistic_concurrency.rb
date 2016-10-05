@@ -7,7 +7,8 @@ module EventSourcery
             select writeEvent('#{event.aggregate_id}'::uuid,
                               '#{event.type}'::varchar(256),
                               #{expected_version ? expected_version : "null"}::int,
-                              #{@pg_connection.literal(Sequel.pg_json(event.body))});
+                              #{@pg_connection.literal(Sequel.pg_json(event.body))},
+                              #{@lock_table}::boolean);
           SQL
           EventSourcery.logger.debug { "Saved event: #{event.inspect}" }
           true

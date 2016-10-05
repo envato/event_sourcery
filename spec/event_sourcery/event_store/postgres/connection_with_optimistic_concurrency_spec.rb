@@ -1,4 +1,5 @@
 RSpec.describe EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConcurrency do
+  let(:supports_versions) { true }
   subject(:event_store) { described_class.new(pg_connection) }
 
   include_examples 'an event store'

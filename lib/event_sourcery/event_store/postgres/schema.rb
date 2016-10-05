@@ -7,7 +7,7 @@ module EventSourcery
         def create(db)
           create_events(db)
           create_aggregates(db)
-          create_functions(db)
+          create_or_update_functions(db)
         end
 
         def create_events(db)
@@ -31,9 +31,9 @@ module EventSourcery
           end
         end
 
-        def create_functions(db)
+        def create_or_update_functions(db, function_name: EventSourcery.config.write_events_function_name, events_table_name: EventSourcery.config.events_table_name)
           db.run <<-SQL
-create or replace function writeEvents(_aggregateId uuid, _eventTypes varchar[], _expectedVersion int, _bodies json[], _lockTable boolean) returns void as $$
+create or replace function #{function_name}(_aggregateId uuid, _eventTypes varchar[], _expectedVersion int, _bodies json[], _lockTable boolean) returns void as $$
 declare
   currentVersion int;
   body json;
@@ -72,7 +72,7 @@ begin
   end if;
   foreach body IN ARRAY(_bodies)
   loop
-    insert into events(aggregate_id, type, body, version) values(_aggregateId, _eventTypes[index], body, eventVersion) returning id into eventId;
+    insert into #{events_table_name}(aggregate_id, type, body, version) values(_aggregateId, _eventTypes[index], body, eventVersion) returning id into eventId;
     eventVersion := eventVersion + 1;
     index := index + 1;
   end loop;

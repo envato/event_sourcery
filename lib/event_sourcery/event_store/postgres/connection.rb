@@ -4,7 +4,7 @@ module EventSourcery
       class Connection
         include EachByRange
 
-        def initialize(pg_connection, events_table_name: :events, lock_table: EventSourcery.config.lock_table_to_guarantee_linear_sequence_id_growth)
+        def initialize(pg_connection, events_table_name: EventSourcery.config.events_table_name, lock_table: EventSourcery.config.lock_table_to_guarantee_linear_sequence_id_growth)
           @pg_connection = pg_connection
           @events_table_name = events_table_name
           @lock_table = lock_table

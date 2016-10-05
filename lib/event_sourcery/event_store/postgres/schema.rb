@@ -41,10 +41,6 @@ declare
   eventId text;
   index int;
 begin
-  if _lockTable then
-    -- ensure this transaction is the only one writing events to guarantee linear growth of sequence IDs
-    lock events in exclusive mode;
-  end if;
   select version into currentVersion from aggregates where aggregate_id = _aggregateId;
   if not found then
     -- when we have no existing version for this aggregate
@@ -70,6 +66,10 @@ begin
   end if;
   index := 1;
   eventVersion := currentVersion + 1;
+  if _lockTable then
+    -- ensure this transaction is the only one writing events to guarantee linear growth of sequence IDs
+    lock events in exclusive mode;
+  end if;
   foreach body IN ARRAY(_bodies)
   loop
     insert into events(aggregate_id, type, body, version) values(_aggregateId, _eventTypes[index], body, eventVersion) returning id into eventId;

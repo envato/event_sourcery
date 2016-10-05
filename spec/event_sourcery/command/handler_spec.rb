@@ -13,20 +13,22 @@ RSpec.describe EventSourcery::Command::Handler do
   }
   subject(:handler) { handler_class.handle(command) }
 
-  before do
-    allow(EventSourcery.config).to receive(:event_source).and_return(1)
-    allow(EventSourcery.config).to receive(:event_sink).and_return(2)
-  end
+  context 'when no event source and sink is provided' do
+    before do
+      allow(EventSourcery.config).to receive(:event_source).and_return('event_source')
+      allow(EventSourcery.config).to receive(:event_sink).and_return('event_sink')
+    end
 
-  it 'initializes with default config event stores' do
-    expect(handler.event_source).to eq 1
-    expect(handler.event_sink).to eq 2
+    it 'initializes with default config event stores' do
+      expect(handler.event_source).to eq 'event_source'
+      expect(handler.event_sink).to eq 'event_sink'
+    end
   end
 
   it 'allows overriding with other stores' do
-    handler = handler_class.handle(command, 3, 4)
-    expect(handler.event_source).to eq 3
-    expect(handler.event_sink).to eq 4
+    handler = handler_class.handle(command, 'source', 'sink')
+    expect(handler.event_source).to eq 'source'
+    expect(handler.event_sink).to eq 'sink'
   end
 
   it 'is passed the command' do

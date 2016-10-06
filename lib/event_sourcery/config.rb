@@ -28,9 +28,14 @@ module EventSourcery
       @callback_interval_if_no_new_events = 10
     end
 
+    def use_optimistic_concurrency=(value)
+      @use_optimistic_concurrency = value
+      set_database_event_store(@event_store_database) if @event_store_database
+    end
+
     def event_store_database=(sequel_connection)
       @event_store_database = sequel_connection
-      @event_store = EventStore::Postgres::Connection.new(sequel_connection)
+      set_database_event_store(sequel_connection)
       @event_sink = EventStore::EventSink.new(@event_store)
       @event_source = EventStore::EventSource.new(@event_store)
     end
@@ -43,6 +48,16 @@ module EventSourcery
     def logger
       @logger ||= ::Logger.new(STDOUT).tap do |logger|
         logger.level = Logger::DEBUG
+      end
+    end
+
+    private
+
+    def set_database_event_store(sequel_connection)
+      @event_store = if use_optimistic_concurrency
+        EventStore::Postgres::ConnectionWithOptimisticConcurrency.new(sequel_connection)
+      else
+        EventStore::Postgres::Connection.new(sequel_connection)
       end
     end
   end

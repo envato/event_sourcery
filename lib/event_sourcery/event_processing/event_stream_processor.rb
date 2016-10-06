@@ -30,7 +30,8 @@ module EventSourcery
             elsif defined?(super)
               super(event)
             else
-              raise UnableToProcessEventError
+              raise UnableToProcessEventError, "I don't know how to process '#{event.type}' events. "\
+                                               "To process this event implement a method named '#{handler_method_name}'"
             end
           end
           @_event = nil

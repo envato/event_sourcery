@@ -205,7 +205,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
           it 'is used to process the event' do
             expect {
               event_processor.process(event)
-            }.to raise_error(EventSourcery::UnableToProcessEventError)
+            }.to raise_error(EventSourcery::UnableToProcessEventError, /I don't know how to process 'item_added' events/)
           end
         end
       end

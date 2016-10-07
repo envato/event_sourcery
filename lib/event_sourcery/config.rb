@@ -12,7 +12,8 @@ module EventSourcery
                   :use_optimistic_concurrency,
                   :lock_table_to_guarantee_linear_sequence_id_growth,
                   :write_events_function_name,
-                  :events_table_name
+                  :events_table_name,
+                  :callback_interval_if_no_new_events
 
     attr_writer :logger
 
@@ -24,6 +25,7 @@ module EventSourcery
       @lock_table_to_guarantee_linear_sequence_id_growth = true
       @write_events_function_name = 'writeEvents'
       @events_table_name = :events
+      @callback_interval_if_no_new_events = 10
     end
 
     def event_store_database=(sequel_connection)

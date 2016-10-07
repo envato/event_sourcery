@@ -3,7 +3,7 @@ module EventSourcery
     class QueueWithIntervalCallback < ::Queue
       attr_accessor :callback
 
-      def initialize(callback: proc { }, callback_interval: 1, poll_interval: 0.1)
+      def initialize(callback: proc { }, callback_interval: EventSourcery.config.callback_interval_if_no_new_events, poll_interval: 0.1)
         @callback = callback
         @callback_interval = callback_interval
         @poll_interval = poll_interval
@@ -21,7 +21,7 @@ module EventSourcery
         time = Time.now
         loop do
           return pop(true) if !empty?
-          if Time.now > time + @callback_interval
+          if @callback_interval && Time.now > time + @callback_interval
             @callback.call
             time = Time.now
           end

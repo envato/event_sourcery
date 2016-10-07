@@ -4,21 +4,27 @@ module EventSourcery
       module Schema
         extend self
 
-        def create(db, events_table_name: EventSourcery.config.events_table_name)
-          create_events(db, events_table_name: events_table_name)
-          create_aggregates(db)
-          create_or_update_functions(db, events_table_name: events_table_name)
+        def create(db, events_table_name: EventSourcery.config.events_table_name, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency)
+          create_events(db, events_table_name: events_table_name, use_optimistic_concurrency: use_optimistic_concurrency)
+          if use_optimistic_concurrency
+            create_aggregates(db)
+            create_or_update_functions(db, events_table_name: events_table_name)
+          end
         end
 
-        def create_events(db, events_table_name: EventSourcery.config.events_table_name)
+        def create_events(db, events_table_name: EventSourcery.config.events_table_name, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency)
           db.create_table(events_table_name) do
             primary_key :id, type: :Bignum
             column :aggregate_id, 'uuid not null'
             column :type, 'varchar(255) not null'
             column :body, 'json not null'
-            column :version, 'bigint not null'
+            column :version, 'bigint not null' if use_optimistic_concurrency
             column :created_at, 'timestamp without time zone not null default (now() at time zone \'utc\')'
-            index [:aggregate_id, :version], unique: true
+            if use_optimistic_concurrency
+              index [:aggregate_id, :version], unique: true
+            else
+              index :aggregate_id
+            end
             index :type
             index :created_at
           end

@@ -1,21 +1,45 @@
 RSpec.describe EventSourcery::Config do
   subject(:config) { described_class.new }
 
-  context 'when the event store database is configured' do
-    before do
-      config.event_store_database = pg_connection
+  let(:use_optimistic_concurrency) { false }
+
+  context 'when reading the event_store' do
+    context 'and an event_store_database is set' do
+      before do
+        config.event_store_database = double
+      end
+
+      context 'and using optimistic concurrency' do
+        before do
+          config.use_optimistic_concurrency = true
+        end
+
+        it 'returns a EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConcurrency' do
+          expect(config.event_store).to be_instance_of(EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConcurrency)
+        end
+      end
+
+      context 'and not using optimistic concurrency' do
+        before do
+          config.use_optimistic_concurrency = false
+        end
+
+        it 'returns a EventSourcery::EventStore::Postgres::Connection' do
+          expect(config.event_store).to be_instance_of(EventSourcery::EventStore::Postgres::Connection)
+        end
+      end
     end
 
-    it 'sets the event store' do
-      expect(config.event_store).to be_instance_of(EventSourcery::EventStore::Postgres::Connection)
-    end
+    context 'and an event_store is set' do
+      let(:event_store) { double(:event_store) }
+      before do
+        config.event_store = event_store
+        config.event_store_database = nil
+      end
 
-    it 'sets the event sink' do
-      expect(config.event_sink).to be_instance_of(EventSourcery::EventStore::EventSink)
-    end
-
-    it 'sets the event source' do
-      expect(config.event_source).to be_instance_of(EventSourcery::EventStore::EventSource)
+      it 'returns the event_store' do
+        expect(config.event_store).to eq(event_store)
+      end
     end
   end
 

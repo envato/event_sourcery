@@ -4,21 +4,27 @@ module EventSourcery
       module Schema
         extend self
 
-        def create(db)
-          create_events(db)
-          create_aggregates(db)
-          create_functions(db)
+        def create(db, events_table_name: EventSourcery.config.events_table_name, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency)
+          create_events(db, events_table_name: events_table_name, use_optimistic_concurrency: use_optimistic_concurrency)
+          if use_optimistic_concurrency
+            create_aggregates(db)
+            create_or_update_functions(db, events_table_name: events_table_name)
+          end
         end
 
-        def create_events(db)
-          db.create_table(:events) do
+        def create_events(db, events_table_name: EventSourcery.config.events_table_name, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency)
+          db.create_table(events_table_name) do
             primary_key :id, type: :Bignum
             column :aggregate_id, 'uuid not null'
             column :type, 'varchar(255) not null'
             column :body, 'json not null'
-            column :version, 'bigint not null'
+            column :version, 'bigint not null' if use_optimistic_concurrency
             column :created_at, 'timestamp without time zone not null default (now() at time zone \'utc\')'
-            index [:aggregate_id, :version], unique: true
+            if use_optimistic_concurrency
+              index [:aggregate_id, :version], unique: true
+            else
+              index :aggregate_id
+            end
             index :type
             index :created_at
           end
@@ -31,9 +37,9 @@ module EventSourcery
           end
         end
 
-        def create_functions(db)
+        def create_or_update_functions(db, function_name: EventSourcery.config.write_events_function_name, events_table_name: EventSourcery.config.events_table_name)
           db.run <<-SQL
-create or replace function writeEvents(_aggregateId uuid, _eventTypes varchar[], _expectedVersion int, _bodies json[], _lockTable boolean) returns void as $$
+create or replace function #{function_name}(_aggregateId uuid, _eventTypes varchar[], _expectedVersion int, _bodies json[], _lockTable boolean) returns void as $$
 declare
   currentVersion int;
   body json;
@@ -68,11 +74,11 @@ begin
   eventVersion := currentVersion + 1;
   if _lockTable then
     -- ensure this transaction is the only one writing events to guarantee linear growth of sequence IDs
-    lock events in exclusive mode;
+    lock #{events_table_name} in exclusive mode;
   end if;
   foreach body IN ARRAY(_bodies)
   loop
-    insert into events(aggregate_id, type, body, version) values(_aggregateId, _eventTypes[index], body, eventVersion) returning id into eventId;
+    insert into #{events_table_name}(aggregate_id, type, body, version) values(_aggregateId, _eventTypes[index], body, eventVersion) returning id into eventId;
     eventVersion := eventVersion + 1;
     index := index + 1;
   end loop;

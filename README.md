@@ -4,7 +4,7 @@ A framework for building event sourced, CQRS applications.
 
 ## Goals
 
-The goal of Event Sourcery is to make it easier to build event sourced, CQRS applications.
+The goal of EventSourcery is to make it easier to build event sourced, CQRS applications.
 
 The hope is that by using EventSourcery you can focus on modeling your domain with aggregates, commands, and events; and not worry about stitching together application plumbing.
 

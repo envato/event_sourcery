@@ -21,9 +21,9 @@ module EventSourcery
         end
       end
 
-      def event_reactors
+      def reactors
         @processors.select do |processor|
-          processor.included_modules.include?(EventSourcery::EventProcessing::EventReactor)
+          processor.included_modules.include?(EventSourcery::EventProcessing::Reactor)
         end
       end
 

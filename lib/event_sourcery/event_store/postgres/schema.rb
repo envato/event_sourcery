@@ -8,7 +8,7 @@ module EventSourcery
           create_events(db, table_name: events_table_name, use_optimistic_concurrency: use_optimistic_concurrency)
           if use_optimistic_concurrency
             create_aggregates(db, table_name: aggregates_table_name)
-            create_or_update_functions(db, events_table_name: events_table_name, function_name: write_events_function_name)
+            create_or_update_functions(db, events_table_name: events_table_name, function_name: write_events_function_name, aggregates_table_name: aggregates_table_name)
           end
         end
 

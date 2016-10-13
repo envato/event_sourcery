@@ -4,11 +4,11 @@ module EventSourcery
       module Schema
         extend self
 
-        def create(db, events_table_name: EventSourcery.config.events_table_name, aggregates_table_name: EventSourcery.config.aggregates_table_name, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency)
+        def create(db, events_table_name: EventSourcery.config.events_table_name, aggregates_table_name: EventSourcery.config.aggregates_table_name, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency, write_events_function_name: EventSourcery.config.write_events_function_name)
           create_events(db, table_name: events_table_name, use_optimistic_concurrency: use_optimistic_concurrency)
           if use_optimistic_concurrency
             create_aggregates(db, table_name: aggregates_table_name)
-            create_or_update_functions(db, events_table_name: events_table_name)
+            create_or_update_functions(db, events_table_name: events_table_name, function_name: write_events_function_name)
           end
         end
 

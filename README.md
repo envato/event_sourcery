@@ -18,7 +18,7 @@ Refer to [core concepts](./docs/core-concepts.md) to learn about the core pieces
 
 ## Applications that use EventSourcery
 
-- [Identity](https://github.com/envato/identity) (note that this was the original ES/CQRS implementation that ES was extracted from).
+- [Identity](https://github.com/envato/identity) (note that this was the ES/CQRS implementation that ES was initially extracted from).
 - [Payables](https://github.com/envato/payables).
 - [Calendar Example App](https://github.com/envato/calendar-es-example).
 

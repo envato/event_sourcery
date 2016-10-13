@@ -4,16 +4,16 @@ module EventSourcery
       module Schema
         extend self
 
-        def create(db, events_table_name: EventSourcery.config.events_table_name, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency)
-          create_events(db, events_table_name: events_table_name, use_optimistic_concurrency: use_optimistic_concurrency)
+        def create(db, events_table_name: EventSourcery.config.events_table_name, aggregates_table_name: EventSourcery.config.aggregates_table_name, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency)
+          create_events(db, table_name: events_table_name, use_optimistic_concurrency: use_optimistic_concurrency)
           if use_optimistic_concurrency
-            create_aggregates(db)
+            create_aggregates(db, table_name: aggregates_table_name)
             create_or_update_functions(db, events_table_name: events_table_name)
           end
         end
 
-        def create_events(db, events_table_name: EventSourcery.config.events_table_name, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency)
-          db.create_table(events_table_name) do
+        def create_events(db, table_name: EventSourcery.config.events_table_name, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency)
+          db.create_table(table_name) do
             primary_key :id, type: :Bignum
             column :aggregate_id, 'uuid not null'
             column :type, 'varchar(255) not null'
@@ -30,14 +30,14 @@ module EventSourcery
           end
         end
 
-        def create_aggregates(db)
-          db.create_table(:aggregates) do
+        def create_aggregates(db, table_name: EventSourcery.config.aggregates_table_name)
+          db.create_table(table_name) do
             primary_key :aggregate_id, 'uuid not null'
             column :version, 'bigint default 1'
           end
         end
 
-        def create_or_update_functions(db, function_name: EventSourcery.config.write_events_function_name, events_table_name: EventSourcery.config.events_table_name)
+        def create_or_update_functions(db, function_name: EventSourcery.config.write_events_function_name, events_table_name: EventSourcery.config.events_table_name, aggregates_table_name: EventSourcery.config.aggregates_table_name)
           db.run <<-SQL
 create or replace function #{function_name}(_aggregateId uuid, _eventTypes varchar[], _expectedVersion int, _bodies json[], _lockTable boolean) returns void as $$
 declare
@@ -47,12 +47,12 @@ declare
   eventId text;
   index int;
 begin
-  select version into currentVersion from aggregates where aggregate_id = _aggregateId;
+  select version into currentVersion from #{aggregates_table_name} where aggregate_id = _aggregateId;
   if not found then
     -- when we have no existing version for this aggregate
     if _expectedVersion = 0 or _expectedVersion is null then
       -- set the version to 1 if expected version is null or 0
-      insert into aggregates(aggregate_id, version) values(_aggregateId, 1);
+      insert into #{aggregates_table_name}(aggregate_id, version) values(_aggregateId, 1);
       currentVersion := 0;
     else
       raise 'Concurrency conflict. Current version: 0, expected version: %', _expectedVersion;
@@ -60,10 +60,10 @@ begin
   else
     if _expectedVersion is null then
       -- automatically increment the version
-      update aggregates set version = version + 1 where aggregate_id = _aggregateId;
+      update #{aggregates_table_name} set version = version + 1 where aggregate_id = _aggregateId;
     else
       -- increment the version if it's at our expected versionn
-      update aggregates set version = version + 1 where aggregate_id = _aggregateId and version = _expectedVersion;
+      update #{aggregates_table_name} set version = version + 1 where aggregate_id = _aggregateId and version = _expectedVersion;
       if not found then
         -- version was not at expected_version, raise an error
         raise 'Concurrency conflict. Current version: %, expected version: %', currentVersion, _expectedVersion;

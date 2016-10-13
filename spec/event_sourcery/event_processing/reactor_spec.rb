@@ -1,7 +1,7 @@
-RSpec.describe EventSourcery::EventProcessing::EventReactor do
+RSpec.describe EventSourcery::EventProcessing::Reactor do
   let(:dep_class) {
     Class.new do
-      include EventSourcery::EventProcessing::EventReactor
+      include EventSourcery::EventProcessing::Reactor
 
       processes_events :terms_accepted
 
@@ -14,7 +14,7 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
   }
   let(:dep_class_with_emit) {
     Class.new do
-      include EventSourcery::EventProcessing::EventReactor
+      include EventSourcery::EventProcessing::Reactor
 
       processes_events :terms_accepted
       emits_events :blah
@@ -117,11 +117,11 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
 
     context 'with a DEP that emits events' do
       let(:event_1) { EventSourcery::Event.new(id: 1, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
-      let(:event_2) { EventSourcery::Event.new(id: 2, type: 'echo_event', aggregate_id: aggregate_id, body: event_1.body.merge(EventSourcery::EventProcessing::EventReactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 1)) }
+      let(:event_2) { EventSourcery::Event.new(id: 2, type: 'echo_event', aggregate_id: aggregate_id, body: event_1.body.merge(EventSourcery::EventProcessing::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 1)) }
       let(:event_3) { EventSourcery::Event.new(id: 3, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
       let(:event_4) { EventSourcery::Event.new(id: 4, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
       let(:event_5) { EventSourcery::Event.new(id: 5, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
-      let(:event_6) { EventSourcery::Event.new(id: 6, type: 'echo_event', aggregate_id: aggregate_id, body: event_3.body.merge(EventSourcery::EventProcessing::EventReactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 3)) }
+      let(:event_6) { EventSourcery::Event.new(id: 6, type: 'echo_event', aggregate_id: aggregate_id, body: event_3.body.merge(EventSourcery::EventProcessing::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 3)) }
       let(:events) { [event_1, event_2, event_3, event_4] }
       let(:action_stub_class) {
         Class.new do
@@ -136,7 +136,7 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
       }
       let(:dep_class) {
         Class.new do
-          include EventSourcery::EventProcessing::EventReactor
+          include EventSourcery::EventProcessing::Reactor
 
           processes_events :terms_accepted
           emits_events :echo_event
@@ -168,7 +168,7 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
       context "when the event emitted doesn't take actions" do
         let(:dep_class) {
           Class.new do
-            include EventSourcery::EventProcessing::EventReactor
+            include EventSourcery::EventProcessing::Reactor
 
             processes_events :terms_accepted
             emits_events :echo_event
@@ -190,7 +190,7 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
       context "when the event emitted hasn't been defined in emit_events" do
         let(:dep_class) {
           Class.new do
-            include EventSourcery::EventProcessing::EventReactor
+            include EventSourcery::EventProcessing::Reactor
 
             processes_events :terms_accepted
             emits_events :echo_event
@@ -204,7 +204,7 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
         it 'raises an error' do
           expect {
             dep.process(event_1)
-          }.to raise_error(EventSourcery::EventProcessing::EventReactor::UndeclaredEventEmissionError)
+          }.to raise_error(EventSourcery::EventProcessing::Reactor::UndeclaredEventEmissionError)
         end
       end
 
@@ -212,7 +212,7 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
         let(:events) { [] }
         let(:dep_class) {
           Class.new do
-            include EventSourcery::EventProcessing::EventReactor
+            include EventSourcery::EventProcessing::Reactor
 
             processes_events :terms_accepted
             emits_events :echo_event
@@ -238,7 +238,7 @@ RSpec.describe EventSourcery::EventProcessing::EventReactor do
 
       it 'can emit events with a hash instead of an event object' do
         dep = Class.new do
-          include EventSourcery::EventProcessing::EventReactor
+          include EventSourcery::EventProcessing::Reactor
 
           processes_events :terms_accepted
           emits_events :echo_event

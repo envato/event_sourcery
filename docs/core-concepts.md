@@ -88,9 +88,9 @@ Projectors tend to be built for specific read-side needs and are generally speci
 
 Modifying a projection is achieved by creating a new projector.
 
-### EventReactors
+### Reactors
 
-An EventReactor is an EventStreamProcessor that listens to events and emits events back into the store and/or trigger side effects in the world.
+A Reactor is an EventStreamProcessor that listens to events and emits events back into the store and/or trigger side effects in the world.
 
 They typically record any external side effects they've triggered as events in the store.
 
@@ -106,6 +106,6 @@ The web layer will take a query and pass it to the appropriate query handler. Th
 
 ## A Typical EventSourcery Application
 
-A typical EventSourcery application will have one or more aggregates with multiple commands and multiple projectors and event reactors running. 
+A typical EventSourcery application will have one or more aggregates with multiple commands and multiple projectors and reactors running.
 
 

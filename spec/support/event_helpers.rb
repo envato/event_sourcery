@@ -1,10 +1,11 @@
 module EventHelpers
-  def new_event(aggregate_id: SecureRandom.uuid, type: 'test_event', body: {}, id: nil, version: 1)
+  def new_event(aggregate_id: SecureRandom.uuid, type: 'test_event', body: {}, id: nil, version: 1, created_at: nil)
     EventSourcery::Event.new(id: id,
                              aggregate_id: aggregate_id,
                              type: type,
                              body: body,
-                             version: version)
+                             version: version,
+                             created_at: created_at)
   end
 
   def create_old_events_schema

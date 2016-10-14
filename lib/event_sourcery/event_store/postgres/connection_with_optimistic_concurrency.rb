@@ -16,11 +16,18 @@ module EventSourcery
           aggregate_id = aggregate_ids.first
           bodies = events.map { |event| @pg_connection.literal(Sequel.pg_json(event.body)) }.join(', ')
           types = events.map { |event| @pg_connection.literal(event.type) }.join(', ')
+          created_ats = events.map(&:created_at).compact.map { |created_at| "'#{created_at.iso8601(6)}'::timestamp without time zone" }.join(', ')
+          if created_ats == ''
+            created_ats = "null"
+          else
+            created_ats = "array[#{created_ats}]"
+          end
           sql = <<-SQL
             select #{@write_events_function_name}('#{aggregate_id}'::uuid,
                                array[#{types}]::varchar[],
                                #{expected_version ? expected_version : "null"}::int,
                                array[#{bodies}]::json[],
+                               #{created_ats},
                                #{@lock_table}::boolean);
           SQL
           @pg_connection.run sql

@@ -1,8 +1,33 @@
 RSpec.describe EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConcurrency do
   let(:supports_versions) { true }
   subject(:event_store) { described_class.new(pg_connection) }
+  let(:aggregate_id) { SecureRandom.uuid }
 
   include_examples 'an event store'
+
+  def save_event(expected_version: nil)
+    event_store.sink(new_event(aggregate_id: aggregate_id,
+                     type: :billing_details_provided,
+                     body: { my_event: 'data' }),
+                     expected_version: expected_version)
+  end
+
+  def add_event
+    event_store.sink(new_event(aggregate_id: aggregate_id))
+  end
+
+  def last_event
+    event_store.get_next_from(0).last
+  end
+
+  def aggregate_version
+    result = connection[:aggregates].
+      where(aggregate_id: aggregate_id).
+      first
+    if result
+      result[:version]
+    end
+  end
 
   describe '#sink' do
     def add_event
@@ -17,9 +42,7 @@ RSpec.describe EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConc
     end
   end
 
-
   describe '#subscribe' do
-    let(:aggregate_id) { SecureRandom.uuid }
     let(:event) { new_event(aggregate_id: aggregate_id) }
 
     it 'notifies of new events' do
@@ -33,30 +56,6 @@ RSpec.describe EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConc
   end
 
   context 'optimistic concurrency control' do
-    def save_event(expected_version: nil)
-      event_store.sink(new_event(aggregate_id: aggregate_id,
-                       type: :billing_details_provided,
-                       body: { my_event: 'data' }),
-                       expected_version: expected_version)
-    end
-
-    def add_event
-      event_store.sink(new_event(aggregate_id: aggregate_id))
-    end
-
-    def last_event
-      event_store.get_next_from(0).last
-    end
-
-    def aggregate_version
-      result = connection[:aggregates].
-        where(aggregate_id: aggregate_id).
-        first
-      if result
-        result[:version]
-      end
-    end
-
     context "when the aggregate doesn't exist" do
       context 'and the expected version is correct - 0' do
         it 'saves the event with and sets the aggregate version to version 1' do
@@ -121,6 +120,22 @@ RSpec.describe EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConc
       it 'raises it' do
         expect { add_event }.to raise_error(Sequel::DatabaseError)
       end
+    end
+
+    it 'allows overriding the created_at timestamp for events' do
+      time = Time.parse('2016-10-14T00:00:00Z')
+      event_store.sink(new_event(aggregate_id: aggregate_id,
+                                 type: :billing_details_provided,
+                                 body: { my_event: 'data' },
+                                 created_at: time))
+      expect(last_event[:created_at]).to eq time
+    end
+
+    it 'defaults to now() when no created_at timestamp is supplied' do
+      event_store.sink(new_event(aggregate_id: aggregate_id,
+                                 type: :billing_details_provided,
+                                 body: { my_event: 'data' }))
+      expect(last_event[:created_at]).to be_instance_of(Time)
     end
   end
 end

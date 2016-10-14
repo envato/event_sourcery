@@ -10,6 +10,7 @@ module EventSourcery
                   :lock_table_to_guarantee_linear_sequence_id_growth,
                   :write_events_function_name,
                   :events_table_name,
+                  :aggregates_table_name,
                   :callback_interval_if_no_new_events
 
     attr_writer :event_store,
@@ -25,6 +26,7 @@ module EventSourcery
       @lock_table_to_guarantee_linear_sequence_id_growth = true
       @write_events_function_name = 'writeEvents'
       @events_table_name = :events
+      @aggregates_table_name = :aggregates
       @callback_interval_if_no_new_events = 10
     end
 

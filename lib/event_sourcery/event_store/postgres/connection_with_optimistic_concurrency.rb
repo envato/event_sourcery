@@ -2,8 +2,14 @@ module EventSourcery
   module EventStore
     module Postgres
       class ConnectionWithOptimisticConcurrency < Connection
+        def initialize(pg_connection, events_table_name: EventSourcery.config.events_table_name, lock_table: EventSourcery.config.lock_table_to_guarantee_linear_sequence_id_growth, write_events_function_name: EventSourcery.config.write_events_function_name)
+          @pg_connection = pg_connection
+          @events_table_name = events_table_name
+          @write_events_function_name = write_events_function_name
+          @lock_table = lock_table
+        end
+
         def sink(event_or_events, expected_version: nil)
-          events_function_name = EventSourcery.config.write_events_function_name
           events = Array(event_or_events)
           aggregate_ids = events.map(&:aggregate_id).uniq
           raise AtomicWriteToMultipleAggregatesNotSupported unless aggregate_ids.count == 1
@@ -11,7 +17,7 @@ module EventSourcery
           bodies = events.map { |event| @pg_connection.literal(Sequel.pg_json(event.body)) }.join(', ')
           types = events.map { |event| @pg_connection.literal(event.type) }.join(', ')
           sql = <<-SQL
-            select #{events_function_name}('#{aggregate_id}'::uuid,
+            select #{@write_events_function_name}('#{aggregate_id}'::uuid,
                                array[#{types}]::varchar[],
                                #{expected_version ? expected_version : "null"}::int,
                                array[#{bodies}]::json[],

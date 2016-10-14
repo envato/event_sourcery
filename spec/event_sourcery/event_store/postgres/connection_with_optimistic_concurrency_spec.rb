@@ -123,7 +123,7 @@ RSpec.describe EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConc
     end
 
     it 'allows overriding the created_at timestamp for events' do
-      time = Time.parse('2016-10-14T00:00:00Z')
+      time = Time.parse('2016-10-14T00:00:00.646191Z')
       event_store.sink(new_event(aggregate_id: aggregate_id,
                                  type: :billing_details_provided,
                                  body: { my_event: 'data' },

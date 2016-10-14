@@ -16,7 +16,7 @@ module EventSourcery
           aggregate_id = aggregate_ids.first
           bodies = events.map { |event| @pg_connection.literal(Sequel.pg_json(event.body)) }.join(', ')
           types = events.map { |event| @pg_connection.literal(event.type) }.join(', ')
-          created_ats = events.map(&:created_at).compact.map { |created_at| "'#{created_at.iso8601}'::timestamp without time zone" }.join(', ')
+          created_ats = events.map(&:created_at).compact.map { |created_at| "'#{created_at.iso8601(6)}'::timestamp without time zone" }.join(', ')
           if created_ats == ''
             created_ats = "null"
           else

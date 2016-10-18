@@ -22,12 +22,14 @@ module EventSourcery
           else
             created_ats = "array[#{created_ats}]"
           end
+          event_uuids = events.map { |event| @pg_connection.literal(event.uuid) }.join(', ')
           sql = <<-SQL
             select #{@write_events_function_name}('#{aggregate_id}'::uuid,
                                array[#{types}]::varchar[],
                                #{expected_version ? expected_version : "null"}::int,
                                array[#{bodies}]::json[],
                                #{created_ats},
+                               array[#{event_uuids}]::uuid[],
                                #{@lock_table}::boolean);
           SQL
           @pg_connection.run sql

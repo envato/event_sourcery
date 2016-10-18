@@ -13,6 +13,7 @@ module EventSourcery
         end
 
         def create_events(db, table_name: EventSourcery.config.events_table_name, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency)
+          db.run 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'
           db.create_table(table_name) do
             primary_key :id, type: :Bignum
             column :uuid, 'uuid default uuid_generate_v4() not null'

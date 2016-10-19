@@ -13,7 +13,6 @@ RSpec.describe EventSourcery::Event do
 
     before do
       allow(EventSourcery::EventBodySerializer).to receive(:serialize)
-      allow(SecureRandom).to receive(:uuid).and_return(uuid)
     end
 
     it 'serializes event body' do
@@ -22,6 +21,7 @@ RSpec.describe EventSourcery::Event do
     end
 
     it 'assigns a uuid if one is not given' do
+      allow(SecureRandom).to receive(:uuid).and_return(uuid)
       expect(initializer.uuid).to eq uuid
     end
 

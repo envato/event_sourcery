@@ -11,6 +11,13 @@ RSpec.shared_examples 'an event store' do
       expect(events.map(&:id)).to eq [1, 2, 3]
     end
 
+    it 'assigns UUIDs' do
+      uuid = SecureRandom.uuid
+      event_store.sink(new_event(uuid: uuid))
+      event = event_store.get_next_from(1).first
+      expect(event.uuid).to eq uuid
+    end
+
     it 'returns true' do
       expect(event_store.sink(new_event)).to eq true
     end

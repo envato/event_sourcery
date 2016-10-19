@@ -17,7 +17,8 @@ module EventSourcery
             aggregate_id: event.aggregate_id,
             type: event.type,
             body: serialized_body,
-            created_at: Time.now
+            created_at: Time.now,
+            uuid: event.uuid
           )
         end
         true

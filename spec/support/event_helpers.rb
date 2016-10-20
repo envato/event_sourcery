@@ -1,16 +1,19 @@
 module EventHelpers
-  def new_event(aggregate_id: SecureRandom.uuid, type: 'test_event', body: {}, id: nil, version: 1)
+  def new_event(aggregate_id: SecureRandom.uuid, type: 'test_event', body: {}, id: nil, version: 1, created_at: nil, uuid: SecureRandom.uuid)
     EventSourcery::Event.new(id: id,
                              aggregate_id: aggregate_id,
                              type: type,
                              body: body,
-                             version: version)
+                             version: version,
+                             created_at: created_at,
+                             uuid: uuid)
   end
 
   def create_old_events_schema
     pg_connection.execute 'drop table events'
     pg_connection.create_table(:events) do
       primary_key :id, type: :Bignum
+      column :uuid, 'uuid default uuid_generate_v4() not null'
       column :aggregate_id, 'uuid not null'
       column :type, 'varchar(255) not null'
       column :body, 'json not null'

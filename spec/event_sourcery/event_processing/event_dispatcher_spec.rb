@@ -37,40 +37,5 @@ RSpec.describe EventSourcery::EventProcessing::EventDispatcher do
       allow(event_store).to receive(:subscribe).and_yield(events)
     end
 
-    it 'sets up processors' do
-      start!
-      expect(projector).to have_received(:setup)
-      expect(reactor).to have_received(:setup)
-    end
-
-    it "subscribes to events with union types of all processors and id greater than smallest last_processed_event_id of all processors" do
-      start!
-      expect(event_store).to have_received(:subscribe).with(from_id: projector_last_event_id, event_types: [:account_created, :credit, :debit, :account_closed], after_listen: nil)
-    end
-
-    it 'projector processes events after last processed one' do
-      start!
-      expect(projector).to have_received(:process_events).with([event_3, event_4, event_5, event_6])
-    end
-
-    it 'reactor processes events' do
-      start!
-      expect(reactor).to have_received(:process_events).with([event_5, event_6])
-    end
-
-    context 'when on_events_processed is set' do
-      let(:logger) { double(log: true) }
-      before do
-        dispatcher.on_events_processed do |processor_name, last_event_id|
-          logger.log("Processor #{processor_name} has processed up to event #{last_event_id}")
-        end
-      end
-
-      it 'calls on_events_processed block when a processor has processed a batch of subscribed events' do
-        start!
-        expect(logger).to have_received(:log).with("Processor AccountBalanceProjector has processed up to event 6")
-        expect(logger).to have_received(:log).with("Processor AccountCreationProcessor has processed up to event 6")
-      end
-    end
   end
 end

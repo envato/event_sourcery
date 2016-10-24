@@ -1,3 +1,6 @@
+class ItemAdded < EventSourcery::Event
+end
+
 RSpec.describe EventSourcery::Event do
   let(:aggregate_id) { 'aggregate_id' }
   let(:type) { 'type' }
@@ -42,5 +45,17 @@ RSpec.describe EventSourcery::Event do
 
   context 'equality' do
     #let(:event_1) { EventSourcery::Event.new(id: 1
+  end
+
+  context 'custom event classes' do
+    it 'sets the type' do
+      expect(ItemAdded.new.type).to eq 'item_added'
+    end
+
+    context 'when not using a custom event class' do
+      it 'does not set the type' do
+        expect(EventSourcery::Event.new.type).to be_nil
+      end
+    end
   end
 end

@@ -56,4 +56,22 @@ RSpec.describe EventSourcery::Config do
       expect(config.event_tracker).to be_instance_of(EventSourcery::EventProcessing::EventTrackers::Postgres)
     end
   end
+
+  describe '#inflector' do
+    it 'defaults to Utils::String' do
+      expect(config.inflector).to eq EventSourcery::Utils::Inflector
+    end
+
+    context 'when active support is available' do
+      let(:as_inflector) { double }
+
+      before do
+        stub_const('ActiveSupport::Inflector', as_inflector)
+      end
+
+      it 'uses active support' do
+        expect(config.inflector).to eq as_inflector
+      end
+    end
+  end
 end

@@ -43,11 +43,11 @@ module EventSourcery
     end
 
     def event_source
-      EventStore::EventSource.new(event_store)
+      @event_source ||= EventStore::EventSource.new(event_store)
     end
 
     def event_sink
-      EventStore::EventSink.new(event_store)
+      @event_sink ||= EventStore::EventSink.new(event_store)
     end
 
     def projections_database=(sequel_connection)

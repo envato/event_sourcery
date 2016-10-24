@@ -34,6 +34,41 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
   let(:events) { [] }
   subject(:dep) { dep_class.new(tracker: tracker, event_source: event_source, event_sink: event_sink) }
 
+  describe '.new' do
+    let(:event_source) { double }
+    let(:event_sink) { double }
+    let(:projections_database) { double }
+    let(:event_tracker) { double }
+
+    before do
+      allow(EventSourcery::EventProcessing::EventTrackers::Postgres).to receive(:new).with(projections_database).and_return(event_tracker)
+
+      EventSourcery.configure do |config|
+        config.event_source = event_source
+        config.event_sink = event_sink
+        config.projections_database = projections_database
+      end
+    end
+
+    subject(:reactor) { dep_class.new }
+
+    it 'uses the configured projections database by default' do
+      expect(reactor.instance_variable_get('@db_connection')).to eq projections_database
+    end
+
+    it 'uses the inferred event tracker database by default' do
+      expect(reactor.instance_variable_get('@tracker')).to eq event_tracker
+    end
+
+    it 'uses the configured event source by default' do
+      expect(reactor.instance_variable_get('@event_source')).to eq event_source
+    end
+
+    it 'uses the configured event sink by default' do
+      expect(reactor.instance_variable_get('@event_sink')).to eq event_sink
+    end
+  end
+
   context "a processor that doesn't emit events" do
     it "doesn't require an event sink" do
       expect {

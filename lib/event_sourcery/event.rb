@@ -24,6 +24,12 @@ module EventSourcery
       !id.nil?
     end
 
+    def self.attribute(name, default: nil)
+      define_method(name) do
+        body.fetch(name.to_s, default)
+      end
+    end
+
     private
 
     def underscored_class_name

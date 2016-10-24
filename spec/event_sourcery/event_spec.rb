@@ -1,4 +1,6 @@
 class ItemAdded < EventSourcery::Event
+  attribute :title
+  attribute :currency, default: 'USD'
 end
 
 RSpec.describe EventSourcery::Event do
@@ -56,6 +58,20 @@ RSpec.describe EventSourcery::Event do
       it 'does not set the type' do
         expect(EventSourcery::Event.new.type).to be_nil
       end
+    end
+  end
+
+  context 'attributes' do
+    it 'forwards attributes to the body keys' do
+      expect(ItemAdded.new(body: { 'title' => 'blah' }).title).to eq 'blah'
+    end
+
+    it 'defaults attributes to nil' do
+      expect(ItemAdded.new.title).to be_nil
+    end
+
+    it 'defaults a given default if specified' do
+      expect(ItemAdded.new.currency).to eq 'USD'
     end
   end
 end

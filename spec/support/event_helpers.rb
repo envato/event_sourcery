@@ -1,3 +1,5 @@
+require 'securerandom'
+
 module EventHelpers
   def new_event(aggregate_id: SecureRandom.uuid, type: 'test_event', body: {}, id: nil, version: 1, created_at: nil, uuid: SecureRandom.uuid)
     EventSourcery::Event.new(id: id,

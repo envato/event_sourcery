@@ -1,3 +1,5 @@
+require 'forwardable'
+
 module EventSourcery
   module EventStore
     class EventSink

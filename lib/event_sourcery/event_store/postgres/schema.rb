@@ -52,7 +52,7 @@ declare
   newVersion int;
   numEvents int;
 begin
-  numEvents := cardinality(_bodies);
+  numEvents := array_length(_bodies, 1);
   select version into currentVersion from #{aggregates_table_name} where aggregate_id = _aggregateId;
   if not found then
     -- when we have no existing version for this aggregate

@@ -42,6 +42,17 @@ RSpec.shared_examples 'an event store' do
       end
     end
 
+    it 'sets the correct aggregates version' do
+      event_store.sink([new_event(aggregate_id: aggregate_id, body: {e: 1}),
+                        new_event(aggregate_id: aggregate_id, body: {e: 2})])
+      # this will throw a unique constrain error if the aggregate version was not set correctly ^
+      event_store.sink([new_event(aggregate_id: aggregate_id, body: {e: 1}),
+                        new_event(aggregate_id: aggregate_id, body: {e: 2})])
+      events = event_store.get_next_from(1)
+      expect(events.count).to eq 4
+      expect(events.map(&:id)).to eq [1, 2, 3, 4]
+    end
+
     context 'with no existing aggregate stream' do
       it 'saves an event' do
         event = new_event(aggregate_id: aggregate_id,

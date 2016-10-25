@@ -1,5 +1,5 @@
 RSpec.describe EventSourcery::EventProcessing::Reactor do
-  let(:dep_class) {
+  let(:reactor_class) {
     Class.new do
       include EventSourcery::EventProcessing::Reactor
 
@@ -12,7 +12,7 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
       attr_reader :processed_event
     end
   }
-  let(:dep_class_with_emit) {
+  let(:reactor_class_with_emit) {
     Class.new do
       include EventSourcery::EventProcessing::Reactor
 
@@ -25,14 +25,14 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
   }
 
   let(:tracker) { EventSourcery::EventProcessing::EventTrackers::Memory.new }
-  let(:dep_name) { 'my_dep' }
+  let(:reactor_name) { 'my_reactor' }
   let(:event_store) { EventSourcery::EventStore::Memory.new(events) }
   let(:event_source) { EventSourcery::EventStore::EventSource.new(event_store) }
 
   let(:event_sink) { EventSourcery::EventStore::EventSink.new(event_store) }
   let(:aggregate_id) { SecureRandom.uuid }
   let(:events) { [] }
-  subject(:dep) { dep_class.new(tracker: tracker, event_source: event_source, event_sink: event_sink) }
+  subject(:reactor) { reactor_class.new(tracker: tracker, event_source: event_source, event_sink: event_sink) }
 
   describe '.new' do
     let(:event_source) { double }
@@ -50,7 +50,7 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
       end
     end
 
-    subject(:reactor) { dep_class.new }
+    subject(:reactor) { reactor_class.new }
 
     it 'uses the configured projections database by default' do
       expect(reactor.instance_variable_get('@db_connection')).to eq projections_database
@@ -72,73 +72,73 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
   context "a processor that doesn't emit events" do
     it "doesn't require an event sink" do
       expect {
-        dep_class.new(tracker: tracker, event_source: event_source)
+        reactor_class.new(tracker: tracker, event_source: event_source)
       }.to_not raise_error(ArgumentError)
     end
 
     it "doesn't require an event source" do
       expect {
-        dep_class.new(tracker: tracker, event_sink: event_sink)
+        reactor_class.new(tracker: tracker, event_sink: event_sink)
       }.to_not raise_error(ArgumentError)
-      expect { dep.setup }.to_not raise_error
+      expect { reactor.setup }.to_not raise_error
     end
   end
 
   context 'a processor that does emit events' do
     it 'requires an event sink' do
       expect {
-        dep_class_with_emit.new(tracker, event_source, nil)
+        reactor_class_with_emit.new(tracker, event_source, nil)
       }.to raise_error(ArgumentError)
     end
 
     it 'requires an event source' do
       expect {
-        dep_class_with_emit.new(tracker, nil, event_sink)
+        reactor_class_with_emit.new(tracker, nil, event_sink)
       }.to raise_error(ArgumentError)
     end
   end
 
   describe '#setup' do
     it 'sets up the tracker to ensure we have a track entry' do
-      expect(tracker).to receive(:setup).with(dep_class.processor_name)
-      dep.setup
+      expect(tracker).to receive(:setup).with(reactor_class.processor_name)
+      reactor.setup
     end
   end
 
   describe '#reset' do
     it 'resets last processed event ID' do
-      dep.process(OpenStruct.new(type: :terms_accepted, id: 1))
-      dep.reset
+      reactor.process(OpenStruct.new(type: :terms_accepted, id: 1))
+      reactor.reset
       expect(tracker.last_processed_event_id(:test_processor)).to eq 0
     end
   end
 
   describe '.processes?' do
     it 'returns true if the event has been defined' do
-      expect(dep_class.processes?('terms_accepted')).to eq true
-      expect(dep_class.processes?(:terms_accepted)).to eq true
+      expect(reactor_class.processes?('terms_accepted')).to eq true
+      expect(reactor_class.processes?(:terms_accepted)).to eq true
     end
 
     it "returns false if the event hasn't been defined" do
-      expect(dep_class.processes?('item_viewed')).to eq false
-      expect(dep_class.processes?(:item_viewed)).to eq false
+      expect(reactor_class.processes?('item_viewed')).to eq false
+      expect(reactor_class.processes?(:item_viewed)).to eq false
     end
   end
 
   describe '.emits_event?' do
     it 'returns true if the event has been defined' do
-      expect(dep_class_with_emit.emits_event?('blah')).to eq true
-      expect(dep_class_with_emit.emits_event?(:blah)).to eq true
+      expect(reactor_class_with_emit.emits_event?('blah')).to eq true
+      expect(reactor_class_with_emit.emits_event?(:blah)).to eq true
     end
 
     it "returns false if the event hasn't been defined" do
-      expect(dep_class_with_emit.emits_event?('item_viewed')).to eq false
-      expect(dep_class_with_emit.emits_event?(:item_viewed)).to eq false
+      expect(reactor_class_with_emit.emits_event?('item_viewed')).to eq false
+      expect(reactor_class_with_emit.emits_event?(:item_viewed)).to eq false
     end
 
-    it "returns false if the DEP doesn't emit events" do
-      expect(dep_class.emits_event?('blah')).to eq false
-      expect(dep_class.emits_event?(:blah)).to eq false
+    it "returns false if the reactor doesn't emit events" do
+      expect(reactor_class.emits_event?('blah')).to eq false
+      expect(reactor_class.emits_event?(:blah)).to eq false
     end
   end
 
@@ -146,11 +146,11 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
     let(:event) { OpenStruct.new(type: :terms_accepted, id: 1) }
 
     it "projects events it's interested in" do
-      dep.process(event)
-      expect(dep.processed_event).to eq(event)
+      reactor.process(event)
+      expect(reactor.processed_event).to eq(event)
     end
 
-    context 'with a DEP that emits events' do
+    context 'with a reactor that emits events' do
       let(:event_1) { EventSourcery::Event.new(id: 1, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
       let(:event_2) { EventSourcery::Event.new(id: 2, type: 'echo_event', aggregate_id: aggregate_id, body: event_1.body.merge(EventSourcery::EventProcessing::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 1)) }
       let(:event_3) { EventSourcery::Event.new(id: 3, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
@@ -169,7 +169,7 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
           end
         end
       }
-      let(:dep_class) {
+      let(:reactor_class) {
         Class.new do
           include EventSourcery::EventProcessing::Reactor
 
@@ -188,7 +188,7 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
       }
 
       before do
-        dep.setup
+        reactor.setup
         stub_const("TestActioner", action_stub_class)
       end
 
@@ -201,7 +201,7 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
       end
 
       context "when the event emitted doesn't take actions" do
-        let(:dep_class) {
+        let(:reactor_class) {
           Class.new do
             include EventSourcery::EventProcessing::Reactor
 
@@ -216,14 +216,14 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
 
         it 'processes the events as usual' do
           [event_1, event_2, event_3, event_4, event_5].each do |event|
-            dep.process(event)
+            reactor.process(event)
           end
           expect(event_count).to eq 8
         end
       end
 
       context "when the event emitted hasn't been defined in emit_events" do
-        let(:dep_class) {
+        let(:reactor_class) {
           Class.new do
             include EventSourcery::EventProcessing::Reactor
 
@@ -238,14 +238,14 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
 
         it 'raises an error' do
           expect {
-            dep.process(event_1)
+            reactor.process(event_1)
           }.to raise_error(EventSourcery::EventProcessing::Reactor::UndeclaredEventEmissionError)
         end
       end
 
       context 'when body is yielded to the emit block' do
         let(:events) { [] }
-        let(:dep_class) {
+        let(:reactor_class) {
           Class.new do
             include EventSourcery::EventProcessing::Reactor
 
@@ -261,18 +261,18 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
         }
 
         it 'can manupulate the event body as part of the action' do
-          dep.process(event_1)
+          reactor.process(event_1)
           expect(latest_events(1).first.body["token"]).to eq 'secret-identifier'
         end
 
         it 'stores the driven by event id in the body' do
-          dep.process(event_1)
+          reactor.process(event_1)
           expect(latest_events(1).first.body["_driven_by_event_id"]).to eq event_1.id
         end
       end
 
       it 'can emit events with a hash instead of an event object' do
-        dep = Class.new do
+        reactor = Class.new do
           include EventSourcery::EventProcessing::Reactor
 
           processes_events :terms_accepted
@@ -285,7 +285,7 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
           end
         end.new(tracker: tracker, event_source: event_source, event_sink: event_sink)
         event = new_event(id: 1, type: :terms_accepted, aggregate_id: SecureRandom.uuid)
-        dep.process(event)
+        reactor.process(event)
         expect(latest_events(1).first.body["_driven_by_event_id"]).to eq event.id
         expect(latest_events(1).first.body["token"]).to eq 'secret-identifier'
         expect(latest_events(1).first.aggregate_id).to eq event.aggregate_id

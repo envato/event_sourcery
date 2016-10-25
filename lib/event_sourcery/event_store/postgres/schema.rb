@@ -49,13 +49,16 @@ declare
   eventVersion int;
   eventId text;
   index int;
+  newVersion int;
+  numEvents int;
 begin
+  numEvents := array_length(_bodies, 1);
   select version into currentVersion from #{aggregates_table_name} where aggregate_id = _aggregateId;
   if not found then
     -- when we have no existing version for this aggregate
     if _expectedVersion = 0 or _expectedVersion is null then
       -- set the version to 1 if expected version is null or 0
-      insert into #{aggregates_table_name}(aggregate_id, version) values(_aggregateId, 1);
+      insert into #{aggregates_table_name}(aggregate_id, version) values(_aggregateId, numEvents);
       currentVersion := 0;
     else
       raise 'Concurrency conflict. Current version: 0, expected version: %', _expectedVersion;
@@ -63,10 +66,11 @@ begin
   else
     if _expectedVersion is null then
       -- automatically increment the version
-      update #{aggregates_table_name} set version = version + 1 where aggregate_id = _aggregateId;
+      update #{aggregates_table_name} set version = version + numEvents where aggregate_id = _aggregateId returning version into newVersion;
+      currentVersion := newVersion - numEvents;
     else
       -- increment the version if it's at our expected versionn
-      update #{aggregates_table_name} set version = version + 1 where aggregate_id = _aggregateId and version = _expectedVersion;
+      update #{aggregates_table_name} set version = version + numEvents where aggregate_id = _aggregateId and version = _expectedVersion;
       if not found then
         -- version was not at expected_version, raise an error
         raise 'Concurrency conflict. Current version: %, expected version: %', currentVersion, _expectedVersion;

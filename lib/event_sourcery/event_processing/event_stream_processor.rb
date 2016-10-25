@@ -66,6 +66,10 @@ module EventSourcery
         end
       end
 
+      def processes_event_types
+        self.class.processes_event_types
+      end
+
       def setup
         tracker.setup(processor_name)
       end
@@ -89,7 +93,7 @@ module EventSourcery
       def subscribe_to(event_store)
         setup
         event_store.subscribe(from_id: last_processed_event_id + 1,
-                              event_types: self.class.processes_event_types) do |events|
+                              event_types: processes_event_types) do |events|
           process_events(events)
         end
       end

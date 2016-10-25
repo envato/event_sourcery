@@ -49,6 +49,7 @@ declare
   eventVersion int;
   eventId text;
   index int;
+  newVersion int;
 begin
   select version into currentVersion from #{aggregates_table_name} where aggregate_id = _aggregateId;
   if not found then
@@ -63,7 +64,8 @@ begin
   else
     if _expectedVersion is null then
       -- automatically increment the version
-      update #{aggregates_table_name} set version = version + 1 where aggregate_id = _aggregateId;
+      update #{aggregates_table_name} set version = version + 1 where aggregate_id = _aggregateId returning version into newVersion;
+      currentVersion := newVersion - 1;
     else
       -- increment the version if it's at our expected versionn
       update #{aggregates_table_name} set version = version + 1 where aggregate_id = _aggregateId and version = _expectedVersion;

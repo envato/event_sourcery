@@ -50,6 +50,29 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
 
   after { release_advisory_locks }
 
+  describe '.new' do
+    let(:projections_database) { double }
+    let(:event_tracker) { double }
+
+    before do
+      allow(EventSourcery::EventProcessing::EventTrackers::Postgres).to receive(:new).with(projections_database).and_return(event_tracker)
+
+      EventSourcery.configure do |config|
+        config.projections_database = projections_database
+      end
+    end
+
+    subject(:projector) { projector_class.new }
+
+    it 'uses the configured projections database by default' do
+      expect(projector.instance_variable_get('@db_connection')).to eq projections_database
+    end
+
+    it 'uses the inferred event tracker database by default' do
+      expect(projector.instance_variable_get('@tracker')).to eq event_tracker
+    end
+  end
+
   describe '#setup' do
     before do
       connection.execute('DROP TABLE IF EXISTS profiles')

@@ -29,7 +29,7 @@ module EventSourcery
       end
 
       module InstanceMethods
-        def initialize(tracker:, db_connection: nil, event_source: nil, event_sink: nil)
+        def initialize(tracker: EventSourcery.config.event_tracker, db_connection: EventSourcery.config.projections_database, event_source: EventSourcery.config.event_source, event_sink: EventSourcery.config.event_sink)
           @tracker = tracker
           @event_source = event_source
           @event_sink = event_sink

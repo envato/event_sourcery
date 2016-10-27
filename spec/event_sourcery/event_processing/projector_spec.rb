@@ -73,32 +73,6 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
     end
   end
 
-  describe '#setup' do
-    before do
-      connection.execute('DROP TABLE IF EXISTS profiles')
-    end
-
-    it 'creates the defines table' do
-      projector.setup
-      expect(connection[:profiles].count).to eq 0
-    end
-  end
-
-  describe '#reset' do
-    let(:event) { EventSourcery::Event.new(body: {}, aggregate_id: aggregate_id, type: :terms_accepted, id: 1) }
-
-    before do
-      connection.execute('DROP TABLE IF EXISTS profiles')
-      projector.setup
-      projector.process(event)
-    end
-
-    it 'resets last processed event ID' do
-      projector.reset
-      expect(tracker.last_processed_event_id(:test_processor)).to eq 0
-    end
-  end
-
   describe '.projector_name' do
     it 'delegates to processor_name' do
       expect(projector_class.projector_name).to eq 'test_processor'
@@ -147,44 +121,13 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
   end
 
   describe '#process' do
+    before { projector.reset }
+
     let(:event) { EventSourcery::Event.new(body: {}, aggregate_id: aggregate_id, type: :terms_accepted, id: 1) }
 
     it "processes events it's interested in" do
       projector.process(event)
       expect(projector.processed_event).to eq(event)
-    end
-
-    context 'with more than one table' do
-      let(:projector_class) {
-        Class.new do
-          include EventSourcery::EventProcessing::Projector
-
-          processes_events :terms_accepted
-
-          table :profiles do
-            column :user_uuid, 'UUID NOT NULL'
-            column :terms_accepted, 'BOOLEAN DEFAULT FALSE'
-          end
-
-          table :two do
-            column :user_uuid, 'UUID NOT NULL'
-          end
-
-          def process(event)
-            @processed_event = event
-            table.insert(user_uuid: event.aggregate_id,
-                         terms_accepted: true)
-          end
-
-          attr_reader :processed_event
-        end
-      }
-
-      it 'throws a DefaultTableError when #table is used' do
-        expect {
-          projector.process(event)
-        }.to raise_error(EventSourcery::EventProcessing::TableOwner::DefaultTableError)
-      end
     end
   end
 
@@ -215,7 +158,7 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
 
     before do
       allow(event_store).to receive(:subscribe).and_yield(events).once
-      connection[:profiles].delete
+      projector.reset
     end
 
     context 'when an error occurs processing the event' do

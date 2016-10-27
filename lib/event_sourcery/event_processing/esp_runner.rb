@@ -12,6 +12,7 @@ module EventSourcery
         EventSourcery.logger.info { "Forking ESP processes" }
         @event_processors.each do |event_processor|
           fork do
+            Signal.trap("SIGINT") { exit }
             start_processor(event_processor)
           end
         end

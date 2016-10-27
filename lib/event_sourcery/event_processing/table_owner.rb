@@ -13,7 +13,7 @@ module EventSourcery
         end
 
         def table(name, &block)
-          tables[name] =  block
+          tables[name] = block
         end
       end
 

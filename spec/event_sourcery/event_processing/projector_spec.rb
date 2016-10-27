@@ -127,39 +127,6 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
       projector.process(event)
       expect(projector.processed_event).to eq(event)
     end
-
-    context 'with more than one table' do
-      let(:projector_class) {
-        Class.new do
-          include EventSourcery::EventProcessing::Projector
-
-          processes_events :terms_accepted
-
-          table :profiles do
-            column :user_uuid, 'UUID NOT NULL'
-            column :terms_accepted, 'BOOLEAN DEFAULT FALSE'
-          end
-
-          table :two do
-            column :user_uuid, 'UUID NOT NULL'
-          end
-
-          def process(event)
-            @processed_event = event
-            table.insert(user_uuid: event.aggregate_id,
-                         terms_accepted: true)
-          end
-
-          attr_reader :processed_event
-        end
-      }
-
-      it 'throws a DefaultTableError when #table is used' do
-        expect {
-          projector.process(event)
-        }.to raise_error(EventSourcery::EventProcessing::TableOwner::DefaultTableError)
-      end
-    end
   end
 
   describe '#subscribe_to' do

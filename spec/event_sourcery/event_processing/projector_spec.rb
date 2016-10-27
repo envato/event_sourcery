@@ -121,6 +121,8 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
   end
 
   describe '#process' do
+    before { projector.reset }
+
     let(:event) { EventSourcery::Event.new(body: {}, aggregate_id: aggregate_id, type: :terms_accepted, id: 1) }
 
     it "processes events it's interested in" do
@@ -156,7 +158,7 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
 
     before do
       allow(event_store).to receive(:subscribe).and_yield(events).once
-      connection[:profiles].delete
+      projector.reset
     end
 
     context 'when an error occurs processing the event' do

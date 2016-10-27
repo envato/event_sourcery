@@ -16,6 +16,14 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
       allow(esp).to receive(:subscribe_to)
     end
 
+    it 'forks and traps SIGINT signal inside subprocess' do
+      expect(esp_runner).to receive(:fork) do |&block|
+        expect(Signal).to receive(:trap).with('SIGINT')
+        block.call
+      end
+      esp_runner.start!
+    end
+
     it 'subscribes ESPs' do
       esp_runner.start!
       expect(esp).to have_received(:subscribe_to).with(event_store)

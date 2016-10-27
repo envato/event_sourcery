@@ -21,7 +21,7 @@ module EventSourcery
         self.class.tables.each do |table_name, schema_block|
           @db_connection.create_table?(table_name, &schema_block)
         end
-        super
+        super if defined?(super)
       end
 
       def reset
@@ -30,7 +30,7 @@ module EventSourcery
             @db_connection.drop_table(table_name)
           end
         end
-        super
+        super if defined?(super)
         setup
       end
 

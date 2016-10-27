@@ -59,6 +59,25 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
     end
   end
 
+  describe '#reset' do
+    subject(:event_processor) {
+      new_event_processor do
+        processor_name 'my_processor'
+        processes_all_events
+      end
+    }
+
+    before do
+      event_processor.setup
+      event_processor.process(new_event(id: 1))
+    end
+
+    it 'resets last processed event ID' do
+      event_processor.reset
+      expect(tracker.last_processed_event_id(:test_processor)).to eq 0
+    end
+  end
+
   describe '#subscribe_to' do
     let(:event_store) { double(:event_store) }
     let(:events) { [new_event(id: 1), new_event(id: 2)] }

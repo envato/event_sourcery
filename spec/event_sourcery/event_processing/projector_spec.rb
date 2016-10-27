@@ -73,32 +73,6 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
     end
   end
 
-  describe '#setup' do
-    before do
-      connection.execute('DROP TABLE IF EXISTS profiles')
-    end
-
-    it 'creates the defines table' do
-      projector.setup
-      expect(connection[:profiles].count).to eq 0
-    end
-  end
-
-  describe '#reset' do
-    let(:event) { EventSourcery::Event.new(body: {}, aggregate_id: aggregate_id, type: :terms_accepted, id: 1) }
-
-    before do
-      connection.execute('DROP TABLE IF EXISTS profiles')
-      projector.setup
-      projector.process(event)
-    end
-
-    it 'resets last processed event ID' do
-      projector.reset
-      expect(tracker.last_processed_event_id(:test_processor)).to eq 0
-    end
-  end
-
   describe '.projector_name' do
     it 'delegates to processor_name' do
       expect(projector_class.projector_name).to eq 'test_processor'

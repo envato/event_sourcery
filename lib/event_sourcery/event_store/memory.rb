@@ -7,7 +7,7 @@ module EventSourcery
         @events = events
       end
 
-      def sink(event_or_events)
+      def sink(event_or_events, expected_version: nil)
         events = Array(event_or_events)
         events.each do |event|
           id = @events.size + 1

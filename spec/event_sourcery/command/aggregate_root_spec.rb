@@ -113,6 +113,35 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
         }.to raise_error(EventSourcery::ConcurrencyError)
       end
     end
+
+    context 'given an event hash' do
+      subject(:aggregate) do
+        new_aggregate(aggregate_uuid, use_optimistic_concurrency: false) do
+          def add_item(item)
+            apply_event(type: :item_added, body: { id: item.id })
+          end
+        end
+      end
+
+      it 'updates state' do
+        aggregate.add_item(OpenStruct.new(id: 1234))
+
+        event = aggregate.item_added_events.first
+        expect(event.type).to eq 'item_added'
+        expect(event.body).to eq('id' => 1234)
+      end
+
+      it 'saves the event with an initial version' do
+        aggregate.add_item(OpenStruct.new(id: 1234))
+
+        emitted_event = event_store.get_next_from(0).last
+        expect(emitted_event.id).to eq 2
+        expect(emitted_event.type).to eq 'item_added'
+        expect(emitted_event.body).to eq('id' => 1234)
+        expect(emitted_event.aggregate_id).to eq aggregate_uuid
+        expect(emitted_event.version).to eq 1
+      end
+    end
   end
 
   it 'is impossible to insert a duplicate version directly' do

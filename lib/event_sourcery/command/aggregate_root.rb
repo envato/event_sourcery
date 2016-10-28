@@ -22,7 +22,8 @@ module EventSourcery
 
       attr_reader :id, :event_sink
 
-      def apply_event(event)
+      def apply_event(event_or_hash)
+        event = to_event(event_or_hash)
         mutate_state_from(event)
         unless event.persisted?
           event_with_aggregate_id = Event.new(aggregate_id: @id,
@@ -34,6 +35,14 @@ module EventSourcery
           else
             event_sink.sink(event_with_aggregate_id)
           end
+        end
+      end
+
+      def to_event(event_or_hash)
+        if event_or_hash.is_a?(Event)
+          event_or_hash
+        else
+          Event.new(event_or_hash)
         end
       end
 

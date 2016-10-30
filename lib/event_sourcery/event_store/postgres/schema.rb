@@ -4,15 +4,15 @@ module EventSourcery
       module Schema
         extend self
 
-        def create(db, events_table_name: EventSourcery.config.events_table_name, aggregates_table_name: EventSourcery.config.aggregates_table_name, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency, write_events_function_name: EventSourcery.config.write_events_function_name)
-          create_events(db, table_name: events_table_name, use_optimistic_concurrency: use_optimistic_concurrency)
+        def create(db: EventSourcery.config.event_store_database, events_table_name: EventSourcery.config.events_table_name, aggregates_table_name: EventSourcery.config.aggregates_table_name, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency, write_events_function_name: EventSourcery.config.write_events_function_name)
+          create_events(db: db, table_name: events_table_name, use_optimistic_concurrency: use_optimistic_concurrency)
           if use_optimistic_concurrency
-            create_aggregates(db, table_name: aggregates_table_name)
-            create_or_update_functions(db, events_table_name: events_table_name, function_name: write_events_function_name, aggregates_table_name: aggregates_table_name)
+            create_aggregates(db: db, table_name: aggregates_table_name)
+            create_or_update_functions(db: db, events_table_name: events_table_name, function_name: write_events_function_name, aggregates_table_name: aggregates_table_name)
           end
         end
 
-        def create_events(db, table_name: EventSourcery.config.events_table_name, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency)
+        def create_events(db: EventSourcery.config.event_store_database, table_name: EventSourcery.config.events_table_name, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency)
           db.run 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'
           db.create_table(table_name) do
             primary_key :id, type: :Bignum
@@ -33,14 +33,14 @@ module EventSourcery
           end
         end
 
-        def create_aggregates(db, table_name: EventSourcery.config.aggregates_table_name)
+        def create_aggregates(db: EventSourcery.config.event_store_database, table_name: EventSourcery.config.aggregates_table_name)
           db.create_table(table_name) do
             primary_key :aggregate_id, 'uuid not null'
             column :version, 'bigint default 1'
           end
         end
 
-        def create_or_update_functions(db, function_name: EventSourcery.config.write_events_function_name, events_table_name: EventSourcery.config.events_table_name, aggregates_table_name: EventSourcery.config.aggregates_table_name)
+        def create_or_update_functions(db: EventSourcery.config.event_store_database, function_name: EventSourcery.config.write_events_function_name, events_table_name: EventSourcery.config.events_table_name, aggregates_table_name: EventSourcery.config.aggregates_table_name)
           db.run <<-SQL
 create or replace function #{function_name}(_aggregateId uuid, _eventTypes varchar[], _expectedVersion int, _bodies json[], _createdAtTimes timestamp without time zone[], _eventUUIDs uuid[], _lockTable boolean) returns void as $$
 declare

@@ -2,6 +2,7 @@ module EventSourcery
   module Command
     module AggregateRoot
       UnknownEventError = Class.new(RuntimeError)
+      RejectedCommandError = Class.new(RuntimeError)
 
       def initialize(id, event_sink, on_unknown_event: EventSourcery.config.on_unknown_event, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency)
         @id = id

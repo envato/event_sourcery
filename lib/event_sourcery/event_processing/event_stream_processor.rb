@@ -39,9 +39,7 @@ module EventSourcery
       end
 
       module ClassMethods
-        def processes_event_types
-          @processes_event_types
-        end
+        attr_reader :processes_event_types
 
         def processes_events(*event_types)
           @processes_event_types = event_types.map(&:to_s)
@@ -61,7 +59,7 @@ module EventSourcery
           if name
             @processor_name = name
           else
-            @processor_name || self.name
+            (defined?(@processor_name) && @processor_name) || self.name
           end
         end
       end

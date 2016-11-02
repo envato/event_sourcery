@@ -29,6 +29,8 @@ module EventSourcery
       @events_table_name = :events
       @aggregates_table_name = :aggregates
       @callback_interval_if_no_new_events = 10
+      @event_store_database = nil
+      @event_store = nil
     end
 
     def event_store

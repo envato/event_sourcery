@@ -3,7 +3,7 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
     Class.new do
       include EventSourcery::Command::AggregateRoot
 
-      def initialize(id, event_sink, use_optimistic_concurrency: use_optimistic_concurrency)
+      def initialize(id, event_sink, use_optimistic_concurrency:)
         super
         @item_added_events = []
       end

@@ -2,8 +2,7 @@ require 'logger'
 
 module EventSourcery
   class Config
-    attr_accessor :projections_database,
-                  :event_store_database,
+    attr_accessor :event_store_database,
                   :event_tracker,
                   :on_unknown_event,
                   :use_optimistic_concurrency,
@@ -17,6 +16,8 @@ module EventSourcery
                 :event_source,
                 :event_sink,
                 :logger
+
+    attr_reader :projections_database
 
     def initialize
       @on_unknown_event = proc { |event|

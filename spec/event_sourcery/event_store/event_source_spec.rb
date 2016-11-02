@@ -13,7 +13,7 @@ RSpec.describe EventSourcery::EventStore::EventSource do
     ].each do |method|
       it "delegates ##{method} to the adapter" do
         allow(event_store).to receive(method.to_sym).and_return([])
-        result = event_store.send(method.to_sym)
+        event_store.send(method.to_sym)
         expect(event_store).to have_received(method.to_sym)
       end
     end

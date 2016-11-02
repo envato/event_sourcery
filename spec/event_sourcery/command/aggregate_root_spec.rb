@@ -1,9 +1,15 @@
 RSpec.describe EventSourcery::Command::AggregateRoot do
-  def new_aggregate(id, use_optimistic_concurrency: true, &block)
+  def new_aggregate(id,
+                    on_unknown_event: EventSourcery.config.on_unknown_event,
+                    use_optimistic_concurrency: true,
+                    &block)
     Class.new do
       include EventSourcery::Command::AggregateRoot
 
-      def initialize(id, event_sink, use_optimistic_concurrency: use_optimistic_concurrency)
+      def initialize(id,
+                     event_sink,
+                     on_unknown_event: -> {},
+                     use_optimistic_concurrency: true)
         super
         @item_added_events = []
       end
@@ -17,7 +23,10 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
       end
 
       class_eval(&block) if block_given?
-    end.new(id, event_sink, use_optimistic_concurrency: use_optimistic_concurrency)
+    end.new(id,
+            event_sink,
+            on_unknown_event: on_unknown_event,
+            use_optimistic_concurrency: use_optimistic_concurrency)
   end
 
   let(:aggregate_uuid) { SecureRandom.uuid }
@@ -26,20 +35,37 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
   let(:event_sink) { EventSourcery::EventStore::EventSink.new(event_store) }
 
   describe '#load_history' do
+    subject(:load_history) { aggregate.load_history(events) }
+
     context 'when the event type has a state change method' do
+      let(:events) { [new_event(type: :item_added)] }
+
       it 'calls it' do
-        events = [new_event(type: :item_added)]
-        aggregate.load_history(events)
+        load_history
         expect(aggregate.item_added_events).to eq events
       end
     end
 
-    context "when the event type doesn't have a state change method" do
-      it 'raises an error' do
-        events = [new_event(type: :item_removed)]
-        expect {
-          aggregate.load_history(events)
-        }.to raise_error(EventSourcery::Command::AggregateRoot::UnknownEventError)
+    context "when the aggregate doesn't have a state change method for the loaded event" do
+      let(:events) { [new_event(type: :item_removed)] }
+
+      context 'using the default on_unknown_event' do
+        it 'raises an error' do
+          expect { load_history }
+            .to raise_error(EventSourcery::Command::AggregateRoot::UnknownEventError)
+        end
+      end
+
+      context 'using a custom on_unknown_event' do
+        let(:custom_on_unknown_event) { spy }
+        let(:aggregate) { new_aggregate(aggregate_uuid, on_unknown_event: custom_on_unknown_event) }
+
+        it 'yields the event and aggregate to the on_unknown_event block' do
+          load_history
+          expect(custom_on_unknown_event)
+            .to have_received(:call)
+            .with(events.first, kind_of(EventSourcery::Command::AggregateRoot))
+        end
       end
     end
   end

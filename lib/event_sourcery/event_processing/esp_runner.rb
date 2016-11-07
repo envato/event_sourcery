@@ -26,10 +26,6 @@ module EventSourcery
 
       attr_reader :pids
 
-      def set_process_title
-        Process.setproctitle(event_process)
-      end
-
       def start_processor(event_processor)
         EventSourcery.logger.info { "Starting #{event_processor.processor_name}" }
         event_processor.subscribe_to(@event_store)

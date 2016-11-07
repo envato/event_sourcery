@@ -18,7 +18,10 @@ module EventSourcery
           pids << pid
         end
         Signal.trap("SIGINT") { kill_child_processes }
-        Signal.trap("SIGTERM") { kill_child_processes }
+        Signal.trap("SIGTERM") do
+          EventSourcery.logger.error { "DIE 2!!!!!!" }
+          kill_child_processes
+        end
         Process.waitall
       end
 
@@ -37,8 +40,10 @@ module EventSourcery
       end
 
       def kill_child_processes
+        EventSourcery.logger.error { "DIE!!!!!!!" }
         pids.each do |pid|
-          Process.kill pid
+          EventSourcery.logger.error { "Killing child process with PID #{pid}" }
+          Process.kill(pid)
         end
       end
     end

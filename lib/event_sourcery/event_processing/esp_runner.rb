@@ -40,10 +40,8 @@ module EventSourcery
       end
 
       def kill_child_processes
-        EventSourcery.logger.error { "DIE!!!!!!!" }
         pids.each do |pid|
-          EventSourcery.logger.error { "Killing child process with PID #{pid}" }
-          Process.kill(pid)
+          Process.kill("SIGTERM", pid)
         end
       end
     end

@@ -13,21 +13,22 @@ module EventSourcery
         EventSourcery.logger.info { "Forking ESP processes" }
         @event_processors.each do |event_processor|
           pid = fork do
+            Process.setproctitle(event_processor.class.name)
             start_processor(event_processor)
           end
           pids << pid
         end
-        Signal.trap("SIGINT") { kill_child_processes }
-        Signal.trap("SIGTERM") do
-          EventSourcery.logger.error { "DIE 2!!!!!!" }
-          kill_child_processes
-        end
+        Signal.trap("SIGTERM") { kill_child_processes }
         Process.waitall
       end
 
       private
 
       attr_reader :pids
+
+      def set_process_title
+        Process.setproctitle(event_process)
+      end
 
       def start_processor(event_processor)
         EventSourcery.logger.info { "Starting #{event_processor.processor_name}" }

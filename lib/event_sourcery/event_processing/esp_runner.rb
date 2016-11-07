@@ -6,20 +6,25 @@ module EventSourcery
       def initialize(event_processors:, event_store:)
         @event_processors = event_processors
         @event_store = event_store
+        @pids = []
       end
 
       def start!
         EventSourcery.logger.info { "Forking ESP processes" }
         @event_processors.each do |event_processor|
-          fork do
-            Signal.trap("SIGINT") { exit }
+          pid = fork do
             start_processor(event_processor)
           end
+          pids << pid
         end
+        Signal.trap("SIGINT") { kill_child_processes }
+        Signal.trap("SIGTERM") { kill_child_processes }
         Process.waitall
       end
 
       private
+
+      attr_reader :pids
 
       def start_processor(event_processor)
         EventSourcery.logger.info { "Starting #{event_processor.processor_name}" }
@@ -29,6 +34,12 @@ module EventSourcery
         EventSourcery.logger.error { "Processor #{event_processor.processor_name} died with #{e.to_s}. #{backtrace}" }
         sleep 1
         retry
+      end
+
+      def kill_child_processes
+        pids.each do |pid|
+          Process.kill pid
+        end
       end
     end
   end

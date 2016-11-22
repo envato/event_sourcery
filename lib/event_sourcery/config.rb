@@ -11,7 +11,8 @@ module EventSourcery
                   :write_events_function_name,
                   :events_table_name,
                   :aggregates_table_name,
-                  :callback_interval_if_no_new_events
+                  :callback_interval_if_no_new_events,
+                  :inflector
 
     attr_writer :event_store,
                 :event_source,
@@ -28,6 +29,11 @@ module EventSourcery
       @events_table_name = :events
       @aggregates_table_name = :aggregates
       @callback_interval_if_no_new_events = 10
+      @inflector = if defined?(ActiveSupport::Inflector)
+                     ActiveSupport::Inflector
+                   else
+                     Utils::Inflector
+                   end
     end
 
     def event_store

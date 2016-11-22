@@ -53,7 +53,7 @@ module EventSourcery
         if respond_to?(method_name, true)
           send(method_name, event)
         else
-          @on_unknown_event.call(event)
+          @on_unknown_event.call(event, self)
         end
       end
     end

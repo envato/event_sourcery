@@ -16,6 +16,11 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
       allow(esp).to receive(:subscribe_to)
     end
 
+    it 'traps SIGINT signal from parent process' do
+      expect(Signal).to receive(:trap).with('SIGTERM')
+      esp_runner.start!
+    end
+
     it 'subscribes ESPs' do
       esp_runner.start!
       expect(esp).to have_received(:subscribe_to).with(event_store)

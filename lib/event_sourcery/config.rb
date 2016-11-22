@@ -20,8 +20,8 @@ module EventSourcery
     attr_reader :projections_database
 
     def initialize
-      @on_unknown_event = proc { |event|
-        raise Command::AggregateRoot::UnknownEventError.new("#{event.type} is unknown to #{self.class.name}")
+      @on_unknown_event = proc { |event, aggregate|
+        raise Command::AggregateRoot::UnknownEventError, "#{event.type} is unknown to #{aggregate.class.name}"
       }
       @use_optimistic_concurrency = true
       @lock_table_to_guarantee_linear_sequence_id_growth = true

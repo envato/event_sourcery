@@ -1,7 +1,8 @@
 RSpec.describe EventSourcery::EventProcessing::ESPRunner do
-  subject(:esp_runner) { described_class.new(event_processors: event_processors, event_store: event_store) }
+  subject(:esp_runner) { described_class.new(event_processors: event_processors, event_store: event_store, stop_on_failure: stop_on_failure) }
   let(:event_store) { double(:event_store) }
   let(:event_processors) { [esp] }
+  let(:stop_on_failure) { false }
 
   let(:esp) { double(:esp) }
 
@@ -27,9 +28,23 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
     end
 
     it 'retries on failure' do
-      allow(esp).to receive(:subscribe_to).once.and_raise(StandardError)
-      allow(esp).to receive(:subscribe_to).once.and_return(nil)
+      counter = 0
+      allow(esp).to receive(:subscribe_to) do
+        counter += 1
+        raise StandardError if counter < 2
+      end
       esp_runner.start!
+      expect(esp).to have_received(:subscribe_to).twice
+    end
+
+    context 'when processors are expected to stop on failure' do
+      let(:stop_on_failure) { true }
+
+      it 'does not retry on failure' do
+        allow(esp).to receive(:subscribe_to).and_raise(StandardError)
+        esp_runner.start!
+        expect(esp).to have_received(:subscribe_to).once
+      end
     end
   end
 end

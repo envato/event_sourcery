@@ -72,8 +72,8 @@ module EventSourcery
             on_new_events: block
           }
           Subscription.new(args).tap do |s|
-                             s.start
-                           end
+            s.start
+          end
         end
 
         private

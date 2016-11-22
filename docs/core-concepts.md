@@ -96,7 +96,7 @@ They typically record any external side effects they've triggered as events in t
 
 ### Running Multiple ESPs
 
-An EventSourcery application will typically have multiple ESPs running. EventSourcery provides a class called [ESPRunner](https://github.com/envato/event_sourcery/blob/master/lib/event_sourcery/event_processing/esp_runner.rb) which can be used to run ESPs. It runs each ESP in a forked child process so each ESP can process the event store independently.
+An EventSourcery application will typically have multiple ESPs running. EventSourcery provides a class called [ESPRunner](../lib/event_sourcery/event_processing/esp_runner.rb) which can be used to run ESPs. It runs each ESP in a forked child process so each ESP can process the event store independently.
 
 ![Process View](./images/process-view.png)
 

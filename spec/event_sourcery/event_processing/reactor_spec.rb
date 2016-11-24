@@ -73,13 +73,13 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
     it "doesn't require an event sink" do
       expect {
         reactor_class.new(tracker: tracker, event_source: event_source)
-      }.to_not raise_error(ArgumentError)
+      }.to_not raise_error
     end
 
     it "doesn't require an event source" do
       expect {
         reactor_class.new(tracker: tracker, event_sink: event_sink)
-      }.to_not raise_error(ArgumentError)
+      }.to_not raise_error
       expect { reactor.setup }.to_not raise_error
     end
   end

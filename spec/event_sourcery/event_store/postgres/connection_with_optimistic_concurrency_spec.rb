@@ -1,7 +1,6 @@
 RSpec.describe EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConcurrency do
   let(:supports_versions) { true }
   subject(:event_store) { described_class.new(pg_connection) }
-  let(:aggregate_id) { SecureRandom.uuid }
 
   include_examples 'an event store'
 

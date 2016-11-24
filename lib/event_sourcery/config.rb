@@ -2,8 +2,7 @@ require 'logger'
 
 module EventSourcery
   class Config
-    attr_accessor :projections_database,
-                  :event_store_database,
+    attr_accessor :event_store_database,
                   :event_tracker,
                   :on_unknown_event,
                   :use_optimistic_concurrency,
@@ -18,6 +17,8 @@ module EventSourcery
                 :event_sink,
                 :logger
 
+    attr_reader :projections_database
+
     def initialize
       @on_unknown_event = proc { |event, aggregate|
         raise Command::AggregateRoot::UnknownEventError, "#{event.type} is unknown to #{aggregate.class.name}"
@@ -28,6 +29,8 @@ module EventSourcery
       @events_table_name = :events
       @aggregates_table_name = :aggregates
       @callback_interval_if_no_new_events = 10
+      @event_store_database = nil
+      @event_store = nil
     end
 
     def event_store

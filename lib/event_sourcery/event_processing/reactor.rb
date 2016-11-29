@@ -15,7 +15,7 @@ module EventSourcery
           @emits_event_types = event_types.map(&:to_s)
 
           @emits_event_types.each do |event_type|
-            define_method "emit_#{event_type}_event" do |aggregate_id, body|
+            define_method "emit_#{event_type}" do |aggregate_id, body|
               emit_event(
                 type: event_type,
                 aggregate_id: aggregate_id,

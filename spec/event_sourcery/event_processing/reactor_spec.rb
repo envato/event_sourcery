@@ -271,6 +271,11 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
         end
       end
 
+      it 'adds methods to emit permitted events' do
+        allow(reactor).to receive(:emit_event).with(type: 'echo_event', aggregate_id: 123, body: { a: :b })
+        reactor.emit_echo_event(123, { a: :b })
+      end
+
       it 'can emit events with a hash instead of an event object' do
         reactor = Class.new do
           include EventSourcery::EventProcessing::Reactor

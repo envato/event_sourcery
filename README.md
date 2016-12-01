@@ -41,7 +41,7 @@ Then you can run the test suite with rspec:
 rspec
 ```
 
-# Resources
+## Resources
 
 Not sure what Event Sourcing (ES), Command Query Responsibility Segregation (CQRS), or even Domain-Driven Design (DDD) are? Here are a few links to get you started:
 

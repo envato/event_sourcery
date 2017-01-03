@@ -1,6 +1,7 @@
 RSpec.describe EventSourcery::Event do
   let(:aggregate_id) { 'aggregate_id' }
   let(:type) { 'type' }
+  let(:version) { 1 }
   let(:body) do
     {
       symbol: "value",
@@ -9,7 +10,7 @@ RSpec.describe EventSourcery::Event do
   let(:uuid) { SecureRandom.uuid }
 
   describe '#initialize' do
-    subject(:initializer) { described_class.new(aggregate_id: aggregate_id, type: type, body: body) }
+    subject(:initializer) { described_class.new(aggregate_id: aggregate_id, type: type, body: body, version: version) }
 
     before do
       allow(EventSourcery::EventBodySerializer).to receive(:serialize)
@@ -36,6 +37,14 @@ RSpec.describe EventSourcery::Event do
       it 'skips serialization of event body' do
         expect(EventSourcery::EventBodySerializer).to_not receive(:serialize)
         initializer
+      end
+    end
+
+    context 'given version is a long string' do
+      let(:version) { '1' * 20 }
+
+      it 'version type is coerced to an integer value, bignum style' do
+        expect(initializer.version).to eq(11_111_111_111_111_111_111)
       end
     end
   end

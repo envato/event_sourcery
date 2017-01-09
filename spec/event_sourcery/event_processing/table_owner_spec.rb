@@ -27,16 +27,53 @@ RSpec.describe EventSourcery::EventProcessing::TableOwner do
   end
 
   describe '#reset' do
-    before do
-      connection.execute('DROP TABLE IF EXISTS sales')
-      table_owner.setup
-      pg_connection[:sales].insert(uuid: SecureRandom.uuid)
+    context 'without dependent tables defined' do
+      before do
+        connection.execute('DROP TABLE IF EXISTS sales')
+        table_owner.setup
+        pg_connection[:sales].insert(uuid: SecureRandom.uuid)
+      end
+
+      it 'recreates tables' do
+        expect(pg_connection[:sales].count).to eq 1
+        table_owner.reset
+        expect(pg_connection[:sales].count).to eq 0
+      end
     end
 
-    it 'recreates tables' do
-      expect(pg_connection[:sales].count).to eq 1
-      table_owner.reset
-      expect(pg_connection[:sales].count).to eq 0
+    context 'with dependent tables defined' do
+      let(:table_owner_class) do
+        Class.new do
+          prepend EventSourcery::EventProcessing::TableOwner
+
+          def initialize(db_connection)
+            @db_connection = db_connection
+          end
+
+          table :authors do
+            primary_key :id, type: :Integer
+            column :uuid, 'UUID'
+          end
+
+          table :items do
+            foreign_key :authors_id, :authors
+            column :created_at, 'timestamp without time zone'
+          end
+        end
+      end
+
+      it 'recreates tables' do
+        connection.execute('DROP TABLE IF EXISTS items')
+        connection.execute('DROP TABLE IF EXISTS authors')
+        table_owner.setup
+        pg_connection[:authors].insert(id: 1, uuid: SecureRandom.uuid)
+        pg_connection[:items].insert(authors_id: 1, created_at: Time.now)
+        expect(pg_connection[:authors].count).to eq 1
+        expect(pg_connection[:items].count).to eq 1
+        table_owner.reset
+        expect(pg_connection[:authors].count).to eq 0
+        expect(pg_connection[:items].count).to eq 0
+      end
     end
   end
 

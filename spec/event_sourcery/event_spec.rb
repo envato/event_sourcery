@@ -49,7 +49,23 @@ RSpec.describe EventSourcery::Event do
     end
   end
 
-  context 'equality' do
-    #let(:event_1) { EventSourcery::Event.new(id: 1
+  context '.==' do
+    subject { described_class.new(type: 'Type', body: { a: :b }) }
+
+    it 'is equal to an event with the same type as a symbol and body' do
+      is_expected.to eq described_class.new(type: :Type, body: { a: :b })
+    end
+
+    it 'is equal to an event with the same type as a string and body' do
+      is_expected.to eq described_class.new(type: 'Type', body: { a: :b })
+    end
+
+    it 'is not equal to an event with a different type and the same body' do
+      is_expected.not_to eq described_class.new(type: 'DifferentType', body: { a: :b })
+    end
+
+    it 'is not equal to an event with the same type and a different body' do
+      is_expected.not_to eq described_class.new(type: 'Type', body: { different: :body })
+    end
   end
 end

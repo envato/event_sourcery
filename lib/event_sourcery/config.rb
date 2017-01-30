@@ -10,7 +10,8 @@ module EventSourcery
                   :write_events_function_name,
                   :events_table_name,
                   :aggregates_table_name,
-                  :callback_interval_if_no_new_events
+                  :callback_interval_if_no_new_events,
+                  :event_builder
 
     attr_writer :event_store,
                 :event_source,
@@ -31,6 +32,7 @@ module EventSourcery
       @callback_interval_if_no_new_events = 10
       @event_store_database = nil
       @event_store = nil
+      @event_builder = EventStore::EventBuilder.new(event_type_serializer: EventStore::GenericEventTypeSerializer.new)
     end
 
     def event_store

@@ -31,7 +31,7 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
 
   let(:aggregate_uuid) { SecureRandom.uuid }
   subject(:aggregate) { new_aggregate(aggregate_uuid) }
-  let(:event_store) { EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConcurrency.new(pg_connection) }
+  let(:event_store) { EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConcurrency.new(pg_connection, event_builder: EventSourcery.config.event_builder) }
   let(:event_sink) { EventSourcery::EventStore::EventSink.new(event_store) }
 
   describe '#load_history' do

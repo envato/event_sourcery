@@ -11,12 +11,14 @@ module EventSourcery
                   :events_table_name,
                   :aggregates_table_name,
                   :callback_interval_if_no_new_events,
-                  :event_builder
+                  :event_type_serializer
+
 
     attr_writer :event_store,
                 :event_source,
                 :event_sink,
-                :logger
+                :logger,
+                :event_builder
 
     attr_reader :projections_database
 
@@ -32,7 +34,7 @@ module EventSourcery
       @callback_interval_if_no_new_events = 10
       @event_store_database = nil
       @event_store = nil
-      @event_builder = EventStore::EventBuilder.new(event_type_serializer: EventStore::GenericEventTypeSerializer.new)
+      @event_type_serializer = EventStore::GenericEventTypeSerializer.new
     end
 
     def event_store
@@ -64,6 +66,10 @@ module EventSourcery
       @logger ||= ::Logger.new(STDOUT).tap do |logger|
         logger.level = Logger::DEBUG
       end
+    end
+
+    def event_builder
+      EventStore::EventBuilder.new(event_type_serializer: @event_type_serializer)
     end
   end
 end

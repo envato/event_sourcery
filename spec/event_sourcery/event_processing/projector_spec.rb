@@ -123,7 +123,7 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
   describe '#process' do
     before { projector.reset }
 
-    let(:event) { EventSourcery::Event.new(body: {}, aggregate_id: aggregate_id, type: :terms_accepted, id: 1) }
+    let(:event) { EventSourcery::GenericEvent.new(body: {}, aggregate_id: aggregate_id, type: :terms_accepted, id: 1) }
 
     it "processes events it's interested in" do
       projector.process(event)

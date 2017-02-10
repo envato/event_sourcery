@@ -1,2 +1,2 @@
-ItemAdded = Class.new(EventSourcery::TypedEvent)
-ItemRemoved = Class.new(EventSourcery::TypedEvent)
+ItemAdded = Class.new(EventSourcery::Event)
+ItemRemoved = Class.new(EventSourcery::Event)

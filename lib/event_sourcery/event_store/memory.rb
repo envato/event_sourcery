@@ -3,8 +3,9 @@ module EventSourcery
     class Memory
       include EachByRange
 
-      def initialize(events = [])
+      def initialize(events = [], event_builder: EventSourcery.config.event_builder)
         @events = events
+        @event_builder = event_builder
       end
 
       def sink(event_or_events, expected_version: nil)
@@ -12,7 +13,7 @@ module EventSourcery
         events.each do |event|
           id = @events.size + 1
           serialized_body = EventBodySerializer.serialize(event.body)
-          @events << EventSourcery::Event.new(
+          @events << @event_builder.build(
             id: id,
             aggregate_id: event.aggregate_id,
             type: event.type,

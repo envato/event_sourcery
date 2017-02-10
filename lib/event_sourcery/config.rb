@@ -34,7 +34,7 @@ module EventSourcery
       @callback_interval_if_no_new_events = 10
       @event_store_database = nil
       @event_store = nil
-      @event_type_serializer = EventStore::GenericEventTypeSerializer.new
+      @event_class_resolver = EventStore::EventClassResolvers::Generic.new
     end
 
     def event_store
@@ -69,7 +69,7 @@ module EventSourcery
     end
 
     def event_builder
-      EventStore::EventBuilder.new(event_type_serializer: @event_type_serializer)
+      @event_builder || EventStore::EventBuilder.new(event_class_resolver: @event_class_resolver)
     end
   end
 end

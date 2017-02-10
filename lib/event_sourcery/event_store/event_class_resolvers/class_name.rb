@@ -4,6 +4,8 @@ module EventSourcery
       class ClassName
         def resolve(event_type)
           Object.const_get(event_type)
+        rescue NameError
+          Event
         end
       end
     end

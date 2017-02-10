@@ -1,25 +1,17 @@
 module EventSourcery
-  class Event
-    include Virtus.value_object
+  class Event < GenericEvent
+    def self.resolve_type(type)
+      Object.const_get(event_type)
+    rescue NameError
+      GenericEvent
+    end
 
     def initialize(**hash)
-      hash[:body] = EventSourcery::EventBodySerializer.serialize(hash[:body]) if hash[:body]
-      hash[:uuid] ||= SecureRandom.uuid
-      super
+      super(hash.reject { |k, v| k == :type })
     end
 
-    values do
-      attribute :id, Integer
-      attribute :uuid, String
-      attribute :aggregate_id, String
-      attribute :type, String
-      attribute :body, Hash
-      attribute :version, Bignum
-      attribute :created_at, Time
-    end
-
-    def persisted?
-      !id.nil?
+    def type
+      self.class.name
     end
   end
 end

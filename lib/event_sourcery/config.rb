@@ -20,7 +20,8 @@ module EventSourcery
                 :logger,
                 :event_builder
 
-    attr_reader :projections_database
+    attr_reader :projections_database,
+                :upcaster
 
     def initialize
       @on_unknown_event = proc { |event, aggregate|
@@ -35,6 +36,7 @@ module EventSourcery
       @event_store_database = nil
       @event_store = nil
       @event_class_resolver = EventStore::EventClassResolvers::Generic.new
+      @upcaster = EventStore::Upcaster.new
     end
 
     def event_store
@@ -69,7 +71,7 @@ module EventSourcery
     end
 
     def event_builder
-      @event_builder || EventStore::EventBuilder.new(event_class_resolver: @event_class_resolver)
+      @event_builder || EventStore::EventBuilder.new(event_class_resolver: @event_class_resolver, upcaster: @upcaster)
     end
   end
 end

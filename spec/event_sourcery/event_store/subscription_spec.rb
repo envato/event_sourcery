@@ -63,4 +63,16 @@ RSpec.describe EventSourcery::EventStore::Subscription do
       expect(@event_batches.last.map(&:type)).to eq ['item_added']
     end
   end
+
+  context 'when an exception occurs during event polling' do
+    before do
+      allow(waiter).to receive(:poll).and_raise 'event_poll_error'
+    end
+
+    it 'tells the poll waiter to shutdown its thread' do
+      expect(waiter).to receive(:shutdown!)
+      event_store.sink(new_event)
+      expect { subscription.start }.to raise_error 'event_poll_error'
+    end
+  end
 end

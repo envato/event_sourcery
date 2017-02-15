@@ -2,13 +2,13 @@ require 'securerandom'
 
 module EventHelpers
   def new_event(aggregate_id: SecureRandom.uuid, type: 'test_event', body: {}, id: nil, version: 1, created_at: nil, uuid: SecureRandom.uuid)
-    EventSourcery::GenericEvent.new(id: id,
-                                    aggregate_id: aggregate_id,
-                                    type: type,
-                                    body: body,
-                                    version: version,
-                                    created_at: created_at,
-                                    uuid: uuid)
+    EventSourcery::Event.new(id: id,
+                             aggregate_id: aggregate_id,
+                             type: type,
+                             body: body,
+                             version: version,
+                             created_at: created_at,
+                             uuid: uuid)
   end
 
   def create_old_events_schema

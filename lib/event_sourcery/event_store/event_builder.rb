@@ -1,21 +1,21 @@
 module EventSourcery
   module EventStore
     class EventBuilder
-      def initialize(event_base_class:, upcaster:)
-        @event_base_class = event_base_class
+      def initialize(event_type_serializer:, upcaster:)
+        @event_type_serializer = event_type_serializer
         @upcaster = upcaster
       end
 
       def build(event_data)
         type = event_data.fetch(:type)
-        klass = event_base_class.resolve_type(type)
+        klass = event_type_serializer.deserialize(type)
         upcasted_body = upcaster.upcast(type, event_data.fetch(:body))
         klass.new(event_data.merge(body: upcasted_body))
       end
 
       private
 
-      attr_reader :event_base_class, :upcaster
+      attr_reader :event_type_serializer, :upcaster
     end
   end
 end

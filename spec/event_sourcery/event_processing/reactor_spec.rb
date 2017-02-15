@@ -151,12 +151,12 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
     end
 
     context 'with a reactor that emits events' do
-      let(:event_1) { EventSourcery::GenericEvent.new(id: 1, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
-      let(:event_2) { EventSourcery::GenericEvent.new(id: 2, type: 'echo_event', aggregate_id: aggregate_id, body: event_1.body.merge(EventSourcery::EventProcessing::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 1)) }
-      let(:event_3) { EventSourcery::GenericEvent.new(id: 3, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
-      let(:event_4) { EventSourcery::GenericEvent.new(id: 4, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
-      let(:event_5) { EventSourcery::GenericEvent.new(id: 5, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
-      let(:event_6) { EventSourcery::GenericEvent.new(id: 6, type: 'echo_event', aggregate_id: aggregate_id, body: event_3.body.merge(EventSourcery::EventProcessing::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 3)) }
+      let(:event_1) { EventSourcery::Event.new(id: 1, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
+      let(:event_2) { EventSourcery::Event.new(id: 2, type: 'echo_event', aggregate_id: aggregate_id, body: event_1.body.merge(EventSourcery::EventProcessing::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 1)) }
+      let(:event_3) { EventSourcery::Event.new(id: 3, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
+      let(:event_4) { EventSourcery::Event.new(id: 4, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
+      let(:event_5) { EventSourcery::Event.new(id: 5, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
+      let(:event_6) { EventSourcery::Event.new(id: 6, type: 'echo_event', aggregate_id: aggregate_id, body: event_3.body.merge(EventSourcery::EventProcessing::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 3)) }
       let(:events) { [event_1, event_2, event_3, event_4] }
       let(:action_stub_class) {
         Class.new do
@@ -178,7 +178,7 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
 
           def process(event)
             @event = event
-            emit_event(EventSourcery::GenericEvent.new(aggregate_id: event.aggregate_id, type: 'echo_event', body: event.body)) do
+            emit_event(EventSourcery::Event.new(aggregate_id: event.aggregate_id, type: 'echo_event', body: event.body)) do
               TestActioner.action(event.id)
             end
           end
@@ -209,7 +209,7 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
             emits_events :echo_event
 
             def process(event)
-              emit_event(EventSourcery::GenericEvent.new(aggregate_id: event.aggregate_id, type: 'echo_event', body: event.body))
+              emit_event(EventSourcery::Event.new(aggregate_id: event.aggregate_id, type: 'echo_event', body: event.body))
             end
           end
         }
@@ -231,7 +231,7 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
             emits_events :echo_event
 
             def process(event)
-              emit_event(EventSourcery::GenericEvent.new(aggregate_id: event.aggregate_id, type: 'echo_event_2', body: event.body))
+              emit_event(EventSourcery::Event.new(aggregate_id: event.aggregate_id, type: 'echo_event_2', body: event.body))
             end
           end
         }
@@ -253,7 +253,7 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
             emits_events :echo_event
 
             def process(event)
-              emit_event(EventSourcery::GenericEvent.new(aggregate_id: event.aggregate_id, type: 'echo_event')) do |body|
+              emit_event(EventSourcery::Event.new(aggregate_id: event.aggregate_id, type: 'echo_event')) do |body|
                 body[:token] = 'secret-identifier'
               end
             end

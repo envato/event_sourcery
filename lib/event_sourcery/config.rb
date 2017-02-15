@@ -11,7 +11,7 @@ module EventSourcery
                   :events_table_name,
                   :aggregates_table_name,
                   :callback_interval_if_no_new_events,
-                  :event_base_class
+                  :event_type_serializer
 
 
     attr_writer :event_store,
@@ -36,7 +36,7 @@ module EventSourcery
       @event_store_database = nil
       @event_store = nil
       @upcaster = EventStore::Upcaster.new
-      @event_base_class = Event
+      @event_type_serializer = EventStore::EventTypeSerializers::ClassName.new
     end
 
     def event_store
@@ -71,7 +71,11 @@ module EventSourcery
     end
 
     def event_builder
+<<<<<<< HEAD
       @event_builder || EventStore::EventBuilder.new(event_base_class: @event_base_class, upcaster: @upcaster)
+=======
+      @event_builder || EventStore::EventBuilder.new(event_type_serializer: @event_type_serializer)
+>>>>>>> @{-1}
     end
   end
 end

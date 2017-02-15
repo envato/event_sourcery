@@ -229,5 +229,33 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
         end
       end
     end
+
+    context 'when using custom event classes' do
+      subject(:event_processor) {
+        Class.new do
+          include EventSourcery::EventProcessing::EventStreamProcessor
+          processor_name 'my_processor'
+
+          process ItemAdded do |event|
+            @added_event = event
+          end
+
+          process ItemRemoved do |event|
+            @removed_event = event
+          end
+
+          attr_reader :added_event, :removed_event
+        end.new(tracker: tracker)
+      }
+      let(:item_added_event) { ItemAdded.new }
+      let(:item_removed_event) { ItemRemoved.new }
+
+      it 'calls the defined handler' do
+        event_processor.process(item_added_event)
+        expect(event_processor.added_event).to eq item_added_event
+        event_processor.process(item_removed_event)
+        expect(event_processor.removed_event).to eq item_removed_event
+      end
+    end
   end
 end

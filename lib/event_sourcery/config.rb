@@ -71,11 +71,7 @@ module EventSourcery
     end
 
     def event_builder
-<<<<<<< HEAD
-      @event_builder || EventStore::EventBuilder.new(event_base_class: @event_base_class, upcaster: @upcaster)
-=======
-      @event_builder || EventStore::EventBuilder.new(event_type_serializer: @event_type_serializer)
->>>>>>> @{-1}
+      @event_builder || EventStore::EventBuilder.new(event_type_serializer: @event_type_serializer, upcaster: @upcaster)
     end
   end
 end

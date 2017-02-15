@@ -79,7 +79,7 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
     subject(:aggregate) {
       new_aggregate(aggregate_uuid) do
         def add_item(item)
-          apply_event(EventSourcery::GenericEvent.new(type: :item_added, body: { id: item.id }))
+          apply_event(EventSourcery::Event.new(type: :item_added, body: { id: item.id }))
         end
       end
     }
@@ -88,7 +88,7 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
       subject(:aggregate) {
         new_aggregate(aggregate_uuid, use_optimistic_concurrency: false) do
           def add_item(item)
-            apply_event(EventSourcery::GenericEvent.new(type: :item_added, body: { id: item.id }))
+            apply_event(EventSourcery::Event.new(type: :item_added, body: { id: item.id }))
           end
         end
       }
@@ -133,7 +133,7 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
       it 'is raised' do
         aggregate.load_history(event_store.get_events_for_aggregate_id(aggregate_uuid))
         # change version
-        event_store.sink(EventSourcery::GenericEvent.new(type: :item_added, aggregate_id: aggregate_uuid))
+        event_store.sink(EventSourcery::Event.new(type: :item_added, aggregate_id: aggregate_uuid))
         expect {
           aggregate.add_item(OpenStruct.new(id: 1234))
         }.to raise_error(EventSourcery::ConcurrencyError)

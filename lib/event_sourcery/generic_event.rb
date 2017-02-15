@@ -1,10 +1,6 @@
 module EventSourcery
-  class GenericEvent
+  class Event
     include Virtus.value_object
-
-    def self.resolve_type(type)
-      self
-    end
 
     def initialize(**hash)
       hash[:body] = EventSourcery::EventBodySerializer.serialize(hash[:body]) if hash[:body]

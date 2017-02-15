@@ -6,7 +6,7 @@ RSpec.describe EventSourcery::EventStore::Memory do
 
   it 'ignores an expected_version param' do
     expect {
-      event_store.sink(EventSourcery::GenericEvent.new(type: 'blah', aggregate_id: SecureRandom.uuid, body: {}))
+      event_store.sink(EventSourcery::Event.new(type: 'blah', aggregate_id: SecureRandom.uuid, body: {}))
     }.to_not raise_error
   end
 end

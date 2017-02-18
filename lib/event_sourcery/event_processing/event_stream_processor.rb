@@ -26,7 +26,7 @@ module EventSourcery
       module ProcessHandler
         def process(event)
           @_event = event
-          handler = self.class.handlers[event.class]
+          handler = self.class.handlers[event.type]
           if handler
             instance_exec(event, &handler)
           elsif self.class.processes?(event.type)
@@ -71,7 +71,8 @@ module EventSourcery
         end
 
         def process(event_class, &block)
-          @handlers[event_class] = block
+          processes_events event_class.type
+          @handlers[event_class.type] = block
         end
       end
 

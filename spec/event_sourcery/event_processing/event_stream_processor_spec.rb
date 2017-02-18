@@ -256,6 +256,10 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
         event_processor.process(item_removed_event)
         expect(event_processor.removed_event).to eq item_removed_event
       end
+
+      it 'returns the events in processed event types' do
+        expect(event_processor.class.processes_event_types).to eq(['ItemAdded', 'ItemRemoved'])
+      end
     end
   end
 end

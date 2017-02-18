@@ -9,11 +9,11 @@ module EventSourcery
           @cache = {}
         end
 
-        def serialize(event)
-          if event.class == Event
+        def serialize(event_class)
+          if event_class == Event
             nil
           else
-            underscore_class_name(event.class.name)
+            underscore_class_name(event_class.name)
           end
         end
 

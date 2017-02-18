@@ -3,13 +3,12 @@ RSpec.describe EventSourcery::EventStore::EventTypeSerializers::Underscored do
 
   describe '#serialize' do
     it 'returns nil always when the class is an instance of Event' do
-      expect(underscored.serialize(EventSourcery::Event.new)).to eq nil
-      expect(underscored.serialize(EventSourcery::Event.new(type: 'blah'))).to eq nil
+      expect(underscored.serialize(EventSourcery::Event)).to eq nil
     end
 
     it 'returns the underscored class name' do
-      expect(underscored.serialize(ItemAdded.new)).to eq 'item_added'
-      expect(underscored.serialize(ItemRemoved.new)).to eq 'item_removed'
+      expect(underscored.serialize(ItemAdded)).to eq 'item_added'
+      expect(underscored.serialize(ItemRemoved)).to eq 'item_removed'
     end
   end
 

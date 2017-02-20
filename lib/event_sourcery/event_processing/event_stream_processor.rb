@@ -7,7 +7,7 @@ module EventSourcery
         base.prepend(ProcessHandler)
         EventSourcery.event_stream_processor_registry.register(base)
         base.class_eval do
-          @handlers = Hash.new
+          @event_handlers = Hash.new { |hash, key| hash[key] = [] }
         end
       end
 
@@ -26,9 +26,11 @@ module EventSourcery
       module ProcessHandler
         def process(event)
           @_event = event
-          handler = self.class.handlers[event.type]
-          if handler
-            instance_exec(event, &handler)
+          handlers = self.class.event_handlers[event.type]
+          if handlers.any?
+            handlers.each do |handler|
+              instance_exec(event, &handler)
+            end
           elsif self.class.processes?(event.type)
             handler_method_name = "#{process_method_name}_#{event.type}"
             if respond_to?(handler_method_name)
@@ -45,7 +47,7 @@ module EventSourcery
       end
 
       module ClassMethods
-        attr_reader :processes_event_types, :handlers
+        attr_reader :processes_event_types, :event_handlers
 
         def processes_events(*event_types)
           @processes_event_types = Array(@processes_event_types) | event_types.map(&:to_s)
@@ -70,9 +72,11 @@ module EventSourcery
           end
         end
 
-        def process(event_class, &block)
-          processes_events event_class.type
-          @handlers[event_class.type] = block
+        def process(*event_classes, &block)
+          event_classes.each do |event_class|
+            processes_events event_class.type
+            @event_handlers[event_class.type] << block
+          end
         end
       end
 

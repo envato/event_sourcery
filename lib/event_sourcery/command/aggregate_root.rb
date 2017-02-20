@@ -28,8 +28,8 @@ module EventSourcery
         mutate_state_from(event)
         unless event.persisted?
           event_with_aggregate_id = Event.new(aggregate_id: @id,
-                                                     type: event.type,
-                                                     body: event.body)
+                                              type: event.type,
+                                              body: event.body)
           if @use_optimistic_concurrency
             event_sink.sink(event_with_aggregate_id, expected_version: @current_version)
             @current_version += 1

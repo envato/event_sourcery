@@ -4,6 +4,23 @@ module EventSourcery
       UnknownEventError = Class.new(RuntimeError)
       RejectedCommandError = Class.new(RuntimeError)
 
+      def self.included(base)
+        base.extend(ClassMethods)
+        base.class_eval do
+          @event_handlers = Hash.new { |hash, key| hash[key] = [] }
+        end
+      end
+
+      module ClassMethods
+        attr_reader :event_handlers
+
+        def apply(*event_classes, &block)
+          event_classes.each do |event_class|
+            @event_handlers[event_class.type] << block
+          end
+        end
+      end
+
       def initialize(id, event_sink, on_unknown_event: EventSourcery.config.on_unknown_event, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency)
         @id = id
         @event_sink = event_sink
@@ -48,12 +65,19 @@ module EventSourcery
       end
 
       def mutate_state_from(event)
-        method_name = "apply_#{event.type}"
-
-        if respond_to?(method_name, true)
-          send(method_name, event)
+        handlers = self.class.event_handlers[event.type]
+        if handlers.any?
+          handlers.each do |handler|
+            instance_exec(event, &handler)
+          end
         else
-          @on_unknown_event.call(event, self)
+          method_name = "apply_#{event.type}"
+
+          if respond_to?(method_name, true)
+            send(method_name, event)
+          else
+            @on_unknown_event.call(event, self)
+          end
         end
       end
     end

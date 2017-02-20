@@ -4,7 +4,7 @@ module EventSourcery
   module EventStore
     module EventTypeSerializers
       # Stores event types by the underscored version of the class name and
-      # falls back to the generic Event class
+      # falls back to the generic Event class if the constant is not found
       class Underscored
         def initialize
           @cache = {}

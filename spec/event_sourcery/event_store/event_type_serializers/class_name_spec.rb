@@ -7,8 +7,8 @@ RSpec.describe EventSourcery::EventStore::EventTypeSerializers::ClassName do
     end
 
     it 'returns the serializer class name' do
-      expect(ItemAdded.type).to eq 'ItemAdded'
-      expect(ItemRemoved.type).to eq 'ItemRemoved'
+      expect(serializer.serialize(ItemAdded)).to eq 'ItemAdded'
+      expect(serializer.serialize(ItemRemoved)).to eq 'ItemRemoved'
     end
   end
 

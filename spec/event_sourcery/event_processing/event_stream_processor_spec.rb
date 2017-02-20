@@ -264,7 +264,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
       end
 
       it 'returns the events in processed event types' do
-        expect(event_processor.class.processes_event_types).to eq(['ItemAdded', 'ItemRemoved'])
+        expect(event_processor.class.processes_event_types).to eq(['item_added', 'item_removed'])
       end
 
       context 'in combination with method handlers' do
@@ -274,12 +274,12 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
               @added_event = event
             end
 
-            def process_ItemAdded(event)
+            def process_item_added(event)
               @added_event_by_method = event
             end
 
-            processes_events :ItemRemoved
-            def process_ItemRemoved(event)
+            processes_events :item_removed
+            def process_item_removed(event)
               @removed_event = event
             end
 

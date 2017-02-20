@@ -33,7 +33,7 @@ module EventSourcery
       @callback_interval_if_no_new_events = 10
       @event_store_database = nil
       @event_store = nil
-      @event_type_serializer = EventStore::EventTypeSerializers::ClassName.new
+      @event_type_serializer = EventStore::EventTypeSerializers::Underscored.new
     end
 
     def event_store

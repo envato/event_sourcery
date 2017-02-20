@@ -28,7 +28,7 @@ module EventSourcery
       def reset
         self.class.tables.keys.each do |table_name|
           if @db_connection.table_exists?(table_name)
-            @db_connection.drop_table(table_name)
+            @db_connection.drop_table(table_name, cascade: true)
           end
         end
         super if defined?(super)

@@ -19,7 +19,7 @@ module EventSourcery
       attribute :aggregate_id, String
       attribute :type, String
       attribute :body, Hash
-      attribute :version, Bignum
+      attribute :version, Integer
       attribute :created_at, Time
     end
 

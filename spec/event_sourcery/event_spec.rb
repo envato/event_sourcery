@@ -1,15 +1,52 @@
 RSpec.describe EventSourcery::Event do
-  it 'initializes with data' do
-    uuid = SecureRandom.uuid
-    created_at = Time.now
-    aggregate_id = SecureRandom.uuid
-    body = { 'a' => 'b' }
-    event = ItemAdded.new(id: 1, uuid: uuid, aggregate_id: aggregate_id, body: body, created_at: created_at)
-    expect(event.id).to eq 1
-    expect(event.uuid).to eq uuid
-    expect(event.aggregate_id).to eq aggregate_id
-    expect(event.body).to eq body
-    expect(event.created_at).to eq created_at
+  let(:aggregate_id) { 'aggregate_id' }
+  let(:type) { 'type' }
+  let(:version) { 1 }
+  let(:body) do
+    {
+      symbol: "value",
+    }
+  end
+  let(:uuid) { SecureRandom.uuid }
+
+  describe '#initialize' do
+    subject(:initializer) { described_class.new(aggregate_id: aggregate_id, type: type, body: body, version: version) }
+
+    before do
+      allow(EventSourcery::EventBodySerializer).to receive(:serialize)
+    end
+
+    it 'serializes event body' do
+      expect(EventSourcery::EventBodySerializer).to receive(:serialize).with(body)
+      initializer
+    end
+
+    it 'assigns a uuid if one is not given' do
+      allow(SecureRandom).to receive(:uuid).and_return(uuid)
+      expect(initializer.uuid).to eq uuid
+    end
+
+    it 'assigns given uuids' do
+      uuid = SecureRandom.uuid
+      expect(described_class.new(uuid: uuid).uuid).to eq uuid
+    end
+
+    context 'event body is nil' do
+      let(:body) { nil }
+
+      it 'skips serialization of event body' do
+        expect(EventSourcery::EventBodySerializer).to_not receive(:serialize)
+        initializer
+      end
+    end
+
+    context 'given version is a long string' do
+      let(:version) { '1' * 20 }
+
+      it 'version type is coerced to an integer value, bignum style' do
+        expect(initializer.version).to eq(11_111_111_111_111_111_111)
+      end
+    end
   end
 
   describe '.type' do

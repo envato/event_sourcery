@@ -41,3 +41,12 @@ Then you can run the test suite with rspec:
 rspec
 ```
 
+## Resources
+
+Not sure what Event Sourcing (ES), Command Query Responsibility Segregation (CQRS), or even Domain-Driven Design (DDD) are? Here are a few links to get you started:
+
+- [CQRS and Event Sourcing Talk](https://www.youtube.com/watch?v=JHGkaShoyNs) - by Greg Young at Code on the Beach 2014
+- [DDD/CQRS Google Group](https://groups.google.com/forum/#!forum/dddcqrs) - from people new to the concepts to old hands
+- [DDD Weekly Newsletter](https://buildplease.com/pages/dddweekly/) - a weekly digest of what's happening in the community
+- [Domain-Driven Design](https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215) - the definitive guide
+- [Greg Young's Blog](https://goodenoughsoftware.net) - a (the?) lead proponent of all things Event Sourcing

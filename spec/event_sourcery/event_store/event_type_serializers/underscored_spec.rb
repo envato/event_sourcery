@@ -2,7 +2,7 @@ RSpec.describe EventSourcery::EventStore::EventTypeSerializers::Underscored do
   subject(:underscored) { described_class.new }
 
   describe '#serialize' do
-    it 'returns nil always when the class is an instance of Event' do
+    it 'returns nil always when the class is Event' do
       expect(underscored.serialize(EventSourcery::Event)).to eq nil
     end
 

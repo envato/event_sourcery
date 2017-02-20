@@ -12,80 +12,44 @@ RSpec.describe EventSourcery::Event do
     expect(event.created_at).to eq created_at
   end
 
+  describe '.type' do
+    let(:serializer) { double }
+
+    before do
+      allow(EventSourcery.config).to receive(:event_type_serializer).and_return(serializer)
+      allow(serializer).to receive(:serialize).and_return('serialized')
+    end
+
+    it 'delegates to the configured event type serializer' do
+      EventSourcery::Event.type
+      expect(serializer).to have_received(:serialize).with(EventSourcery::Event)
+    end
+
+    it 'returns the serialized type' do
+      expect(EventSourcery::Event.type).to eq('serialized')
+    end
+  end
+
   describe '#type' do
     before do
-      allow(EventSourcery.config).to receive(:event_type_serializer).and_return(event_type_serializer)
+      allow(EventSourcery::Event).to receive(:type).and_return(type)
     end
 
-    context 'with class name event type serializer' do
-      let(:event_type_serializer) { EventSourcery::EventStore::EventTypeSerializers::ClassName.new }
+    context 'when the event class type is nil' do
+      let(:type) { nil }
 
-      it 'returns the class name' do
-        expect(ItemAdded.new.type).to eq 'ItemAdded'
-        expect(ItemRemoved.new.type).to eq 'ItemRemoved'
-      end
-
-      it 'cannot be overridden with input' do
-        expect(ItemAdded.new(type: 'Blah').type).to eq 'ItemAdded'
-        expect(ItemRemoved.new(type: 'Blah').type).to eq 'ItemRemoved'
-      end
-
-      context 'when using the event class directly' do
-        it 'returns nil' do
-          expect(EventSourcery::Event.new.type).to be_nil
-        end
-
-        it 'allows type to be set' do
-          expect(EventSourcery::Event.new(type: 'blah').type).to eq 'blah'
-        end
+      it 'uses the provided type' do
+        event = EventSourcery::Event.new(type: 'blah')
+        expect(event.type).to eq 'blah'
       end
     end
 
-    context 'with underscored event type serializer' do
-      let(:event_type_serializer) { EventSourcery::EventStore::EventTypeSerializers::Underscored.new }
+    context 'when the event class type is not nil' do
+      let(:type) { 'ItemAdded' }
 
-      it 'returns the class name' do
-        expect(ItemAdded.new.type).to eq 'item_added'
-        expect(ItemRemoved.new.type).to eq 'item_removed'
-      end
-
-      it 'cannot be overridden with input' do
-        expect(ItemAdded.new(type: 'Blah').type).to eq 'item_added'
-        expect(ItemRemoved.new(type: 'Blah').type).to eq 'item_removed'
-      end
-
-      context 'when using the event class directly' do
-        it 'returns nil' do
-          expect(EventSourcery::Event.new.type).to be_nil
-        end
-
-        it 'allows type to be set' do
-          expect(EventSourcery::Event.new(type: 'blah').type).to eq 'blah'
-        end
-      end
-    end
-
-    context 'with legacy event type serializer' do
-      let(:event_type_serializer) { EventSourcery::EventStore::EventTypeSerializers::Legacy.new }
-
-      it 'returns the class name' do
-        expect(ItemAdded.new.type).to be_nil
-        expect(ItemRemoved.new.type).to be_nil
-      end
-
-      it 'can be overridden with input' do
-        expect(ItemAdded.new(type: 'Blah').type).to eq 'Blah'
-        expect(ItemRemoved.new(type: 'Blah').type).to eq 'Blah'
-      end
-
-      context 'when using the event class directly' do
-        it 'returns nil' do
-          expect(EventSourcery::Event.new.type).to be_nil
-        end
-
-        it 'allows type to be set' do
-          expect(EventSourcery::Event.new(type: 'blah').type).to eq 'blah'
-        end
+      it "can't be overridden with the provided type" do
+        event = EventSourcery::Event.new(type: 'blah')
+        expect(event.type).to eq 'ItemAdded'
       end
     end
   end

@@ -11,9 +11,7 @@ module EventSourcery
         end
 
         def serialize(event_class)
-          if event_class == Event
-            nil
-          else
+          unless event_class == Event
             underscore_class_name(event_class.name)
           end
         end

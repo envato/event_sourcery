@@ -1,10 +1,10 @@
 module EventSourcery
   module EventStore
     module EventTypeSerializers
-      # To support legacy implementations.
-      # Type is stored as a property of the event
+      # To support legacy implementations.  Type is provided when initializing
+      # the event, not derived from the class constant
       class Legacy
-        def serialize(event)
+        def serialize(event_class)
           nil
         end
 

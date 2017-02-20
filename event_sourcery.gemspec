@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency 'sequel', '~> 4.38.0'
+  spec.add_dependency 'sequel', '~> 4.38'
   spec.add_dependency 'pg'
   spec.add_dependency 'virtus'
   spec.add_dependency 'activesupport'

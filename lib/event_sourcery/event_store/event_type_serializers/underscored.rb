@@ -3,17 +3,16 @@ require 'active_support/all' # TODO: only load string exts and consider alternat
 module EventSourcery
   module EventStore
     module EventTypeSerializers
-      # To support underscored implementations that want to use event classes
+      # Stores event types by the underscored version of the class name and
+      # falls back to the generic Event class
       class Underscored
         def initialize
           @cache = {}
         end
 
-        def serialize(event)
-          if event.class == Event
-            nil
-          else
-            underscore_class_name(event.class.name)
+        def serialize(event_class)
+          unless event_class == Event
+            underscore_class_name(event_class.name)
           end
         end
 

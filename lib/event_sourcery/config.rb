@@ -13,7 +13,6 @@ module EventSourcery
                   :callback_interval_if_no_new_events,
                   :event_type_serializer
 
-
     attr_writer :event_store,
                 :event_source,
                 :event_sink,

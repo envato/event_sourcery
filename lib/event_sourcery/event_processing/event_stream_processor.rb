@@ -33,21 +33,17 @@ module EventSourcery
             end
           elsif self.class.processes?(event.type)
             # TODO: kill this branch of logic in a future release
-            dispatch_to_handler_method(event)
+            handler_method_name = "#{process_method_name}_#{event.type}"
+            if respond_to?(handler_method_name)
+              send(handler_method_name, event)
+            elsif defined?(super)
+              super(event)
+            else
+              raise UnableToProcessEventError, "I don't know how to process '#{event.type}' events. "\
+                                               "To process this event implement a method named '#{handler_method_name}'"
+            end
           end
           @_event = nil
-        end
-
-        def dispatch_to_handler_method(event)
-          handler_method_name = "#{process_method_name}_#{event.type}"
-          if respond_to?(handler_method_name)
-            send(handler_method_name, event)
-          elsif defined?(super)
-            super(event)
-          else
-            raise UnableToProcessEventError, "I don't know how to process '#{event.type}' events. "\
-                                             "To process this event implement a method named '#{handler_method_name}'"
-          end
         end
       end
 

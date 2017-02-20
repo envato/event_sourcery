@@ -33,7 +33,7 @@ module EventSourcery
         event_processor.subscribe_to(@event_store)
       rescue => e
         backtrace = e.backtrace.join("\n")
-        EventSourcery.logger.error { "Processor #{event_processor.processor_name} died with #{e.to_s}. #{e.backtrace}" }
+        EventSourcery.logger.error { "Processor #{event_processor.processor_name} died with #{e.to_s}. #{backtrace}" }
         @on_event_processor_error.call(e, event_processor.processor_name)
         unless @stop_on_failure
           sleep 1

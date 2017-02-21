@@ -92,6 +92,17 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
       expect(projector.processed_event).to eq(event)
     end
 
+    it 'processes events with custom classes' do
+      projector = new_projector do
+        project ItemAdded do |event|
+          @processed_event = event
+        end
+      end
+      event = ItemAdded.new
+      projector.project(event)
+      expect(projector.processed_event).to eq(event)
+    end
+
     it 'projects with event handler methods' do
       projector = new_projector do
         def project_terms_accepted(event)

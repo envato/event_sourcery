@@ -3,7 +3,10 @@ module EventSourcery
     # NOTE: the event store database should be disconnected before running this
     # EventSourcery.config.event_store_database.disconnect
     class ESPRunner
-      def initialize(event_processors:, event_store:, on_event_processor_error: EventSourcery.config.on_event_processor_error, stop_on_failure: false)
+      def initialize(event_processors:,
+                     event_store:,
+                     on_event_processor_error: EventSourcery.config.on_event_processor_error,
+                     stop_on_failure: false)
         @event_processors = event_processors
         @event_store = event_store
         @on_event_processor_error = on_event_processor_error

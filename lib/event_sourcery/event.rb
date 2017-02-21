@@ -21,5 +21,9 @@ module EventSourcery
     def persisted?
       !id.nil?
     end
+
+    def ==(other)
+      type.to_sym == other.type.to_sym && body == other.body
+    end
   end
 end

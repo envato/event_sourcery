@@ -4,10 +4,6 @@ module EventSourcery
       # Stores event types by the underscored version of the class name and
       # falls back to the generic Event class if the constant is not found
       class Underscored
-        def initialize
-          @cache = {}
-        end
-
         def serialize(event_class)
           unless event_class == Event
             underscore_class_name(event_class.name)
@@ -15,20 +11,12 @@ module EventSourcery
         end
 
         def deserialize(event_type)
-          if @cache.key?(event_type)
-            @cache.fetch(event_type)
-          else
-            @cache[event_type] = lookup_type(event_type)
-          end
-        end
-
-        private
-
-        def lookup_type(event_type)
           Object.const_get(camelize(event_type))
         rescue NameError
           Event
         end
+
+        private
 
         def underscore_class_name(class_name)
           underscore(class_name)

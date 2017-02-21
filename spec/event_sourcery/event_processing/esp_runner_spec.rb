@@ -1,10 +1,18 @@
 RSpec.describe EventSourcery::EventProcessing::ESPRunner do
-  subject(:esp_runner) { described_class.new(event_processors: event_processors, event_store: event_store, stop_on_failure: stop_on_failure) }
+  subject(:esp_runner) do
+    described_class.new(
+      event_processors: event_processors,
+      event_store: event_store,
+      on_event_processor_error: custom_on_event_processor_error,
+      stop_on_failure: stop_on_failure
+    )
+  end
   let(:event_store) { double(:event_store) }
   let(:event_processors) { [esp] }
   let(:stop_on_failure) { false }
-
-  let(:esp) { double(:esp) }
+  let(:custom_on_event_processor_error) { spy }
+  let(:esp) { double(:esp, processor_name: processor_name) }
+  let(:processor_name) { "processor_name" }
 
   before do
     allow(esp_runner).to receive(:fork).and_yield
@@ -27,23 +35,47 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
       expect(esp).to have_received(:subscribe_to).with(event_store)
     end
 
-    it 'retries on failure' do
-      counter = 0
-      allow(esp).to receive(:subscribe_to) do
-        counter += 1
-        raise StandardError if counter < 2
+    context 'on exception' do
+      let(:error) { StandardError.new }
+      let(:logger) { spy(EventSourcery.logger) }
+
+      before do
+        allow(esp).to receive(:subscribe_to).and_raise(error)
+        allow(EventSourcery.logger).to receive(:error).and_return(logger)
       end
-      esp_runner.start!
-      expect(esp).to have_received(:subscribe_to).twice
-    end
 
-    context 'when processors are expected to stop on failure' do
-      let(:stop_on_failure) { true }
+      context 'retry enabled' do
+        before do
+          counter = 0
+          allow(esp).to receive(:subscribe_to) do
+            counter += 1
+            raise error if counter < 2
+          end
+        end
 
-      it 'does not retry on failure' do
-        allow(esp).to receive(:subscribe_to).and_raise(StandardError)
-        esp_runner.start!
-        expect(esp).to have_received(:subscribe_to).once
+        it 'retries on failure' do
+          esp_runner.start!
+          expect(esp).to have_received(:subscribe_to).twice
+        end
+      end
+
+      context 'retry disabled' do
+        let(:stop_on_failure) { true }
+
+        it 'does not retry on failure' do
+          esp_runner.start!
+          expect(esp).to have_received(:subscribe_to).once
+        end
+
+        it 'calls on_event_processor_error with exception and processor name' do
+          esp_runner.start!
+          expect(custom_on_event_processor_error).to have_received(:call).with(error, processor_name)
+        end
+
+        it 'logs error' do
+          esp_runner.start!
+          expect(EventSourcery.logger).to have_received(:error)
+        end
       end
     end
   end

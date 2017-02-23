@@ -48,9 +48,7 @@ module EventSourcery
         @inflector = Inflector.new
 
         def serialize(event_class)
-          unless event_class == Event
-            underscore_class_name(event_class.name)
-          end
+          underscore_class_name(event_class.name)
         end
 
         def deserialize(event_type)

@@ -3,7 +3,9 @@ module EventSourcery
     include Virtus.value_object
 
     def self.type
-      EventSourcery.config.event_type_serializer.serialize(self)
+      unless self == Event
+        EventSourcery.config.event_type_serializer.serialize(self)
+      end
     end
 
     def initialize(**hash)

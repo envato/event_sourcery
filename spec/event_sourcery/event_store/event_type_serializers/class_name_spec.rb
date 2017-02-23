@@ -2,8 +2,8 @@ RSpec.describe EventSourcery::EventStore::EventTypeSerializers::ClassName do
   subject(:serializer) { described_class.new }
 
   describe '#serialize' do
-    it 'returns nil always when the class is Event' do
-      expect(serializer.serialize(EventSourcery::Event)).to eq nil
+    it "doesn't handle Event in a special way" do
+      expect(serializer.serialize(EventSourcery::Event)).to eq 'EventSourcery::Event'
     end
 
     it 'returns the serializer class name' do

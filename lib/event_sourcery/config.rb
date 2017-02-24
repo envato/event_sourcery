@@ -5,6 +5,7 @@ module EventSourcery
     attr_accessor :event_store_database,
                   :event_tracker,
                   :on_unknown_event,
+                  :on_event_processor_error,
                   :use_optimistic_concurrency,
                   :lock_table_to_guarantee_linear_sequence_id_growth,
                   :write_events_function_name,
@@ -24,6 +25,9 @@ module EventSourcery
     def initialize
       @on_unknown_event = proc { |event, aggregate|
         raise Command::AggregateRoot::UnknownEventError, "#{event.type} is unknown to #{aggregate.class.name}"
+      }
+      @on_event_processor_error = proc { |exception, processor_name|
+        # app specific custom logic ie. report to rollbar
       }
       @use_optimistic_concurrency = true
       @lock_table_to_guarantee_linear_sequence_id_growth = true

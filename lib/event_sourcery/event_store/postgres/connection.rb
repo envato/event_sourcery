@@ -4,10 +4,11 @@ module EventSourcery
       class Connection
         include EachByRange
 
-        def initialize(pg_connection, events_table_name: EventSourcery.config.events_table_name, lock_table: EventSourcery.config.lock_table_to_guarantee_linear_sequence_id_growth)
+        def initialize(pg_connection, events_table_name: EventSourcery.config.events_table_name, lock_table: EventSourcery.config.lock_table_to_guarantee_linear_sequence_id_growth, event_builder: EventSourcery.config.event_builder)
           @pg_connection = pg_connection
           @events_table_name = events_table_name
           @lock_table = lock_table
+          @event_builder = event_builder
         end
 
         def sink(event_or_events)
@@ -38,7 +39,7 @@ module EventSourcery
             query = query.where(type: event_types)
           end
           query.map do |event_row|
-            Event.new(event_row)
+            build_event(event_row)
           end
         end
 
@@ -57,7 +58,7 @@ module EventSourcery
 
         def get_events_for_aggregate_id(id)
           events_table.where(aggregate_id: id).order(:id).map do |event_hash|
-            Event.new(event_hash)
+            build_event(event_hash)
           end
         end
 
@@ -91,6 +92,10 @@ module EventSourcery
           else
             yield
           end
+        end
+
+        def build_event(data)
+          @event_builder.build(data)
         end
       end
     end

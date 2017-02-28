@@ -275,26 +275,6 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
         allow(reactor).to receive(:emit_event).with(type: 'echo_event', aggregate_id: 123, body: { a: :b })
         reactor.emit_echo_event(123, { a: :b })
       end
-
-      it 'can emit events with a hash instead of an event object' do
-        reactor = Class.new do
-          include EventSourcery::EventProcessing::Reactor
-
-          processes_events :terms_accepted
-          emits_events :echo_event
-
-          def process(event)
-            emit_event(aggregate_id: event.aggregate_id, type: 'echo_event') do |body|
-              body[:token] = 'secret-identifier'
-            end
-          end
-        end.new(tracker: tracker, event_source: event_source, event_sink: event_sink)
-        event = new_event(id: 1, type: :terms_accepted, aggregate_id: SecureRandom.uuid)
-        reactor.process(event)
-        expect(latest_events(1).first.body["_driven_by_event_id"]).to eq event.id
-        expect(latest_events(1).first.body["token"]).to eq 'secret-identifier'
-        expect(latest_events(1).first.aggregate_id).to eq event.aggregate_id
-      end
     end
   end
 end

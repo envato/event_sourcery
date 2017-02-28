@@ -2,11 +2,12 @@ module EventSourcery
   module EventStore
     module Postgres
       class ConnectionWithOptimisticConcurrency < Connection
-        def initialize(pg_connection, events_table_name: EventSourcery.config.events_table_name, lock_table: EventSourcery.config.lock_table_to_guarantee_linear_sequence_id_growth, write_events_function_name: EventSourcery.config.write_events_function_name)
+        def initialize(pg_connection, events_table_name: EventSourcery.config.events_table_name, lock_table: EventSourcery.config.lock_table_to_guarantee_linear_sequence_id_growth, write_events_function_name: EventSourcery.config.write_events_function_name, event_builder: EventSourcery.config.event_builder)
           @pg_connection = pg_connection
           @events_table_name = events_table_name
           @write_events_function_name = write_events_function_name
           @lock_table = lock_table
+          @event_builder = event_builder
         end
 
         def sink(event_or_events, expected_version: nil)

@@ -229,5 +229,103 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
         end
       end
     end
+
+    context 'when using custom event classes' do
+      def new_esp(&block)
+        Class.new do
+          include EventSourcery::EventProcessing::EventStreamProcessor
+          processor_name 'my_processor'
+
+          class_eval(&block)
+        end.new(tracker: tracker)
+      end
+
+      subject(:event_processor) {
+        new_esp do
+          process ItemAdded do |event|
+            @added_event = event
+          end
+
+          process ItemRemoved do |event|
+            @removed_event = event
+          end
+
+          attr_reader :added_event, :removed_event
+        end
+      }
+      let(:item_added_event) { ItemAdded.new }
+      let(:item_removed_event) { ItemRemoved.new }
+
+      it 'calls the defined handler' do
+        event_processor.process(item_added_event)
+        expect(event_processor.added_event).to eq item_added_event
+        event_processor.process(item_removed_event)
+        expect(event_processor.removed_event).to eq item_removed_event
+      end
+
+      it 'returns the events in processed event types' do
+        expect(event_processor.class.processes_event_types).to eq(['item_added', 'item_removed'])
+      end
+
+      context 'in combination with method handlers' do
+        let(:event_processor) {
+          new_esp do
+            process ItemAdded do |event|
+              @added_event = event
+            end
+
+            def process_item_added(event)
+              @added_event_by_method = event
+            end
+
+            processes_events :item_removed
+            def process_item_removed(event)
+              @removed_event = event
+            end
+
+            attr_reader :added_event, :added_event_by_method, :removed_event
+          end
+        }
+
+        it "doesn't call the method handler for item added" do
+          event_processor.process(item_added_event)
+          expect(event_processor.added_event_by_method).to be_nil
+        end
+
+        it 'calls the method handler for item removed' do
+          event_processor.process(item_removed_event)
+          expect(event_processor.removed_event).to eq item_removed_event
+        end
+
+        it 'calls the handler block for item added' do
+          event_processor.process(item_added_event)
+          expect(event_processor.added_event).to eq item_added_event
+        end
+      end
+
+      context 'processing multiple events in handlers' do
+        let(:event_processor) {
+          new_esp do
+            process ItemAdded do |event|
+              @added_event = event
+            end
+
+            process ItemAdded, ItemRemoved do |event|
+              @added_and_removed_events ||= []
+              @added_and_removed_events << event
+            end
+
+            attr_reader :added_and_removed_events, :added_event
+          end
+        }
+
+        it 'calls the associated handlers for each event' do
+          event_processor.process(item_added_event)
+          event_processor.process(item_removed_event)
+          expect(event_processor.added_event).to eq item_added_event
+          expect(event_processor.added_and_removed_events).to eq [item_added_event, item_removed_event]
+        end
+      end
+    end
   end
 end

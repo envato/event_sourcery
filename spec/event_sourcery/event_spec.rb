@@ -49,7 +49,51 @@ RSpec.describe EventSourcery::Event do
     end
   end
 
-  context 'equality' do
-    #let(:event_1) { EventSourcery::Event.new(id: 1
+  describe '.type' do
+    let(:serializer) { double }
+
+    before do
+      allow(EventSourcery.config).to receive(:event_type_serializer).and_return(serializer)
+      allow(serializer).to receive(:serialize).and_return('serialized')
+    end
+
+    it 'delegates to the configured event type serializer' do
+      ItemAdded.type
+      expect(serializer).to have_received(:serialize).with(ItemAdded)
+    end
+
+    it 'returns the serialized type' do
+      expect(ItemAdded.type).to eq('serialized')
+    end
+
+    context 'when the event is EventSourcery::Event' do
+      it 'returns nil' do
+        expect(EventSourcery::Event.type).to be_nil
+      end
+    end
+  end
+
+  describe '#type' do
+    before do
+      allow(EventSourcery::Event).to receive(:type).and_return(type)
+    end
+
+    context 'when the event class type is nil' do
+      let(:type) { nil }
+
+      it 'uses the provided type' do
+        event = EventSourcery::Event.new(type: 'blah')
+        expect(event.type).to eq 'blah'
+      end
+    end
+
+    context 'when the event class type is not nil' do
+      let(:type) { 'ItemAdded' }
+
+      it "can't be overridden with the provided type" do
+        event = EventSourcery::Event.new(type: 'blah')
+        expect(event.type).to eq 'ItemAdded'
+      end
+    end
   end
 end

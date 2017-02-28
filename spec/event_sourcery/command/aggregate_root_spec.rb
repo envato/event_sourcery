@@ -31,7 +31,7 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
 
   let(:aggregate_uuid) { SecureRandom.uuid }
   subject(:aggregate) { new_aggregate(aggregate_uuid) }
-  let(:event_store) { EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConcurrency.new(pg_connection) }
+  let(:event_store) { EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConcurrency.new(pg_connection, event_builder: EventSourcery.config.event_builder) }
   let(:event_sink) { EventSourcery::EventStore::EventSink.new(event_store) }
 
   describe '#load_history' do
@@ -181,5 +181,67 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
                                     body: Sequel.pg_json({}),
                                     version: 1)
     }.to raise_error(Sequel::UniqueConstraintViolation)
+  end
+
+  context 'loading state' do
+    let(:item_added_event) { ItemAdded.new(id: 1) }
+    let(:item_removed_event) { ItemRemoved.new(id: 2) }
+
+    context 'with custom event classes' do
+      it 'sends events to the event handlers' do
+        aggregate = new_aggregate(aggregate_uuid) do |event|
+          apply(ItemAdded) do |event|
+            @item_added_event_via_dsl = event
+          end
+
+          apply(ItemRemoved) do |event|
+            @item_removed_event_via_dsl = event
+          end
+
+          attr_reader :item_added_event_via_dsl,
+                      :item_removed_event_via_dsl
+        end
+        aggregate.load_history([item_added_event])
+        expect(aggregate.item_added_event_via_dsl).to eq item_added_event
+        expect(aggregate.item_removed_event_via_dsl).to be_nil
+      end
+
+      it 'handles multiple events in handlers' do
+        aggregate = new_aggregate(aggregate_uuid) do
+          apply ItemAdded do |event|
+            @added_event = event
+          end
+
+          apply ItemAdded, ItemRemoved do |event|
+            @added_and_removed_events ||= []
+            @added_and_removed_events << event
+          end
+
+          attr_reader :added_and_removed_events, :added_event
+        end
+
+        aggregate.load_history([item_added_event, item_removed_event])
+        expect(aggregate.added_event).to eq item_added_event
+        expect(aggregate.added_and_removed_events).to eq [item_added_event, item_removed_event]
+      end
+
+      it 'uses the DSL over method dispatch' do
+        aggregate = new_aggregate(aggregate_uuid) do |event|
+          apply(ItemAdded) do |event|
+            @item_added_event_via_dsl = event
+          end
+
+          def apply_ItemAdded(event)
+            @item_added_event_via_method << event
+          end
+
+          attr_reader :item_added_event_via_dsl, :item_added_event_via_method
+        end
+
+        aggregate.load_history([item_added_event])
+        expect(aggregate.item_added_event_via_dsl).to eq item_added_event
+        expect(aggregate.item_added_event_via_method).to be_nil
+      end
+    end
   end
 end

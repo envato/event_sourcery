@@ -16,8 +16,7 @@ module EventSourcery
       end
 
       def upcast(type, body)
-        event_transformations = @transformations[type]
-        event_transformations.inject(body) do |body, transformation|
+        transformations[type].inject(body) do |body, transformation|
           transformation.function.call(body)
           body
         end

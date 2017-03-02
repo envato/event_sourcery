@@ -5,9 +5,7 @@ module EventSourcery
       # Event class if the constant is not found
       class ClassName
         def serialize(event_class)
-          unless event_class == Event
-            event_class.name
-          end
+          event_class.name
         end
 
         def deserialize(event_type)

@@ -58,12 +58,18 @@ RSpec.describe EventSourcery::Event do
     end
 
     it 'delegates to the configured event type serializer' do
-      EventSourcery::Event.type
-      expect(serializer).to have_received(:serialize).with(EventSourcery::Event)
+      ItemAdded.type
+      expect(serializer).to have_received(:serialize).with(ItemAdded)
     end
 
     it 'returns the serialized type' do
-      expect(EventSourcery::Event.type).to eq('serialized')
+      expect(ItemAdded.type).to eq('serialized')
+    end
+
+    context 'when the event is EventSourcery::Event' do
+      it 'returns nil' do
+        expect(EventSourcery::Event.type).to be_nil
+      end
     end
   end
 

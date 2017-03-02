@@ -16,4 +16,18 @@ RSpec.describe EventSourcery::EventStore::UpcasterChain do
     upcasted_body = upcaster_chain.upcast('ItemRemoved', { 'name' => 'Bug' })
     expect(upcasted_body).to eq('name' => 'Bug')
   end
+
+  context 'with more than one upcaster function' do
+    before do
+      upcaster_chain.define('ItemAdded') do |body|
+        body['currency'] ||= 'AUD'
+        body['upcaster_2'] = 'check'
+      end
+    end
+
+    it 'runs them in order' do
+      upcasted_body = upcaster_chain.upcast('ItemAdded', { 'name' => 'Bug' })
+      expect(upcasted_body).to eq('name' => 'Bug', 'currency' => 'USD', 'upcaster_2' => 'check')
+    end
+  end
 end

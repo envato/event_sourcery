@@ -21,7 +21,7 @@ module EventSourcery
                 :event_builder
 
     attr_reader :projections_database,
-                :upcaster
+                :upcaster_chain
 
     def initialize
       @on_unknown_event = proc { |event, aggregate|
@@ -38,7 +38,7 @@ module EventSourcery
       @callback_interval_if_no_new_events = 10
       @event_store_database = nil
       @event_store = nil
-      @upcaster = EventStore::Upcaster.new
+      @upcaster_chain = EventStore::UpcasterChain.new
       @event_type_serializer = EventStore::EventTypeSerializers::Underscored.new
     end
 
@@ -74,7 +74,7 @@ module EventSourcery
     end
 
     def event_builder
-      @event_builder || EventStore::EventBuilder.new(event_type_serializer: @event_type_serializer, upcaster: @upcaster)
+      @event_builder || EventStore::EventBuilder.new(event_type_serializer: @event_type_serializer, upcaster_chain: @upcaster_chain)
     end
   end
 end

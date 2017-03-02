@@ -1,6 +1,6 @@
 module EventSourcery
   module EventStore
-    class Upcaster
+    class UpcasterChain
       class Transformation < Struct.new(:event_type, :description, :function)
       end
 

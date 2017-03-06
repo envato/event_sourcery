@@ -105,11 +105,11 @@ module EventSourcery
         self.class.processes?(event_type)
       end
 
-      def subscribe_to(event_store)
+      def subscribe_to(event_store, graceful_shutdown: GracefulShutdown.new)
         setup
         event_store.subscribe(from_id: last_processed_event_id + 1,
                               event_types: processes_event_types) do |events|
-          process_events(events)
+          process_events(events, graceful_shutdown)
         end
       end
 
@@ -119,8 +119,9 @@ module EventSourcery
 
       attr_reader :_event
 
-      def process_events(events)
+      def process_events(events, graceful_shutdown)
         events.each do |event|
+          graceful_shutdown.mark_safe_shutdown_point
           process(event)
           tracker.processed_event(processor_name, event.id)
           EventSourcery.logger.debug { "[#{processor_name}] Processed event: #{event.inspect}" }

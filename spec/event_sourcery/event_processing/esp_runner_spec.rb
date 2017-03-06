@@ -7,32 +7,31 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
       stop_on_failure: stop_on_failure
     )
   end
-  let(:event_store) { double(:event_store) }
+  let(:event_store) { spy(:event_store) }
   let(:event_processors) { [esp] }
   let(:stop_on_failure) { false }
   let(:custom_on_event_processor_error) { spy }
-  let(:esp) { double(:esp, processor_name: processor_name) }
+  let(:esp) { spy(:esp, processor_name: processor_name) }
   let(:processor_name) { "processor_name" }
 
   before do
     allow(esp_runner).to receive(:fork).and_yield
+    allow(Signal).to receive(:trap)
   end
 
   describe 'start!' do
-    subject(:start!) { dispatcher.start! }
+    subject(:start!) { esp_runner.start! }
 
-    before do
-      allow(esp).to receive(:subscribe_to)
-    end
-
-    it 'traps SIGINT signal from parent process' do
-      expect(Signal).to receive(:trap).with('SIGTERM')
-      esp_runner.start!
+    it 'traps TERM signal' do
+      start!
+      expect(Signal).to have_received(:trap).with(:TERM).at_least(:once)
     end
 
     it 'subscribes ESPs' do
-      esp_runner.start!
-      expect(esp).to have_received(:subscribe_to).with(event_store)
+      start!
+      expect(esp).to have_received(:subscribe_to)
+        .with(event_store,
+              graceful_shutdown: kind_of(EventSourcery::EventProcessing::GracefulShutdown))
     end
 
     context 'on exception' do
@@ -54,7 +53,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         end
 
         it 'retries on failure' do
-          esp_runner.start!
+          start!
           expect(esp).to have_received(:subscribe_to).twice
         end
       end
@@ -63,17 +62,17 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         let(:stop_on_failure) { true }
 
         it 'does not retry on failure' do
-          esp_runner.start!
+          start!
           expect(esp).to have_received(:subscribe_to).once
         end
 
         it 'calls on_event_processor_error with exception and processor name' do
-          esp_runner.start!
+          start!
           expect(custom_on_event_processor_error).to have_received(:call).with(error, processor_name)
         end
 
         it 'logs error' do
-          esp_runner.start!
+          start!
           expect(EventSourcery.logger).to have_received(:error)
         end
       end

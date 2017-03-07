@@ -24,9 +24,12 @@ RSpec.describe EventSourcery::EventStore::Postgres::Connection do
   describe '#subscribe' do
     let(:aggregate_id) { SecureRandom.uuid }
     let(:event) { new_event(aggregate_id: aggregate_id) }
+    let(:subscription_master) { spy(:subscription_master) }
 
     it 'notifies of new events' do
-      event_store.subscribe(from_id: 0, after_listen: proc { event_store.sink(event) }) do |events|
+      event_store.subscribe(from_id: 0,
+                            after_listen: proc { event_store.sink(event) },
+                            subscription_master: subscription_master) do |events|
         @events = events
         throw :stop
       end

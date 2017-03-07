@@ -108,7 +108,8 @@ module EventSourcery
       def subscribe_to(event_store, subscription_master: EventStore::SubscriptionMaster.new)
         setup
         event_store.subscribe(from_id: last_processed_event_id + 1,
-                              event_types: processes_event_types) do |events|
+                              event_types: processes_event_types,
+                              subscription_master: subscription_master) do |events|
           process_events(events, subscription_master)
         end
       end

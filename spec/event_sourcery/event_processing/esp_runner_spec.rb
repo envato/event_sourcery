@@ -31,7 +31,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
       start!
       expect(esp).to have_received(:subscribe_to)
         .with(event_store,
-              graceful_shutdown: kind_of(EventSourcery::EventProcessing::GracefulShutdown))
+              subscription_master: kind_of(EventSourcery::EventStore::SubscriptionMaster))
     end
 
     context 'on exception' do

@@ -1,12 +1,12 @@
-RSpec.describe EventSourcery::EventProcessing::GracefulShutdown do
-  subject(:graceful_shutdown) { described_class.new }
+RSpec.describe EventSourcery::EventStore::SubscriptionMaster do
+  subject(:subscription_master) { described_class.new }
 
   describe 'mark_safe_shutdown_point' do
-    subject(:mark_safe_shutdown_point) { graceful_shutdown.mark_safe_shutdown_point }
+    subject(:mark_safe_shutdown_point) { subscription_master.mark_safe_shutdown_point }
 
     context 'given shutdown_when_safe requested' do
       before do
-        graceful_shutdown.shutdown_when_safe
+        subscription_master.request_shutdown
       end
 
       it 'throws :stop' do

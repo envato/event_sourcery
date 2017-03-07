@@ -17,11 +17,7 @@ module EventSourcery
       def start!
         EventSourcery.logger.info { "Forking ESP processes" }
         @event_processors.each do |event_processor|
-          pid = fork do
-            Process.setproctitle(event_processor.class.name)
-            start_processor(event_processor)
-          end
-          pids << pid
+          pids << fork { start_processor(event_processor) }
         end
         Signal.trap(:TERM) { kill_child_processes }
         Signal.trap(:INT) { kill_child_processes }
@@ -33,11 +29,13 @@ module EventSourcery
       attr_reader :pids
 
       def start_processor(event_processor)
+        Process.setproctitle(event_processor.class.name)
         EventSourcery.logger.info { "Starting #{event_processor.processor_name}" }
-        graceful_shutdown = GracefulShutdown.new
-        event_processor.subscribe_to(@event_store, graceful_shutdown: graceful_shutdown)
-        Signal.trap(:TERM) { graceful_shutdown.shutdown_when_safe }
-        Signal.trap(:INT) { graceful_shutdown.shutdown_when_safe }
+        subscription_master = EventStore::SubscriptionMaster.new
+        Signal.trap(:TERM) { subscription_master.request_shutdown }
+        Signal.trap(:INT) { subscription_master.request_shutdown }
+        event_processor.subscribe_to(@event_store, subscription_master: subscription_master)
+        EventSourcery.logger.info { "Stopping #{event_processor.processor_name}" }
       rescue => e
         backtrace = e.backtrace.join("\n")
         EventSourcery.logger.error { "Processor #{event_processor.processor_name} died with #{e.to_s}. #{backtrace}" }

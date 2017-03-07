@@ -1,6 +1,6 @@
 module EventSourcery
-  module EventProcessing
-    class GracefulShutdown
+  module EventStore
+    class SubscriptionMaster
       def initialize
         @shutdown_requested = false
       end
@@ -9,7 +9,7 @@ module EventSourcery
         throw :stop if @shutdown_requested
       end
 
-      def shutdown_when_safe
+      def request_shutdown
         @shutdown_requested = true
       end
     end

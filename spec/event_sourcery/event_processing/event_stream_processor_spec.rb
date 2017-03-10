@@ -176,60 +176,6 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
       end
     end
 
-    context 'event handler methods' do
-      context 'when an event handler method exists' do
-        subject(:event_processor) {
-          new_event_processor do
-            processor_name 'my_processor'
-            processes_events :item_added
-
-            def process_item_added(event)
-              @event = event
-            end
-
-            attr_reader :event
-          end
-        }
-
-        it 'is used to process the event' do
-          event_processor.process(event)
-          expect(event_processor.event).to eq event
-        end
-      end
-
-      context 'when the event handler method does not exist' do
-        context 'when a generic process method is defined' do
-          subject(:event_processor) {
-            new_event_processor do
-              processor_name 'my_processor'
-              processes_events :item_added
-            end
-          }
-
-          it 'is used to process the event' do
-            event_processor.process(event)
-            expect(event_processor.events).to eq [event]
-          end
-        end
-
-        context 'and no process method is defined' do
-          subject(:event_processor) {
-            Class.new do
-              include EventSourcery::EventProcessing::EventStreamProcessor
-              processor_name 'my_processor'
-              processes_events :item_added
-            end.new(tracker: tracker)
-          }
-
-          it 'is used to process the event' do
-            expect {
-              event_processor.process(event)
-            }.to raise_error(EventSourcery::UnableToProcessEventError, /I don't know how to process 'item_added' events/)
-          end
-        end
-      end
-    end
-
     context 'when using custom event classes' do
       def new_esp(&block)
         Class.new do
@@ -265,42 +211,6 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
 
       it 'returns the events in processed event types' do
         expect(event_processor.class.processes_event_types).to eq(['item_added', 'item_removed'])
-      end
-
-      context 'in combination with method handlers' do
-        let(:event_processor) {
-          new_esp do
-            process ItemAdded do |event|
-              @added_event = event
-            end
-
-            def process_item_added(event)
-              @added_event_by_method = event
-            end
-
-            processes_events :item_removed
-            def process_item_removed(event)
-              @removed_event = event
-            end
-
-            attr_reader :added_event, :added_event_by_method, :removed_event
-          end
-        }
-
-        it "doesn't call the method handler for item added" do
-          event_processor.process(item_added_event)
-          expect(event_processor.added_event_by_method).to be_nil
-        end
-
-        it 'calls the method handler for item removed' do
-          event_processor.process(item_removed_event)
-          expect(event_processor.removed_event).to eq item_removed_event
-        end
-
-        it 'calls the handler block for item added' do
-          event_processor.process(item_added_event)
-          expect(event_processor.added_event).to eq item_added_event
-        end
       end
 
       context 'processing multiple events in handlers' do

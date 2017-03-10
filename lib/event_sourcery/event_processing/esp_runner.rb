@@ -11,45 +11,52 @@ module EventSourcery
         @event_store = event_store
         @on_event_processor_error = on_event_processor_error
         @stop_on_failure = stop_on_failure
-        @pids = []
+        @processes = []
       end
 
       def start!
-        EventSourcery.logger.info { "Forking ESP processes" }
-        @event_processors.each do |event_processor|
-          pids << fork { start_processor(event_processor) }
+        with_runner_logging do
+          start_processors
+          setup_shutdown_hooks
+          wait_for_processors
         end
-        Signal.trap(:TERM) { kill_child_processes }
-        Signal.trap(:INT) { kill_child_processes }
-        Process.waitall
       end
 
       private
 
-      attr_reader :pids
+      def with_runner_logging
+        EventSourcery.logger.info { 'Forking ESP processes' }
+        yield
+        EventSourcery.logger.info { 'ESP processes shutdown' }
+      end
+
+      def start_processors
+        @event_processors.each(&method(:start_processor))
+      end
 
       def start_processor(event_processor)
-        Process.setproctitle(event_processor.class.name)
-        EventSourcery.logger.info { "Starting #{event_processor.processor_name}" }
-        subscription_master = EventStore::SubscriptionMaster.new
-        Signal.trap(:TERM) { subscription_master.request_shutdown }
-        Signal.trap(:INT) { subscription_master.request_shutdown }
-        event_processor.subscribe_to(@event_store, subscription_master: subscription_master)
-        EventSourcery.logger.info { "Stopping #{event_processor.processor_name}" }
-      rescue => e
-        backtrace = e.backtrace.join("\n")
-        EventSourcery.logger.error { "Processor #{event_processor.processor_name} died with #{e.to_s}. #{backtrace}" }
-        @on_event_processor_error.call(e, event_processor.processor_name)
-        unless @stop_on_failure
-          sleep 1
-          retry
+        process = ESPProcess.new(
+          event_processor: event_processor,
+          event_store: @event_store,
+          on_event_processor_error: @on_event_processor_error,
+          stop_on_failure: @stop_on_failure
+        )
+        process.start
+        @processes << process
+      end
+
+      def setup_shutdown_hooks
+        %i(TERM INT).each do |signal|
+          Signal.trap(signal, &method(:terminate_processors))
         end
       end
 
-      def kill_child_processes
-        pids.each do |pid|
-          Process.kill(:TERM, pid)
-        end
+      def terminate_processors
+        @processes.each(&:terminate)
+      end
+
+      def wait_for_processors
+        Process.waitall
       end
     end
   end

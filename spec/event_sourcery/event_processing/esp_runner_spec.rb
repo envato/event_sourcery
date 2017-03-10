@@ -13,67 +13,42 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
   let(:custom_on_event_processor_error) { spy }
   let(:esp) { spy(:esp, processor_name: processor_name) }
   let(:processor_name) { "processor_name" }
+  let(:esp_process) { spy }
 
   before do
-    allow(esp_runner).to receive(:fork).and_yield
     allow(Signal).to receive(:trap)
+    allow(EventSourcery::EventProcessing::ESPProcess)
+      .to receive(:new)
+      .and_return(esp_process)
   end
 
   describe 'start!' do
     subject(:start!) { esp_runner.start! }
 
-    it 'traps TERM signal' do
+    it 'starts ESP processes' do
       start!
-      expect(Signal).to have_received(:trap).with(:TERM).at_least(:once)
+      expect(EventSourcery::EventProcessing::ESPProcess)
+        .to have_received(:new)
+        .with(
+          event_processor: esp,
+          event_store: event_store,
+          on_event_processor_error: custom_on_event_processor_error,
+          stop_on_failure: stop_on_failure
+        )
+      expect(esp_process).to have_received(:start)
     end
 
-    it 'subscribes ESPs' do
-      start!
-      expect(esp).to have_received(:subscribe_to)
-        .with(event_store,
-              subscription_master: kind_of(EventSourcery::EventStore::SubscriptionMaster))
-    end
-
-    context 'on exception' do
-      let(:error) { StandardError.new }
-      let(:logger) { spy(EventSourcery.logger) }
-
-      before do
-        allow(esp).to receive(:subscribe_to).and_raise(error)
-        allow(EventSourcery.logger).to receive(:error).and_return(logger)
-      end
-
-      context 'retry enabled' do
-        before do
-          counter = 0
-          allow(esp).to receive(:subscribe_to) do
-            counter += 1
-            raise error if counter < 2
+    describe 'graceful shutdown' do
+      %i(TERM INT).each do |signal|
+        context "upon receiving a #{signal} signal" do
+          before do
+            allow(Signal).to receive(:trap).with(signal).and_yield
           end
-        end
 
-        it 'retries on failure' do
-          start!
-          expect(esp).to have_received(:subscribe_to).twice
-        end
-      end
-
-      context 'retry disabled' do
-        let(:stop_on_failure) { true }
-
-        it 'does not retry on failure' do
-          start!
-          expect(esp).to have_received(:subscribe_to).once
-        end
-
-        it 'calls on_event_processor_error with exception and processor name' do
-          start!
-          expect(custom_on_event_processor_error).to have_received(:call).with(error, processor_name)
-        end
-
-        it 'logs error' do
-          start!
-          expect(EventSourcery.logger).to have_received(:error)
+          it 'it terminates its ESP processes' do
+            start!
+            expect(esp_process).to have_received(:terminate)
+          end
         end
       end
     end

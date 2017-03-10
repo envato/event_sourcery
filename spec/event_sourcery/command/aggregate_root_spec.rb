@@ -14,13 +14,10 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
         @item_added_events = []
       end
 
-      def apply_item_added(event)
+      apply ItemAdded do |event|
         @item_added_events << event
       end
       attr_reader :item_added_events
-
-      def apply_dummy(event)
-      end
 
       class_eval(&block) if block_given?
     end.new(id,
@@ -79,7 +76,7 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
     subject(:aggregate) {
       new_aggregate(aggregate_uuid) do
         def add_item(item)
-          apply_event(EventSourcery::Event.new(type: :item_added, body: { id: item.id }))
+          apply_event(ItemAdded.new(body: { id: item.id }))
         end
       end
     }
@@ -88,7 +85,7 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
       subject(:aggregate) {
         new_aggregate(aggregate_uuid, use_optimistic_concurrency: false) do
           def add_item(item)
-            apply_event(EventSourcery::Event.new(type: :item_added, body: { id: item.id }))
+            apply_event(ItemAdded.new(body: { id: item.id }))
           end
         end
       }
@@ -144,7 +141,7 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
       subject(:aggregate) do
         new_aggregate(aggregate_uuid, use_optimistic_concurrency: false) do
           def add_item(item)
-            apply_event(type: :item_added, body: { id: item.id })
+            apply_event(ItemAdded.new(body: { id: item.id }))
           end
         end
       end
@@ -223,24 +220,6 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
         aggregate.load_history([item_added_event, item_removed_event])
         expect(aggregate.added_event).to eq item_added_event
         expect(aggregate.added_and_removed_events).to eq [item_added_event, item_removed_event]
-      end
-
-      it 'uses the DSL over method dispatch' do
-        aggregate = new_aggregate(aggregate_uuid) do |event|
-          apply(ItemAdded) do |event|
-            @item_added_event_via_dsl = event
-          end
-
-          def apply_ItemAdded(event)
-            @item_added_event_via_method << event
-          end
-
-          attr_reader :item_added_event_via_dsl, :item_added_event_via_method
-        end
-
-        aggregate.load_history([item_added_event])
-        expect(aggregate.item_added_event_via_dsl).to eq item_added_event
-        expect(aggregate.item_added_event_via_method).to be_nil
       end
     end
   end

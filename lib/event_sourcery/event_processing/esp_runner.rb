@@ -6,31 +6,40 @@ module EventSourcery
       def initialize(event_processors:,
                      event_store:,
                      on_event_processor_error: EventSourcery.config.on_event_processor_error,
-                     stop_on_failure: false)
+                     stop_on_failure: false,
+                     max_seconds_for_processes_to_terminate: 30,
+                     shutdown: false)
         @event_processors = event_processors
         @event_store = event_store
         @on_event_processor_error = on_event_processor_error
         @stop_on_failure = stop_on_failure
-        @processes = []
+        @pids = []
+        @shutdown = shutdown
+        @max_seconds_for_processes_to_terminate = max_seconds_for_processes_to_terminate
       end
 
       def start!
-        with_runner_logging do
-          start_processors
-          setup_shutdown_hooks
-          wait_for_processors
+        with_logging do
+          start_processes
+          listen_for_shutdown_signals
+          wait_till_shutdown_requested
+          terminate_processes
+          until all_processes_terminated? || waited_long_enough?
+            record_terminated_process
+          end
+          kill_processes
         end
       end
 
       private
 
-      def with_runner_logging
+      def with_logging
         EventSourcery.logger.info { 'Forking ESP processes' }
         yield
         EventSourcery.logger.info { 'ESP processes shutdown' }
       end
 
-      def start_processors
+      def start_processes
         @event_processors.each(&method(:start_processor))
       end
 
@@ -41,22 +50,43 @@ module EventSourcery
           on_event_processor_error: @on_event_processor_error,
           stop_on_failure: @stop_on_failure
         )
-        process.start
-        @processes << process
+        @pids << Process.fork { process.start }
       end
 
-      def setup_shutdown_hooks
+      def listen_for_shutdown_signals
         %i(TERM INT).each do |signal|
-          Signal.trap(signal, &method(:terminate_processors))
+          Signal.trap(signal) { shutdown }
         end
       end
 
-      def terminate_processors
-        @processes.each(&:terminate)
+      def shutdown
+        @shutdown = true
       end
 
-      def wait_for_processors
-        Process.waitall
+      def wait_till_shutdown_requested
+        sleep(1) until @shutdown
+      end
+
+      def terminate_processes
+        Process.kill(:TERM, *@pids) unless @pids.empty?
+      end
+
+      def kill_processes
+        Process.kill(:KILL, *@pids) unless @pids.empty?
+      end
+
+      def record_terminated_process
+        pid = Process.wait(-1, Process::WNOHANG)
+        @pids.delete(pid)
+      end
+
+      def all_processes_terminated?
+        @pids.empty?
+      end
+
+      def waited_long_enough?
+        @timeout ||= Time.now + @max_seconds_for_processes_to_terminate
+        Time.now >= @timeout
       end
     end
   end

@@ -15,43 +15,10 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
   let(:on_event_processor_error) { spy }
   let(:subscription_master) { spy }
 
-  describe 'terminate' do
-    subject(:terminate) { esp_process.terminate }
-
-    let(:pid) { 777 }
-
-    before do
-      allow(esp_process).to receive(:fork).and_return(pid)
-      esp_process.start
-    end
-
-    it 'sends SIGTERM to the process' do
-      expect(Process).to receive(:kill).with(:TERM, pid)
-      terminate
-    end
-  end
-
-  describe 'kill' do
-    subject(:kill) { esp_process.kill }
-
-    let(:pid) { 789 }
-
-    before do
-      allow(esp_process).to receive(:fork).and_return(pid)
-      esp_process.start
-    end
-
-    it 'sends SIGKILL to the process' do
-      expect(Process).to receive(:kill).with(:KILL, pid)
-      kill
-    end
-  end
-
   describe 'start' do
     subject(:start) { esp_process.start }
 
     before do
-      allow(esp_process).to receive(:fork).and_yield
       allow(esp_process).to receive(:sleep).and_return(1)
       allow(Signal).to receive(:trap)
     end
@@ -116,9 +83,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
 
         it 'logs the errors' do
           start
-          expect(logger)
-            .to have_received(:error)
-            .twice
+          expect(logger).to have_received(:error).twice
         end
       end
 
@@ -140,9 +105,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
 
         it 'logs the error' do
           start
-          expect(logger)
-            .to have_received(:error)
-            .once
+          expect(logger).to have_received(:error).once
         end
       end
     end

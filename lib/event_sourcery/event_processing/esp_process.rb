@@ -14,28 +14,16 @@ module EventSourcery
       end
 
       def start
-        @pid = fork(&method(:start_processor))
-      end
-
-      def terminate
-        send_signal(:TERM)
-      end
-
-      def kill
-        send_signal(:KILL)
-      end
-
-      private
-
-      def start_processor
         with_error_handling do
-          with_process_logging do
+          with_logging do
             name_process
             setup_graceful_shutdown
             subscribe_to_event_stream
           end
         end
       end
+
+      private
 
       def name_process
         Process.setproctitle(@event_processor.class.name)
@@ -67,7 +55,7 @@ module EventSourcery
         @on_event_processor_error.call(error, @event_processor.processor_name)
       end
 
-      def with_process_logging
+      def with_logging
         EventSourcery.logger.info do
           "Starting #{@event_processor.processor_name}"
         end
@@ -75,10 +63,6 @@ module EventSourcery
         EventSourcery.logger.info do
           "Stopping #{@event_processor.processor_name}"
         end
-      end
-
-      def send_signal(signal)
-        Process.kill(signal, @pid)
       end
     end
   end

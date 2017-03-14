@@ -75,6 +75,17 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         end
       end
 
+      context 'given the process stops just before sending signal' do
+        before do
+          allow(Process).to receive(:kill).and_raise(Errno::ESRCH)
+        end
+
+        it "doesn't send the signal more than once" do
+          start!
+          expect(Process).to have_received(:kill).with(:TERM, pid).once
+        end
+      end
+
       context 'given the process does not terminate' do
         before do
           allow(Process).to receive(:wait).and_return(nil)

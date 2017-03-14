@@ -78,6 +78,9 @@ module EventSourcery
 
       def send_signal_to_remaining_processes(signal)
         Process.kill(signal, *@pids) unless all_processes_terminated?
+      rescue Errno::ESRCH
+        record_terminated_processes
+        retry
       end
 
       def all_processes_terminated?

@@ -133,6 +133,11 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
       expect(tracker).to receive(:processed_event).with(event_processor.processor_name, events[1].id)
       event_processor.subscribe_to(event_store)
     end
+
+    it 'marks the safe shutdown points' do
+      event_processor.subscribe_to(event_store, subscription_master: subscription_master)
+      expect(subscription_master).to have_received(:mark_safe_shutdown_point).twice
+    end
   end
 
   describe '#process' do

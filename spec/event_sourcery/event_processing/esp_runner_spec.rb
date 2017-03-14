@@ -6,7 +6,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
       on_event_processor_error: custom_on_event_processor_error,
       stop_on_failure: stop_on_failure,
       max_seconds_for_processes_to_terminate: 0.1,
-      shutdown: true
+      shutdown_requested: true
     )
   end
   let(:event_store) { spy(:event_store) }
@@ -24,7 +24,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
       .and_return(esp_process)
     allow(Process).to receive(:fork).and_yield.and_return(pid)
     allow(Process).to receive(:kill)
-    allow(Process).to receive(:wait).and_return(pid)
+    allow(Process).to receive(:wait).and_return(nil, pid, nil)
     allow(Signal).to receive(:trap)
     allow(esp_runner).to receive(:shutdown)
   end
@@ -62,6 +62,17 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
       it 'sends processes the TERM signal' do
         start!
         expect(Process).to have_received(:kill).with(:TERM, pid)
+      end
+
+      context 'given the processes failed before shutdown' do
+        before do
+          allow(Process).to receive(:wait).and_return(pid, nil)
+        end
+
+        it "doesn't send processes the TERM, or KILL signal" do
+          start!
+          expect(Process).to_not have_received(:kill)
+        end
       end
 
       context 'given the process does not terminate' do

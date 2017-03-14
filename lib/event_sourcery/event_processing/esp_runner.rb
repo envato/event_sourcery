@@ -8,14 +8,14 @@ module EventSourcery
                      on_event_processor_error: EventSourcery.config.on_event_processor_error,
                      stop_on_failure: false,
                      max_seconds_for_processes_to_terminate: 30,
-                     shutdown: false)
+                     shutdown_requested: false)
         @event_processors = event_processors
         @event_store = event_store
         @on_event_processor_error = on_event_processor_error
         @stop_on_failure = stop_on_failure
         @pids = []
-        @shutdown = shutdown
         @max_seconds_for_processes_to_terminate = max_seconds_for_processes_to_terminate
+        @shutdown_requested = shutdown_requested
       end
 
       def start!
@@ -23,11 +23,12 @@ module EventSourcery
           start_processes
           listen_for_shutdown_signals
           wait_till_shutdown_requested
-          terminate_processes
+          record_terminated_processes
+          terminate_remaining_processes
           until all_processes_terminated? || waited_long_enough?
-            record_terminated_process
+            record_terminated_processes
           end
-          kill_processes
+          kill_remaining_processes
         end
       end
 
@@ -60,28 +61,33 @@ module EventSourcery
       end
 
       def shutdown
-        @shutdown = true
+        @shutdown_requested = true
       end
 
       def wait_till_shutdown_requested
-        sleep(1) until @shutdown
+        sleep(1) until @shutdown_requested
       end
 
-      def terminate_processes
-        Process.kill(:TERM, *@pids) unless @pids.empty?
+      def terminate_remaining_processes
+        send_signal_to_remaining_processes(:TERM)
       end
 
-      def kill_processes
-        Process.kill(:KILL, *@pids) unless @pids.empty?
+      def kill_remaining_processes
+        send_signal_to_remaining_processes(:KILL)
       end
 
-      def record_terminated_process
-        pid = Process.wait(-1, Process::WNOHANG)
-        @pids.delete(pid)
+      def send_signal_to_remaining_processes(signal)
+        Process.kill(signal, *@pids) unless all_processes_terminated?
       end
 
       def all_processes_terminated?
         @pids.empty?
+      end
+
+      def record_terminated_processes
+        until (pid = Process.wait(-1, Process::WNOHANG)).nil?
+          @pids.delete(pid)
+        end
       end
 
       def waited_long_enough?

@@ -28,8 +28,9 @@ module EventSourcery
           'project'
         end
 
-        def process_events(events)
+        def process_events(events, subscription_master)
           events.each do |event|
+            subscription_master.mark_safe_shutdown_point
             db_connection.transaction do
               process(event)
               tracker.processed_event(processor_name, event.id)

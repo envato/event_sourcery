@@ -62,7 +62,7 @@ module EventSourcery
           end
         end
 
-        def subscribe(from_id:, event_types: nil, after_listen: nil, subscription_master: nil, &block)
+        def subscribe(from_id:, event_types: nil, after_listen: nil, subscription_master:, &block)
           poll_waiter = OptimisedEventPollWaiter.new(pg_connection: @pg_connection, after_listen: after_listen)
           args = {
             poll_waiter: poll_waiter,

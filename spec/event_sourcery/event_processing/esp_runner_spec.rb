@@ -24,7 +24,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
       .and_return(esp_process)
     allow(Process).to receive(:fork).and_yield.and_return(pid)
     allow(Process).to receive(:kill)
-    allow(Process).to receive(:wait).and_return(nil, pid, nil)
+    allow(Process).to receive(:wait).and_return(nil, pid)
     allow(Signal).to receive(:trap)
     allow(esp_runner).to receive(:shutdown)
   end
@@ -66,7 +66,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
 
       context 'given the processes failed before shutdown' do
         before do
-          allow(Process).to receive(:wait).and_return(pid, nil)
+          allow(Process).to receive(:wait).and_return(pid)
         end
 
         it "doesn't send processes the TERM, or KILL signal" do

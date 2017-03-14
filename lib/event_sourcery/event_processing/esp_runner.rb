@@ -83,14 +83,14 @@ module EventSourcery
         retry
       end
 
-      def all_processes_terminated?
-        @pids.empty?
-      end
-
       def record_terminated_processes
-        until (pid = Process.wait(-1, Process::WNOHANG)).nil?
+        until all_processes_terminated? || (pid = Process.wait(-1, Process::WNOHANG)).nil?
           @pids.delete(pid)
         end
+      end
+
+      def all_processes_terminated?
+        @pids.empty?
       end
 
       def waited_long_enough?

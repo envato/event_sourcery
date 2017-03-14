@@ -133,50 +133,45 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
   end
 
   describe '#process' do
-    let(:event) { new_event(type: 'item_added') }
-    subject(:event_processor) {
-      Class.new do
-        include EventSourcery::EventProcessing::EventStreamProcessor
-        attr_reader :events
-        processor_name 'my_processor'
-        processes_events :item_added
-
-        attr_reader :internal_event_ref
-
-        def process(event)
-          @internal_event_ref = _event.dup
-          @events ||= []
-          @events << event
-        end
-      end.new(tracker: tracker)
-    }
-
-    context 'making event available to internals' do
-      it 'makes the current event available to the instance' do
-        event_processor.process(event)
-        expect(event_processor.internal_event_ref).to eq event
-      end
-    end
-
-    context "given an event the processor doesn't care about" do
-      let(:event) { new_event(type: 'item_starred') }
-
-      it 'does not process them' do
-        event_processor.process(event)
-        expect(event_processor.events).to be_nil
-      end
-    end
-
-    context 'given an event the processor cares about' do
+    context 'using a generic process handler' do
       let(:event) { new_event(type: 'item_added') }
+      subject(:event_processor) {
+        Class.new do
+          include EventSourcery::EventProcessing::EventStreamProcessor
+          attr_reader :events
+          processor_name 'my_processor'
+          processes_events :item_added
 
-      it 'processes them' do
-        event_processor.process(event)
-        expect(event_processor.events).to eq [event]
+          attr_reader :internal_event_ref
+
+          def process(event)
+            @internal_event_ref = _event.dup
+            @events ||= []
+            @events << event
+          end
+        end.new(tracker: tracker)
+      }
+
+      context "given an event the processor doesn't care about" do
+        let(:event) { new_event(type: 'item_starred') }
+
+        it 'does not process them' do
+          event_processor.process(event)
+          expect(event_processor.events).to be_nil
+        end
+      end
+
+      context 'given an event the processor cares about' do
+        let(:event) { new_event(type: 'item_added') }
+
+        it 'processes them' do
+          event_processor.process(event)
+          expect(event_processor.events).to eq [event]
+        end
       end
     end
 
-    context 'when using custom event classes' do
+    context 'when using specific event handlers' do
       def new_esp(&block)
         Class.new do
           include EventSourcery::EventProcessing::EventStreamProcessor

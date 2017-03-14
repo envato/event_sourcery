@@ -3,7 +3,6 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
     described_class.new(
       event_processors: event_processors,
       event_store: event_store,
-      on_event_processor_error: custom_on_event_processor_error,
       stop_on_failure: stop_on_failure,
       max_seconds_for_processes_to_terminate: 0.1,
       shutdown_requested: true
@@ -12,7 +11,6 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
   let(:event_store) { spy(:event_store) }
   let(:event_processors) { [esp] }
   let(:stop_on_failure) { false }
-  let(:custom_on_event_processor_error) { spy }
   let(:esp) { spy(:esp, processor_name: processor_name) }
   let(:processor_name) { 'processor_name' }
   let(:esp_process) { spy }
@@ -39,7 +37,6 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         .with(
           event_processor: esp,
           event_store: event_store,
-          on_event_processor_error: custom_on_event_processor_error,
           stop_on_failure: stop_on_failure
         )
       expect(esp_process).to have_received(:start)

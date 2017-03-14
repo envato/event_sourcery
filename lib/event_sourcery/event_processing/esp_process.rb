@@ -3,7 +3,7 @@ module EventSourcery
     class ESPProcess
       def initialize(event_processor:,
                      event_store:,
-                     on_event_processor_error:,
+                     on_event_processor_error: EventSourcery.config.on_event_processor_error,
                      stop_on_failure:,
                      subscription_master: EventStore::SubscriptionMaster.new)
         @event_processor = event_processor

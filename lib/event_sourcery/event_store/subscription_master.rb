@@ -5,7 +5,7 @@ module EventSourcery
         @shutdown_requested = false
       end
 
-      def mark_safe_shutdown_point
+      def shutdown_if_requested
         throw :stop if @shutdown_requested
       end
 

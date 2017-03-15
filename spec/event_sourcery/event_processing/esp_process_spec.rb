@@ -13,7 +13,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
   let(:event_store) { spy(:event_store) }
   let(:stop_on_failure) { false }
   let(:on_event_processor_error) { spy }
-  let(:subscription_master) { spy }
+  let(:subscription_master) { spy(EventSourcery::EventStore::SubscriptionMaster) }
 
   describe 'start' do
     subject(:start) { esp_process.start }

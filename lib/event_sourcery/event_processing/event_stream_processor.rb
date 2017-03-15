@@ -122,7 +122,7 @@ module EventSourcery
 
       def process_events(events, subscription_master)
         events.each do |event|
-          subscription_master.mark_safe_shutdown_point
+          subscription_master.shutdown_if_requested
           process(event)
           tracker.processed_event(processor_name, event.id)
           EventSourcery.logger.debug { "[#{processor_name}] Processed event: #{event.inspect}" }

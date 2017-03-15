@@ -43,7 +43,7 @@ RSpec.describe EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConc
 
   describe '#subscribe' do
     let(:event) { new_event(aggregate_id: aggregate_id) }
-    let(:subscription_master) { spy(:subscription_master) }
+    let(:subscription_master) { spy(EventSourcery::EventStore::SubscriptionMaster) }
 
     it 'notifies of new events' do
       event_store.subscribe(from_id: 0,

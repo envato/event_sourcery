@@ -33,7 +33,7 @@ module EventSourcery
       private
 
       def read_events
-        @subscription_master.mark_safe_shutdown_point
+        @subscription_master.shutdown_if_requested
         loop do
           events = @event_store.get_next_from(@current_event_id + 1, event_types: @event_types)
           break if events.empty?

@@ -12,6 +12,9 @@ class TestPoller
       after_poll_callback.call
     end
   end
+
+  def shutdown!
+  end
 end
 
 RSpec.describe EventSourcery::EventStore::Subscription do
@@ -29,7 +32,7 @@ RSpec.describe EventSourcery::EventStore::Subscription do
                                                on_new_events: method(:on_new_events_callback)) }
 
   let(:waiter) { TestPoller.new }
-  let(:subscription_master) { spy(:subscription_master) }
+  let(:subscription_master) { spy(EventSourcery::EventStore::SubscriptionMaster) }
 
   before do
     @event_batches = []
@@ -52,7 +55,7 @@ RSpec.describe EventSourcery::EventStore::Subscription do
 
   it 'marks a safe point to shutdown' do
     subscription.start
-    expect(subscription_master).to have_received(:mark_safe_shutdown_point)
+    expect(subscription_master).to have_received(:shutdown_if_requested)
   end
 
   context 'with event types' do

@@ -145,7 +145,7 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
   describe '#subscribe_to' do
     let(:event_store) { double(:event_store) }
     let(:events) { [new_event(id: 1), new_event(id: 2)] }
-    let(:subscription_master) { spy(:subscription_master) }
+    let(:subscription_master) { spy(EventSourcery::EventStore::SubscriptionMaster) }
     let(:projector_class) {
       Class.new do
         include EventSourcery::EventProcessing::Projector
@@ -175,7 +175,7 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
 
     it 'marks the safe shutdown points' do
       projector.subscribe_to(event_store, subscription_master: subscription_master)
-      expect(subscription_master).to have_received(:mark_safe_shutdown_point).twice
+      expect(subscription_master).to have_received(:shutdown_if_requested).twice
     end
 
     context 'when an error occurs processing the event' do

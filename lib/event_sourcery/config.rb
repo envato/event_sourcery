@@ -74,7 +74,7 @@ module EventSourcery
     end
 
     def event_builder
-      @event_builder || EventStore::EventBuilder.new(event_type_serializer: @event_type_serializer, upcaster_chain: @upcaster_chain)
+      @event_builder || EventStore::EventBuilder.new(event_type_serializer: event_type_serializer, upcaster_chain: upcaster_chain)
     end
   end
 end

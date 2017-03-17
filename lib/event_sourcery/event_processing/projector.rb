@@ -24,10 +24,6 @@ module EventSourcery
 
         private
 
-        def process_method_name
-          'project'
-        end
-
         def process_events(events)
           events.each do |event|
             db_connection.transaction do

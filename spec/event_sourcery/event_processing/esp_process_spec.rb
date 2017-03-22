@@ -20,6 +20,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
 
     before do
       allow(esp_process).to receive(:sleep).and_return(1)
+      allow(Process).to receive(:exit)
       allow(Signal).to receive(:trap)
     end
 
@@ -106,6 +107,11 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
         it 'logs the error' do
           start
           expect(logger).to have_received(:error).once
+        end
+
+        it 'stops the process' do
+          start
+          expect(Process).to have_received(:exit).with(false)
         end
       end
     end

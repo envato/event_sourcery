@@ -44,7 +44,12 @@ module EventSourcery
         yield
       rescue => error
         report_error(error)
-        sleep(1) && retry unless @stop_on_failure
+        if @stop_on_failure
+          Process.exit(false)
+        else
+          sleep(1)
+          retry
+        end
       end
 
       def report_error(error)

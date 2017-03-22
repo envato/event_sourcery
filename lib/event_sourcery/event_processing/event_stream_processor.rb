@@ -15,12 +15,6 @@ module EventSourcery
         def initialize(tracker:)
           @tracker = tracker
         end
-
-        private
-
-        def process_method_name
-          'process'
-        end
       end
 
       module ProcessHandler
@@ -32,15 +26,10 @@ module EventSourcery
               instance_exec(event, &handler)
             end
           elsif self.class.processes?(event.type)
-            # TODO: kill this branch of logic in a future release
-            handler_method_name = "#{process_method_name}_#{event.type}"
-            if respond_to?(handler_method_name)
-              send(handler_method_name, event)
-            elsif defined?(super)
+            if defined?(super)
               super(event)
             else
-              raise UnableToProcessEventError, "I don't know how to process '#{event.type}' events. "\
-                                               "To process this event implement a method named '#{handler_method_name}'"
+              raise UnableToProcessEventError, "I don't know how to process '#{event.type}' events."
             end
           end
           @_event = nil

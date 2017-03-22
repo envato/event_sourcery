@@ -103,16 +103,6 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
       expect(projector.processed_event).to eq(event)
     end
 
-    it 'projects with event handler methods' do
-      projector = new_projector do
-        def project_terms_accepted(event)
-          @processed_event = event
-        end
-      end
-      projector.project(event)
-      expect(projector.processed_event).to eq(event)
-    end
-
     it 'raises if neither are defined' do
       projector = new_projector
       expect {

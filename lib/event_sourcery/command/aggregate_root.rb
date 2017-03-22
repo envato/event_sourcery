@@ -71,14 +71,7 @@ module EventSourcery
             instance_exec(event, &handler)
           end
         else
-          # TODO: remove support for this approach in a future release
-          method_name = "apply_#{event.type}"
-
-          if respond_to?(method_name, true)
-            send(method_name, event)
-          else
-            @on_unknown_event.call(event, self)
-          end
+          @on_unknown_event.call(event, self)
         end
       end
     end

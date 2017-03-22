@@ -33,8 +33,8 @@ module EventSourcery
       private
 
       def read_events
-        @subscription_master.shutdown_if_requested
         loop do
+          @subscription_master.shutdown_if_requested
           events = @event_store.get_next_from(@current_event_id + 1, event_types: @event_types)
           break if events.empty?
           EventSourcery.logger.debug { "New events in subscription: #{events.inspect}" }

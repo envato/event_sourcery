@@ -4,7 +4,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
       event_processors: event_processors,
       event_store: event_store,
       stop_on_failure: stop_on_failure,
-      max_seconds_for_processes_to_terminate: 0.1,
+      max_seconds_for_processes_to_terminate: 0.01,
       shutdown_requested: true
     )
   end
@@ -15,6 +15,8 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
   let(:processor_name) { 'processor_name' }
   let(:esp_process) { spy }
   let(:pid) { 363_298 }
+  let(:success_status) { instance_double(Process::Status, success?: true) }
+  let(:failure_status) { instance_double(Process::Status, success?: false) }
 
   before do
     allow(EventSourcery::EventProcessing::ESPProcess)
@@ -22,7 +24,8 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
       .and_return(esp_process)
     allow(Process).to receive(:fork).and_yield.and_return(pid)
     allow(Process).to receive(:kill)
-    allow(Process).to receive(:wait).and_return(nil, pid)
+    allow(Process).to receive(:wait2).and_return(nil, [pid, success_status])
+    allow(Process).to receive(:exit)
     allow(Signal).to receive(:trap)
     allow(esp_runner).to receive(:shutdown)
   end
@@ -61,36 +64,58 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         expect(Process).to have_received(:kill).with(:TERM, pid)
       end
 
+      it "exits indicating success" do
+        start!
+        expect(Process).to have_received(:exit).with(true)
+      end
+
       context 'given the processes failed before shutdown' do
         before do
-          allow(Process).to receive(:wait).and_return(pid)
+          allow(Process).to receive(:wait2).and_return([pid, failure_status])
         end
 
         it "doesn't send processes the TERM, or KILL signal" do
           start!
           expect(Process).to_not have_received(:kill)
         end
+
+        it "exits indicating failure" do
+          start!
+          expect(Process).to have_received(:exit).with(false)
+        end
       end
 
-      context 'given the process stops just before sending signal' do
+      context 'given the process exits just before sending signal' do
         before do
           allow(Process).to receive(:kill).and_raise(Errno::ESRCH)
+          allow(Process).to receive(:wait2).and_return(nil, [pid, failure_status])
         end
 
         it "doesn't send the signal more than once" do
           start!
           expect(Process).to have_received(:kill).with(:TERM, pid).once
         end
+
+        it "exits indicating failure" do
+          start!
+          expect(Process).to have_received(:exit).with(false)
+        end
       end
 
-      context 'given the process does not terminate' do
+      context 'given the process does not terminate until killed' do
         before do
-          allow(Process).to receive(:wait).and_return(nil)
+          allow(Process).to receive(:wait2) { [pid, failure_status] if @stop_process }
+          allow(Process).to receive(:kill).with(:KILL, pid) { @stop_process = true}
         end
 
         it 'sends processes the KILL signal' do
           start!
           expect(Process).to have_received(:kill).with(:KILL, pid)
+        end
+
+        it "exits indicating failure" do
+          start!
+          expect(Process).to have_received(:exit).with(false)
         end
       end
     end

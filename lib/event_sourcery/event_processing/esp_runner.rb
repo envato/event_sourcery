@@ -14,6 +14,7 @@ module EventSourcery
         @pids = []
         @max_seconds_for_processes_to_terminate = max_seconds_for_processes_to_terminate
         @shutdown_requested = shutdown_requested
+        @exit_status = true
       end
 
       def start!
@@ -27,7 +28,11 @@ module EventSourcery
             record_terminated_processes
           end
           kill_remaining_processes
+          until all_processes_terminated?
+            record_terminated_processes
+          end
         end
+        exit_indicating_status_of_processes
       end
 
       private
@@ -39,10 +44,10 @@ module EventSourcery
       end
 
       def start_processes
-        @event_processors.each(&method(:start_processor))
+        @event_processors.each(&method(:start_process))
       end
 
-      def start_processor(event_processor)
+      def start_process(event_processor)
         process = ESPProcess.new(
           event_processor: event_processor,
           event_store: @event_store,
@@ -81,8 +86,10 @@ module EventSourcery
       end
 
       def record_terminated_processes
-        until all_processes_terminated? || (pid = Process.wait(-1, Process::WNOHANG)).nil?
+        until all_processes_terminated? ||
+              ((pid, status) = Process.wait2(-1, Process::WNOHANG)).nil?
           @pids.delete(pid)
+          @exit_status &&= status.success?
         end
       end
 
@@ -93,6 +100,10 @@ module EventSourcery
       def waited_long_enough?
         @timeout ||= Time.now + @max_seconds_for_processes_to_terminate
         Time.now >= @timeout
+      end
+
+      def exit_indicating_status_of_processes
+        Process.exit(@exit_status)
       end
     end
   end

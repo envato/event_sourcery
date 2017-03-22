@@ -13,7 +13,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
   let(:event_store) { spy(:event_store) }
   let(:stop_on_failure) { false }
   let(:on_event_processor_error) { spy }
-  let(:subscription_master) { spy(EventSourcery::EventStore::SubscriptionMaster) }
+  let(:subscription_master) { spy(EventSourcery::EventStore::SignalHandlingSubscriptionMaster) }
 
   describe 'start' do
     subject(:start) { esp_process.start }
@@ -29,21 +29,6 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
       expect(esp).to have_received(:subscribe_to)
         .with(event_store,
               subscription_master: subscription_master)
-    end
-
-    describe 'graceful shutdown' do
-      %i(TERM INT).each do |signal|
-        context "upon receiving a #{signal} signal" do
-          before do
-            allow(Signal).to receive(:trap).with(signal).and_yield
-          end
-
-          it 'requests shutdown' do
-            start
-            expect(subscription_master).to have_received(:request_shutdown)
-          end
-        end
-      end
     end
 
     context 'given the subscription raises an error' do

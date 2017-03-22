@@ -94,7 +94,7 @@ module EventSourcery
         self.class.processes?(event_type)
       end
 
-      def subscribe_to(event_store, subscription_master: EventStore::SubscriptionMaster.new)
+      def subscribe_to(event_store, subscription_master: EventStore::SignalHandlingSubscriptionMaster.new)
         setup
         event_store.subscribe(from_id: last_processed_event_id + 1,
                               event_types: processes_event_types,

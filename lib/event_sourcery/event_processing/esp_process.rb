@@ -5,7 +5,7 @@ module EventSourcery
                      event_store:,
                      on_event_processor_error: EventSourcery.config.on_event_processor_error,
                      stop_on_failure:,
-                     subscription_master: EventStore::SubscriptionMaster.new)
+                     subscription_master: EventStore::SignalHandlingSubscriptionMaster.new)
         @event_processor = event_processor
         @event_store = event_store
         @on_event_processor_error = on_event_processor_error
@@ -17,7 +17,6 @@ module EventSourcery
         with_error_handling do
           with_logging do
             name_process
-            setup_graceful_shutdown
             subscribe_to_event_stream
           end
         end
@@ -27,12 +26,6 @@ module EventSourcery
 
       def name_process
         Process.setproctitle(@event_processor.class.name)
-      end
-
-      def setup_graceful_shutdown
-        %i(TERM INT).each do |signal|
-          Signal.trap(signal) { @subscription_master.request_shutdown }
-        end
       end
 
       def subscribe_to_event_stream

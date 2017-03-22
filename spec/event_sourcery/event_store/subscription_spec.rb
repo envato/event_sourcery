@@ -32,7 +32,7 @@ RSpec.describe EventSourcery::EventStore::Subscription do
                                                on_new_events: method(:on_new_events_callback)) }
 
   let(:waiter) { TestPoller.new }
-  let(:subscription_master) { spy(EventSourcery::EventStore::SubscriptionMaster) }
+  let(:subscription_master) { spy(EventSourcery::EventStore::SignalHandlingSubscriptionMaster) }
 
   before do
     @event_batches = []

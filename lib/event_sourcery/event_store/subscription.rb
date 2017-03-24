@@ -6,12 +6,14 @@ module EventSourcery
                      from_event_id:,
                      event_types: nil,
                      on_new_events:,
+                     subscription_master:,
                      events_table_name: :events)
         @event_store = event_store
         @from_event_id = from_event_id
         @poll_waiter = poll_waiter
         @event_types = event_types
         @on_new_events = on_new_events
+        @subscription_master = subscription_master
         @current_event_id = from_event_id - 1
       end
 
@@ -32,6 +34,7 @@ module EventSourcery
 
       def read_events
         loop do
+          @subscription_master.shutdown_if_requested
           events = @event_store.get_next_from(@current_event_id + 1, event_types: @event_types)
           break if events.empty?
           EventSourcery.logger.debug { "New events in subscription: #{events.inspect}" }

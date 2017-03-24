@@ -135,6 +135,7 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
   describe '#subscribe_to' do
     let(:event_store) { double(:event_store) }
     let(:events) { [new_event(id: 1), new_event(id: 2)] }
+    let(:subscription_master) { spy(EventSourcery::EventStore::SignalHandlingSubscriptionMaster) }
     let(:projector_class) {
       Class.new do
         include EventSourcery::EventProcessing::Projector
@@ -162,11 +163,16 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
       projector.reset
     end
 
+    it 'marks the safe shutdown points' do
+      projector.subscribe_to(event_store, subscription_master: subscription_master)
+      expect(subscription_master).to have_received(:shutdown_if_requested).twice
+    end
+
     context 'when an error occurs processing the event' do
 
       it "rolls back the projected changes" do
         projector.raise_error = true
-        projector.subscribe_to(event_store) rescue nil
+        projector.subscribe_to(event_store, subscription_master: subscription_master) rescue nil
         expect(connection[:profiles].count).to eq 0
       end
     end
@@ -178,7 +184,7 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
       end
 
       it "rolls back the projected changes" do
-        projector.subscribe_to(event_store) rescue nil
+        projector.subscribe_to(event_store, subscription_master: subscription_master) rescue nil
         expect(connection[:profiles].count).to eq 0
       end
     end

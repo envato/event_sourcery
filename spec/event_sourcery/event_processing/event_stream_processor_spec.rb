@@ -81,6 +81,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
   describe '#subscribe_to' do
     let(:event_store) { double(:event_store) }
     let(:events) { [new_event(id: 1), new_event(id: 2)] }
+    let(:subscription_master) { spy(EventSourcery::EventStore::SignalHandlingSubscriptionMaster) }
     subject(:event_processor) {
       new_event_processor do
         processor_name 'my_processor'
@@ -100,8 +101,9 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
     it 'subscribes to the event store from the last processed ID + 1' do
       allow(tracker).to receive(:last_processed_event_id).with('my_processor').and_return(2)
       expect(event_store).to receive(:subscribe).with(from_id: 3,
-                                                      event_types: nil)
-      event_processor.subscribe_to(event_store)
+                                                      event_types: nil,
+                                                      subscription_master: subscription_master)
+      event_processor.subscribe_to(event_store, subscription_master: subscription_master)
     end
 
     context 'when processing specific event types' do
@@ -115,8 +117,9 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
       it 'subscribes to the event store for the given types' do
         allow(tracker).to receive(:last_processed_event_id).with('my_processor').and_return(2)
         expect(event_store).to receive(:subscribe).with(from_id: 3,
-                                                        event_types: ['item_added'])
-        event_processor.subscribe_to(event_store)
+                                                        event_types: ['item_added'],
+                                                        subscription_master: subscription_master)
+        event_processor.subscribe_to(event_store, subscription_master: subscription_master)
       end
     end
 
@@ -129,6 +132,11 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
       expect(tracker).to receive(:processed_event).with(event_processor.processor_name, events[0].id)
       expect(tracker).to receive(:processed_event).with(event_processor.processor_name, events[1].id)
       event_processor.subscribe_to(event_store)
+    end
+
+    it 'marks the safe shutdown points' do
+      event_processor.subscribe_to(event_store, subscription_master: subscription_master)
+      expect(subscription_master).to have_received(:shutdown_if_requested).twice
     end
   end
 

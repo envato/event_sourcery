@@ -94,11 +94,12 @@ module EventSourcery
         self.class.processes?(event_type)
       end
 
-      def subscribe_to(event_store)
+      def subscribe_to(event_store, subscription_master: EventStore::SignalHandlingSubscriptionMaster.new)
         setup
         event_store.subscribe(from_id: last_processed_event_id + 1,
-                              event_types: processes_event_types) do |events|
-          process_events(events)
+                              event_types: processes_event_types,
+                              subscription_master: subscription_master) do |events|
+          process_events(events, subscription_master)
         end
       end
 
@@ -108,8 +109,9 @@ module EventSourcery
 
       attr_reader :_event
 
-      def process_events(events)
+      def process_events(events, subscription_master)
         events.each do |event|
+          subscription_master.shutdown_if_requested
           process(event)
           tracker.processed_event(processor_name, event.id)
           EventSourcery.logger.debug { "[#{processor_name}] Processed event: #{event.inspect}" }

@@ -33,10 +33,11 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
 
     context 'given the subscription raises an error' do
       let(:error) { StandardError.new }
-      let(:logger) { spy(EventSourcery.logger) }
+      let(:logger) { spy(Logger) }
 
       before do
         allow(EventSourcery).to receive(:logger).and_return(logger)
+        allow(logger).to receive(:error).and_yield
 
         counter = 0
         allow(esp).to receive(:subscribe_to) do

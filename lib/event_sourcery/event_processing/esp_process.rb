@@ -48,7 +48,7 @@ module EventSourcery
       def report_error(error)
         EventSourcery.logger.error do
           "Processor #{@event_processor.processor_name} died with #{error}.\n"\
-          "#{e.backtrace.join("\n")}"
+          "#{error.backtrace.join("\n")}"
         end
         @on_event_processor_error.call(error, @event_processor.processor_name)
       end

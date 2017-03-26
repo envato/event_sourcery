@@ -12,7 +12,8 @@ module EventSourcery
                   :events_table_name,
                   :aggregates_table_name,
                   :callback_interval_if_no_new_events,
-                  :event_type_serializer
+                  :event_type_serializer,
+                  :auto_create_projector_tracker
 
     attr_writer :event_store,
                 :event_source,
@@ -38,6 +39,7 @@ module EventSourcery
       @event_store_database = nil
       @event_store = nil
       @event_type_serializer = EventStore::EventTypeSerializers::Underscored.new
+      @auto_create_projector_tracker = true
     end
 
     def event_store

@@ -23,14 +23,26 @@ RSpec.describe EventSourcery::EventProcessing::EventTrackers::Postgres do
       connection.execute "drop table if exists #{table_name}"
     end
 
-    it 'creates the table' do
-      postgres_tracker.setup(processor_name)
-      expect { table.count }.to_not raise_error
+    context 'auto create projector tracker enabled' do
+      it 'creates the table' do
+        postgres_tracker.setup(processor_name)
+        expect(connection.table_exists?(table_name)).to be_truthy
+      end
+
+      it "creates an entry for the projector if it doesn't exist" do
+        postgres_tracker.setup(processor_name)
+        expect(last_processed_event_id).to eq 0
+      end
     end
 
-    it "creates an entry for the projector if it doesn't exist" do
-      postgres_tracker.setup(processor_name)
-      expect(last_processed_event_id).to eq 0
+    context 'auto create projector tracker disabled' do
+      before do
+        allow(EventSourcery.config).to receive(:auto_create_projector_tracker).and_return(false)
+      end
+
+      it 'raises error' do
+        expect { postgres_tracker.setup(processor_name) }.to raise_error EventSourcery::UnableToLockProcessorError
+      end
     end
   end
 

@@ -11,7 +11,12 @@ module EventSourcery
         end
 
         def setup(processor_name = nil)
-          create_table_if_not_exists
+          create_table_if_not_exists if EventSourcery.config.auto_create_projector_tracker
+
+          unless tracker_table_exists?
+            raise UnableToLockProcessorError, "Projector tracker table does not exist"
+          end
+
           if processor_name
             create_track_entry_if_not_exists(processor_name)
             if @obtain_processor_lock
@@ -59,11 +64,9 @@ module EventSourcery
         end
 
         def create_table_if_not_exists
-          @connection.create_table?(@table_name) do
-            primary_key :id, type: :Bignum
-            column :name, 'varchar(255) not null'
-            column :last_processed_event_id, 'bigint not null default 0'
-            index :name, unique: true
+          unless tracker_table_exists?
+            EventSourcery.logger.info { "Projector tracker missing - attempting to create 'projector_tracker' table" }
+            EventSourcery::EventProcessing::Postgres::Schema.create(db: @connection)
           end
         end
 
@@ -78,6 +81,10 @@ module EventSourcery
 
         def table
           @connection[@table_name]
+        end
+
+        def tracker_table_exists?
+          @connection.table_exists?(@table_name)
         end
       end
     end

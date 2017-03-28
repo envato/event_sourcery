@@ -12,6 +12,13 @@ module EventSourcery
       end
     end
 
+    attr_reader :aggregate_id, :payload
+
+    def initialize(aggregate_id:, payload:)
+      @aggregate_id = aggregate_id
+      @payload = payload
+    end
+
     def validate!
       raise NotImplementedError
     end

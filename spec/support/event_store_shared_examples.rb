@@ -145,11 +145,13 @@ RSpec.shared_examples 'an event store' do
   end
 
   describe '#get_events_for_aggregate_id' do
+    let(:uuid) { double(to_str: aggregate_id) }
+
     it 'gets events for a specific aggregate id' do
       event_store.sink(new_event(aggregate_id: aggregate_id, type: 'item_added', body: { 'my' => 'body' }))
       event_store.sink(new_event(aggregate_id: aggregate_id))
       event_store.sink(new_event(aggregate_id: SecureRandom.uuid))
-      events = event_store.get_events_for_aggregate_id(aggregate_id)
+      events = event_store.get_events_for_aggregate_id(uuid)
       expect(events.map(&:id)).to eq([1, 2])
       expect(events.first.aggregate_id).to eq aggregate_id
       expect(events.first.type).to eq 'item_added'

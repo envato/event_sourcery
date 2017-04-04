@@ -146,11 +146,15 @@ RSpec.shared_examples 'an event store' do
 
   describe '#get_events_for_aggregate_id' do
     RSpec.shared_examples 'gets events for a specific aggregate id' do
-      specify do
+      before do
         event_store.sink(new_event(aggregate_id: aggregate_id, type: 'item_added', body: { 'my' => 'body' }))
         event_store.sink(new_event(aggregate_id: aggregate_id))
         event_store.sink(new_event(aggregate_id: SecureRandom.uuid))
-        events = event_store.get_events_for_aggregate_id(uuid)
+      end
+
+      subject(:events) { event_store.get_events_for_aggregate_id(uuid) }
+
+      specify do
         expect(events.map(&:id)).to eq([1, 2])
         expect(events.first.aggregate_id).to eq aggregate_id
         expect(events.first.type).to eq 'item_added'
@@ -160,13 +164,15 @@ RSpec.shared_examples 'an event store' do
     end
 
     context 'when aggregate_id is a string' do
-      let(:uuid) { aggregate_id }
-      include_examples 'gets events for a specific aggregate id'
+      include_examples 'gets events for a specific aggregate id' do
+        let(:uuid) { aggregate_id }
+      end
     end
 
     context 'when aggregate_id is convertible to a string' do
-      let(:uuid) { double(to_str: aggregate_id) }
-      include_examples 'gets events for a specific aggregate id'
+      include_examples 'gets events for a specific aggregate id' do
+        let(:uuid) { double(to_str: aggregate_id) }
+      end
     end
   end
 

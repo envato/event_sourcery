@@ -17,13 +17,13 @@ module EventSourcery
 
       def projectors
         @processors.select do |processor|
-          processor.included_modules.include?(EventSourcery::EventProcessing::Projector)
+          processor.included_modules.include?(EventSourcery::Postgres::Projector)
         end
       end
 
       def reactors
         @processors.select do |processor|
-          processor.included_modules.include?(EventSourcery::EventProcessing::Reactor)
+          processor.included_modules.include?(EventSourcery::Postgres::Reactor)
         end
       end
 

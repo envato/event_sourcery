@@ -1,7 +1,7 @@
-RSpec.describe EventSourcery::EventProcessing::Reactor do
+RSpec.describe EventSourcery::Postgres::Reactor do
   let(:reactor_class) {
     Class.new do
-      include EventSourcery::EventProcessing::Reactor
+      include EventSourcery::Postgres::Reactor
 
       processes_events :terms_accepted
 
@@ -14,7 +14,7 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
   }
   let(:reactor_class_with_emit) {
     Class.new do
-      include EventSourcery::EventProcessing::Reactor
+      include EventSourcery::Postgres::Reactor
 
       processes_events :terms_accepted
       emits_events :blah
@@ -152,11 +152,11 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
 
     context 'with a reactor that emits events' do
       let(:event_1) { EventSourcery::Event.new(id: 1, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
-      let(:event_2) { EventSourcery::Event.new(id: 2, type: 'echo_event', aggregate_id: aggregate_id, body: event_1.body.merge(EventSourcery::EventProcessing::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 1)) }
+      let(:event_2) { EventSourcery::Event.new(id: 2, type: 'echo_event', aggregate_id: aggregate_id, body: event_1.body.merge(EventSourcery::Postgres::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 1)) }
       let(:event_3) { EventSourcery::Event.new(id: 3, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
       let(:event_4) { EventSourcery::Event.new(id: 4, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
       let(:event_5) { EventSourcery::Event.new(id: 5, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
-      let(:event_6) { EventSourcery::Event.new(id: 6, type: 'echo_event', aggregate_id: aggregate_id, body: event_3.body.merge(EventSourcery::EventProcessing::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 3)) }
+      let(:event_6) { EventSourcery::Event.new(id: 6, type: 'echo_event', aggregate_id: aggregate_id, body: event_3.body.merge(EventSourcery::Postgres::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 3)) }
       let(:events) { [event_1, event_2, event_3, event_4] }
       let(:action_stub_class) {
         Class.new do
@@ -171,7 +171,7 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
       }
       let(:reactor_class) {
         Class.new do
-          include EventSourcery::EventProcessing::Reactor
+          include EventSourcery::Postgres::Reactor
 
           processes_events :terms_accepted
           emits_events :echo_event
@@ -203,7 +203,7 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
       context "when the event emitted doesn't take actions" do
         let(:reactor_class) {
           Class.new do
-            include EventSourcery::EventProcessing::Reactor
+            include EventSourcery::Postgres::Reactor
 
             processes_events :terms_accepted
             emits_events :echo_event
@@ -225,7 +225,7 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
       context "when the event emitted hasn't been defined in emit_events" do
         let(:reactor_class) {
           Class.new do
-            include EventSourcery::EventProcessing::Reactor
+            include EventSourcery::Postgres::Reactor
 
             processes_events :terms_accepted
             emits_events :echo_event
@@ -239,7 +239,7 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
         it 'raises an error' do
           expect {
             reactor.process(event_1)
-          }.to raise_error(EventSourcery::EventProcessing::Reactor::UndeclaredEventEmissionError)
+          }.to raise_error(EventSourcery::Postgres::Reactor::UndeclaredEventEmissionError)
         end
       end
 
@@ -247,7 +247,7 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
         let(:events) { [] }
         let(:reactor_class) {
           Class.new do
-            include EventSourcery::EventProcessing::Reactor
+            include EventSourcery::Postgres::Reactor
 
             processes_events :terms_accepted
             emits_events :echo_event

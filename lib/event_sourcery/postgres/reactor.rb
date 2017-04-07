@@ -1,10 +1,10 @@
 module EventSourcery
-  module EventProcessing
+  module Postgres
     module Reactor
       UndeclaredEventEmissionError = Class.new(StandardError)
 
       def self.included(base)
-        base.include(EventStreamProcessor)
+        base.include(EventProcessing::EventStreamProcessor)
         base.extend(ClassMethods)
         base.prepend(TableOwner)
         base.include(InstanceMethods)

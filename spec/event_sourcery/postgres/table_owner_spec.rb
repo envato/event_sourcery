@@ -1,7 +1,7 @@
-RSpec.describe EventSourcery::EventProcessing::TableOwner do
+RSpec.describe EventSourcery::Postgres::TableOwner do
   let(:table_owner_class) do
     Class.new do
-      prepend EventSourcery::EventProcessing::TableOwner
+      prepend EventSourcery::Postgres::TableOwner
 
       def initialize(db_connection)
         @db_connection = db_connection
@@ -44,7 +44,7 @@ RSpec.describe EventSourcery::EventProcessing::TableOwner do
     context 'with dependent tables defined' do
       let(:table_owner_class) do
         Class.new do
-          prepend EventSourcery::EventProcessing::TableOwner
+          prepend EventSourcery::Postgres::TableOwner
 
           def initialize(db_connection)
             @db_connection = db_connection
@@ -93,7 +93,7 @@ RSpec.describe EventSourcery::EventProcessing::TableOwner do
 
       context 'with the wrong name as argument' do
         it 'raises an error' do
-          expect { table_owner.send(:table, :some_non_existent_table) }.to raise_error(EventSourcery::EventProcessing::TableOwner::NoSuchTableError)
+          expect { table_owner.send(:table, :some_non_existent_table) }.to raise_error(EventSourcery::Postgres::TableOwner::NoSuchTableError)
         end
       end
     end
@@ -101,7 +101,7 @@ RSpec.describe EventSourcery::EventProcessing::TableOwner do
     context 'when multiple tables are defined' do
       let(:table_owner_class) do
         Class.new do
-          prepend EventSourcery::EventProcessing::TableOwner
+          prepend EventSourcery::Postgres::TableOwner
 
           def initialize(db_connection)
             @db_connection = db_connection
@@ -119,7 +119,7 @@ RSpec.describe EventSourcery::EventProcessing::TableOwner do
 
       context 'with no arguments' do
         it 'raises an error' do
-          expect { table_owner.send(:table) }.to raise_error(EventSourcery::EventProcessing::TableOwner::DefaultTableError)
+          expect { table_owner.send(:table) }.to raise_error(EventSourcery::Postgres::TableOwner::DefaultTableError)
         end
       end
 
@@ -131,7 +131,7 @@ RSpec.describe EventSourcery::EventProcessing::TableOwner do
 
       context 'with the wrong name as argument' do
         it 'raises an error' do
-          expect { table_owner.send(:table, :some_non_existent_table) }.to raise_error(EventSourcery::EventProcessing::TableOwner::NoSuchTableError)
+          expect { table_owner.send(:table, :some_non_existent_table) }.to raise_error(EventSourcery::Postgres::TableOwner::NoSuchTableError)
         end
       end
     end

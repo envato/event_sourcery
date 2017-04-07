@@ -15,6 +15,12 @@ module EventSourcery
         end
       end
 
+      def by_type(constant)
+        @processors.select do |processor|
+          processor.included_modules.include?(constant)
+        end
+      end
+
       def all
         @processors
       end

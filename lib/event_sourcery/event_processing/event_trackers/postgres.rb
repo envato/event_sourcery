@@ -66,7 +66,7 @@ module EventSourcery
         def create_table_if_not_exists
           unless tracker_table_exists?
             EventSourcery.logger.info { "Projector tracker missing - attempting to create 'projector_tracker' table" }
-            EventSourcery::EventProcessing::Postgres::Schema.create(db: @connection)
+            EventSourcery::Postgres::Schema.create_projector_tracker(db: @connection)
           end
         end
 

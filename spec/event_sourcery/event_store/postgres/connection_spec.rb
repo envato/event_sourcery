@@ -1,10 +1,6 @@
 RSpec.describe EventSourcery::EventStore::Postgres::Connection do
   let(:supports_versions) { false }
-  subject(:event_store) { described_class.new(pg_connection) }
-
-  before do
-    create_old_events_schema
-  end
+  subject(:event_store) { described_class.new(pg_connection, events_table_name: :events_without_optimistic_locking) }
 
   include_examples 'an event store'
 

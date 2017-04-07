@@ -15,7 +15,7 @@ RSpec.describe EventSourcery::Config do
         end
 
         it 'returns a EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConcurrency' do
-          expect(config.event_store).to be_instance_of(EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConcurrency)
+          expect(config.event_store).to be_instance_of(EventSourcery::Postgres::EventStoreWithOptimisticConcurrency)
         end
       end
 
@@ -25,7 +25,7 @@ RSpec.describe EventSourcery::Config do
         end
 
         it 'returns a EventSourcery::EventStore::Postgres::Connection' do
-          expect(config.event_store).to be_instance_of(EventSourcery::EventStore::Postgres::Connection)
+          expect(config.event_store).to be_instance_of(EventSourcery::Postgres::EventStore)
         end
       end
     end

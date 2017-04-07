@@ -1,4 +1,4 @@
-RSpec.describe EventSourcery::EventStore::Postgres::OptimisedEventPollWaiter do
+RSpec.describe EventSourcery::Postgres::OptimisedEventPollWaiter do
   let(:after_listen) { proc { } }
   subject(:waiter) { described_class.new(pg_connection: pg_connection, after_listen: after_listen) }
 

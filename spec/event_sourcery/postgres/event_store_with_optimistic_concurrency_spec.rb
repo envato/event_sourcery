@@ -1,4 +1,4 @@
-RSpec.describe EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConcurrency do
+RSpec.describe EventSourcery::Postgres::EventStoreWithOptimisticConcurrency do
   let(:supports_versions) { true }
   subject(:event_store) { described_class.new(pg_connection) }
 

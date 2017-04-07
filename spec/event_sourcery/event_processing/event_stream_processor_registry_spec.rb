@@ -16,12 +16,4 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessorRegistry do
   it 'returns all ESPs' do
     expect(registry.all).to eq [projector, reactor]
   end
-
-  it 'can filter to projectors' do
-    expect(registry.projectors).to eq [projector]
-  end
-
-  it 'can filter to reactors' do
-    expect(registry.reactors).to eq [reactor]
-  end
 end

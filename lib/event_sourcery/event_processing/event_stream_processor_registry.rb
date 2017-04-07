@@ -15,18 +15,6 @@ module EventSourcery
         end
       end
 
-      def projectors
-        @processors.select do |processor|
-          processor.included_modules.include?(EventSourcery::Postgres::Projector)
-        end
-      end
-
-      def reactors
-        @processors.select do |processor|
-          processor.included_modules.include?(EventSourcery::Postgres::Reactor)
-        end
-      end
-
       def all
         @processors
       end

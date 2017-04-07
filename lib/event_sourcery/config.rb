@@ -64,7 +64,7 @@ module EventSourcery
 
     def projections_database=(sequel_connection)
       @projections_database = sequel_connection
-      @event_tracker = EventProcessing::EventTrackers::Postgres.new(sequel_connection)
+      @event_tracker = Postgres::Tracker.new(sequel_connection)
     end
 
     def logger

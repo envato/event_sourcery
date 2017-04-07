@@ -21,7 +21,7 @@ RSpec.describe EventSourcery::Postgres::Projector do
     end
   }
   let(:projector_name) { 'my_projector' }
-  let(:tracker) { EventSourcery::EventProcessing::EventTrackers::Postgres.new(pg_connection) }
+  let(:tracker) { EventSourcery::Postgres::Tracker.new(pg_connection) }
   let(:events) { [] }
   def new_projector(&block)
     Class.new do
@@ -55,7 +55,7 @@ RSpec.describe EventSourcery::Postgres::Projector do
     let(:event_tracker) { double }
 
     before do
-      allow(EventSourcery::EventProcessing::EventTrackers::Postgres).to receive(:new).with(projections_database).and_return(event_tracker)
+      allow(EventSourcery::Postgres::Tracker).to receive(:new).with(projections_database).and_return(event_tracker)
 
       EventSourcery.configure do |config|
         config.projections_database = projections_database

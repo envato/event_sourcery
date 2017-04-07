@@ -41,7 +41,7 @@ RSpec.describe EventSourcery::Postgres::Reactor do
     let(:event_tracker) { double }
 
     before do
-      allow(EventSourcery::EventProcessing::EventTrackers::Postgres).to receive(:new).with(projections_database).and_return(event_tracker)
+      allow(EventSourcery::Postgres::Tracker).to receive(:new).with(projections_database).and_return(event_tracker)
 
       EventSourcery.configure do |config|
         config.event_source = event_source

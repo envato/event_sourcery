@@ -1,4 +1,4 @@
-RSpec.describe EventSourcery::EventProcessing::EventTrackers::Postgres do
+RSpec.describe EventSourcery::Postgres::Tracker do
   subject(:postgres_tracker) { described_class.new(connection) }
   let(:table_name) { described_class::DEFAULT_TABLE_NAME }
   let(:processor_name) { 'blah' }

@@ -53,7 +53,7 @@ RSpec.describe EventSourcery::Config do
     end
 
     it 'sets the event_tracker' do
-      expect(config.event_tracker).to be_instance_of(EventSourcery::EventProcessing::EventTrackers::Postgres)
+      expect(config.event_tracker).to be_instance_of(EventSourcery::Postgres::Tracker)
     end
   end
 end

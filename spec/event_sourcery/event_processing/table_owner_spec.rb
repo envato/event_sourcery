@@ -24,6 +24,18 @@ RSpec.describe EventSourcery::EventProcessing::TableOwner do
       table_owner.setup
       expect(pg_connection[:sales].count).to eq 0
     end
+
+    context 'with table_prefix set' do
+      before do
+        pg_connection.execute('DROP TABLE IF EXISTS my_prefix_sales')
+        table_owner.send(:table_prefix=, :my_prefix)
+      end
+
+      it 'creates the defined table' do
+        table_owner.setup
+        expect(pg_connection[:my_prefix_sales].count).to eq 0
+      end
+    end
   end
 
   describe '#reset' do
@@ -75,6 +87,21 @@ RSpec.describe EventSourcery::EventProcessing::TableOwner do
         expect(pg_connection[:items].count).to eq 0
       end
     end
+
+    context 'with table_prefix set' do
+      before do
+        connection.execute('DROP TABLE IF EXISTS my_prefix_sales')
+        table_owner.send(:table_prefix=, :my_prefix)
+        table_owner.setup
+        pg_connection[:my_prefix_sales].insert(uuid: SecureRandom.uuid)
+      end
+
+      it 'recreates tables' do
+        expect(pg_connection[:my_prefix_sales].count).to eq 1
+        table_owner.reset
+        expect(pg_connection[:my_prefix_sales].count).to eq 0
+      end
+    end
   end
 
   describe '#table' do
@@ -94,6 +121,16 @@ RSpec.describe EventSourcery::EventProcessing::TableOwner do
       context 'with the wrong name as argument' do
         it 'raises an error' do
           expect { table_owner.send(:table, :some_non_existent_table) }.to raise_error(EventSourcery::EventProcessing::TableOwner::NoSuchTableError)
+        end
+      end
+
+      context 'when table_prefix is set' do
+        before do
+          table_owner.send(:table_prefix=, :my_prefix)
+        end
+
+        it 'returns a dataset with the prefixed name' do
+          expect(table_owner.send(:table, :sales).opts[:from]).to eq([:my_prefix_sales])
         end
       end
     end

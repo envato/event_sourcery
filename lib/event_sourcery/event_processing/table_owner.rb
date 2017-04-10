@@ -20,15 +20,17 @@ module EventSourcery
 
       def setup
         self.class.tables.each do |table_name, schema_block|
-          @db_connection.create_table?(table_name, &schema_block)
+          prefixed_name = table_name_prefixed(table_name)
+          @db_connection.create_table?(prefixed_name, &schema_block)
         end
         super if defined?(super)
       end
 
       def reset
         self.class.tables.keys.each do |table_name|
-          if @db_connection.table_exists?(table_name)
-            @db_connection.drop_table(table_name, cascade: true)
+          prefixed_name = table_name_prefixed(table_name)
+          if @db_connection.table_exists?(prefixed_name)
+            @db_connection.drop_table(prefixed_name, cascade: true)
           end
         end
         super if defined?(super)
@@ -38,7 +40,8 @@ module EventSourcery
       def truncate
         self.class.tables.each do |table_name, _|
           @db_connection.transaction do
-            @db_connection[table_name].truncate
+            prefixed_name = table_name_prefixed(table_name)
+            @db_connection[prefixed_name].truncate
             tracker.reset_last_processed_event_id(self.class.processor_name)
           end
         end
@@ -47,6 +50,7 @@ module EventSourcery
       private
 
       attr_reader :db_connection
+      attr_accessor :table_prefix
 
       def table(name = nil)
         if name.nil? && self.class.tables.length != 1
@@ -59,7 +63,11 @@ module EventSourcery
           raise NoSuchTableError, "There is no table with the name '#{name}' defined"
         end
 
-        db_connection[name]
+        db_connection[table_name_prefixed(name)]
+      end
+
+      def table_name_prefixed(name)
+        [table_prefix, name].compact.join("_").to_sym
       end
     end
   end

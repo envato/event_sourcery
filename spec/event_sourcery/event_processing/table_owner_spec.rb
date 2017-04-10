@@ -20,7 +20,7 @@ RSpec.describe EventSourcery::EventProcessing::TableOwner do
       pg_connection.execute('DROP TABLE IF EXISTS sales')
     end
 
-    it 'creates the defines table' do
+    it 'creates the defined table' do
       table_owner.setup
       expect(pg_connection[:sales].count).to eq 0
     end

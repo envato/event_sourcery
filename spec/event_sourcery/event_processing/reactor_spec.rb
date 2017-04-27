@@ -145,7 +145,7 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
   describe '#process' do
     let(:event) { OpenStruct.new(type: :terms_accepted, id: 1) }
 
-    it "projects events it's interested in" do
+    it "reacts to events it's interested in" do
       reactor.process(event)
       expect(reactor.processed_event).to eq(event)
     end

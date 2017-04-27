@@ -271,6 +271,48 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
         end
       end
 
+      describe 'clutch mode' do
+        let(:event_1) { ItemAdded.new(id: 1) }
+        let(:event_2) { ItemRemoved.new(id: 2, body: {EventSourcery::EventProcessing::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 1}) }
+        let(:event_3) { ItemAdded.new(id: 3) }
+        let(:events) { [event_1, event_2, event_3] }
+
+        let(:now) { Time.now }
+        let(:uuid) { '79869bc1-b84e-43a0-bad8-157ed646062b' }
+        let(:reactor_class) {
+          Class.new do
+            include EventSourcery::EventProcessing::Reactor
+
+            processes_events ItemAdded
+            emits_events ItemRemoved.type
+
+            process ItemAdded do |event|
+              emit_event ItemRemoved.new(uuid: '79869bc1-b84e-43a0-bad8-157ed646062b')
+            end
+
+            def clutch_down?
+              self.class.emits_events? &&
+                _event.id <= latest_event_id_on_setup
+            end
+          end
+        }
+
+        before do
+          expect(Time).to receive(:now).and_return(now)
+        end
+
+        it 'does not re-emit previously actioned events' do
+          reactor.subscribe_to(event_store)
+
+          expect(latest_events(0)).to eq [
+            event_1,
+            event_2,
+            event_3,
+            ItemRemoved.new(id: 4, body: {EventSourcery::EventProcessing::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 3}, created_at: now, uuid: uuid),
+          ]
+        end
+      end
+
       it 'adds methods to emit permitted events' do
         allow(reactor).to receive(:emit_event).with(type: 'echo_event', aggregate_id: 123, body: { a: :b })
         reactor.emit_echo_event(123, { a: :b })

@@ -1,4 +1,6 @@
 module DBHelpers
+  extend self
+
   def pg_connection
     $connection ||= new_connection
   end
@@ -27,8 +29,15 @@ module DBHelpers
   end
 
   def reset_database
+    connection.execute('truncate table aggregates')
     connection.execute('truncate table events')
     connection.execute('alter sequence events_id_seq restart with 1')
+  end
+
+  def recreate_database
+    pg_connection.execute("drop table if exists events")
+    pg_connection.execute("drop table if exists aggregates")
+    EventSourcery::EventStore::Postgres::Schema.create(db: pg_connection)
   end
 
   def release_advisory_locks
@@ -38,9 +47,6 @@ end
 
 RSpec.configure do |config|
   config.include(DBHelpers)
-  config.before do
-    pg_connection.execute("drop table if exists events")
-    pg_connection.execute("drop table if exists aggregates")
-    EventSourcery::EventStore::Postgres::Schema.create(db: pg_connection)
-  end
+  config.before(:suite) { DBHelpers.recreate_database }
+  config.before(:example) { DBHelpers.reset_database }
 end

@@ -40,8 +40,10 @@ module DBHelpers
     pg_connection.execute("drop table if exists events")
     pg_connection.execute("drop table if exists events_without_optimistic_locking")
     pg_connection.execute("drop table if exists aggregates")
+    pg_connection.execute("drop table if exists projector_tracker")
     EventSourcery::Postgres::Schema.create_event_store(db: pg_connection, use_optimistic_concurrency: true)
     EventSourcery::Postgres::Schema.create_event_store(db: pg_connection, use_optimistic_concurrency: false, events_table_name: :events_without_optimistic_locking)
+    EventSourcery::Postgres::Schema.create_projector_tracker(db: pg_connection)
   end
 
   def release_advisory_locks

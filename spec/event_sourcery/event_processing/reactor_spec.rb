@@ -145,7 +145,7 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
   describe '#process' do
     let(:event) { OpenStruct.new(type: :terms_accepted, id: 1) }
 
-    it "projects events it's interested in" do
+    it "reacts to events it's interested in" do
       reactor.process(event)
       expect(reactor.processed_event).to eq(event)
     end
@@ -268,6 +268,48 @@ RSpec.describe EventSourcery::EventProcessing::Reactor do
         it 'stores the driven by event id in the body' do
           reactor.process(event_1)
           expect(latest_events(1).first.body["_driven_by_event_id"]).to eq event_1.id
+        end
+      end
+
+      describe 'clutch mode' do
+        let(:event_1) { ItemAdded.new(id: 1) }
+        let(:event_2) { ItemRemoved.new(id: 2, body: {EventSourcery::EventProcessing::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 1}) }
+        let(:event_3) { ItemAdded.new(id: 3) }
+        let(:events) { [event_1, event_2, event_3] }
+
+        let(:now) { Time.now }
+        let(:uuid) { '79869bc1-b84e-43a0-bad8-157ed646062b' }
+        let(:reactor_class) {
+          Class.new do
+            include EventSourcery::EventProcessing::Reactor
+
+            processes_events ItemAdded
+            emits_events ItemRemoved.type
+
+            process ItemAdded do |event|
+              emit_event ItemRemoved.new(uuid: '79869bc1-b84e-43a0-bad8-157ed646062b')
+            end
+
+            def clutch_down?
+              self.class.emits_events? &&
+                _event.id <= latest_event_id_on_setup
+            end
+          end
+        }
+
+        before do
+          expect(Time).to receive(:now).and_return(now)
+        end
+
+        it 'does not re-emit previously actioned events' do
+          reactor.subscribe_to(event_store)
+
+          expect(latest_events(0)).to eq [
+            event_1,
+            event_2,
+            event_3,
+            ItemRemoved.new(id: 4, body: {EventSourcery::EventProcessing::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 3}, created_at: now, uuid: uuid),
+          ]
         end
       end
 

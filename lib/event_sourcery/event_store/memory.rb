@@ -42,6 +42,10 @@ module EventSourcery
       def get_events_for_aggregate_id(id)
         @events.select { |event| event.aggregate_id == id }
       end
+
+      def subscribe(from_id:, event_types: nil, after_listen: nil, subscription_master:, &block)
+        block.call(@events)
+      end
     end
   end
 end

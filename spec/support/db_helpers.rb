@@ -1,4 +1,6 @@
 module DBHelpers
+  extend self
+
   def pg_connection
     $connection ||= new_connection
   end
@@ -26,11 +28,20 @@ module DBHelpers
     end
   end
 
-  def reset_events_tables
+  def reset_database
+    connection.execute('truncate table aggregates')
     %w[ events events_without_optimistic_locking ].each do |table|
-      connection.execute("truncate table #{table}")
-      connection.execute("alter sequence #{table}_id_seq restart with 1")
+      connection.execute('truncate table events')
+      connection.execute('alter sequence events_id_seq restart with 1')
     end
+  end
+
+  def recreate_database
+    pg_connection.execute("drop table if exists events")
+    pg_connection.execute("drop table if exists events_without_optimistic_locking")
+    pg_connection.execute("drop table if exists aggregates")
+    EventSourcery::Postgres::Schema.create_event_store(db: pg_connection, use_optimistic_concurrency: true)
+    EventSourcery::Postgres::Schema.create_event_store(db: pg_connection, use_optimistic_concurrency: false, events_table_name: :events_without_optimistic_locking)
   end
 
   def release_advisory_locks
@@ -40,18 +51,6 @@ end
 
 RSpec.configure do |config|
   config.include(DBHelpers)
-  config.before(:suite) do
-    pg_connection = DBHelpers.new_connection
-    pg_connection.execute("drop table if exists events")
-    pg_connection.execute("drop table if exists aggregates")
-    pg_connection.execute("drop table if exists projector_tracker")
-    pg_connection.execute("drop table if exists events_without_optimistic_locking")
-    EventSourcery::Postgres::Schema.create_event_store(db: pg_connection)
-    EventSourcery::Postgres::Schema.create_event_store(db: pg_connection, use_optimistic_concurrency: false, events_table_name: :events_without_optimistic_locking)
-    EventSourcery::Postgres::Schema.create_projector_tracker(db: pg_connection)
-  end
-
-  config.before do
-    reset_events_tables
-  end
+  config.before(:suite) { DBHelpers.recreate_database }
+  config.before(:example) { DBHelpers.reset_database }
 end

@@ -158,10 +158,9 @@ RSpec.shared_examples 'an event store' do
     end
   end
 
-  # TODO: this is a slow spec, optimise
   describe '#each_by_range' do
     before do
-      (1..2001).each do |i|
+      (1..21).each do |i|
         event_store.sink(new_event(aggregate_id: aggregate_id,
                                    type: 'item_added',
                                    body: {}))
@@ -186,24 +185,24 @@ RSpec.shared_examples 'an event store' do
 
     context 'the range includes the latest event ID' do
       it 'returns all the events' do
-        events = events_by_range(1, 2001)
-        expect(events.count).to eq 2001
-        expect(events.map(&:id)).to eq((1..2001).to_a)
+        events = events_by_range(1, 21)
+        expect(events.count).to eq 21
+        expect(events.map(&:id)).to eq((1..21).to_a)
       end
     end
 
     context 'the range exceeds the latest event ID' do
       it 'returns all the events' do
-        events = events_by_range(1, 2050)
-        expect(events.count).to eq 2001
-        expect(events.map(&:id)).to eq((1..2001).to_a)
+        events = events_by_range(1, 25)
+        expect(events.count).to eq 21
+        expect(events.map(&:id)).to eq((1..21).to_a)
       end
     end
 
     context 'the range filters by event type' do
       it 'returns only events of the given type' do
-        expect(events_by_range(1, 2001, event_types: ['user_signed_up']).count).to eq 0
-        expect(events_by_range(1, 2001, event_types: ['item_added']).count).to eq 2001
+        expect(events_by_range(1, 21, event_types: ['user_signed_up']).count).to eq 0
+        expect(events_by_range(1, 21, event_types: ['item_added']).count).to eq 21
       end
     end
   end

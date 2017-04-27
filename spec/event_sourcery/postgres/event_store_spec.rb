@@ -2,6 +2,11 @@ RSpec.describe EventSourcery::Postgres::EventStore do
   let(:supports_versions) { false }
   subject(:event_store) { described_class.new(pg_connection, events_table_name: :events_without_optimistic_locking) }
 
+  before do
+    pg_connection.execute('truncate table events_without_optimistic_locking')
+    connection.execute('alter sequence events_without_optimistic_locking_id_seq restart with 1')
+  end
+
   include_examples 'an event store'
 
   describe '#sink' do

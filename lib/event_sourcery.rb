@@ -1,4 +1,3 @@
-require 'virtus'
 require 'json'
 require 'sequel'
 

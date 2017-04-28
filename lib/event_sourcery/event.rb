@@ -1,6 +1,5 @@
 module EventSourcery
   class Event
-    include Virtus.value_object
 
     def self.type
       unless self == Event
@@ -8,21 +7,22 @@ module EventSourcery
       end
     end
 
-    def initialize(**hash)
-      hash[:body] = EventSourcery::EventBodySerializer.serialize(hash[:body]) if hash[:body]
-      hash[:uuid] ||= SecureRandom.uuid
-      hash[:type] = self.class.type || hash[:type]
-      super
-    end
+    attr_reader :id, :uuid, :aggregate_id, :type, :body, :version, :created_at
 
-    values do
-      attribute :id, Integer
-      attribute :uuid, String
-      attribute :aggregate_id, String
-      attribute :type, String
-      attribute :body, Hash
-      attribute :version, Integer
-      attribute :created_at, Time
+    def initialize(id: nil,
+                   uuid: SecureRandom.uuid,
+                   aggregate_id: nil,
+                   type: nil,
+                   body: nil,
+                   version: nil,
+                   created_at: nil)
+      @id = id
+      @uuid = uuid
+      @aggregate_id = aggregate_id
+      @type = self.class.type || type.to_s
+      @body = body ? EventSourcery::EventBodySerializer.serialize(body) : {}
+      @version = version ? Integer(version) : nil
+      @created_at = created_at
     end
 
     def persisted?

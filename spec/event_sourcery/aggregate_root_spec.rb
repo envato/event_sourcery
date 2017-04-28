@@ -1,10 +1,10 @@
-RSpec.describe EventSourcery::Command::AggregateRoot do
+RSpec.describe EventSourcery::AggregateRoot do
   def new_aggregate(id,
                     on_unknown_event: EventSourcery.config.on_unknown_event,
                     use_optimistic_concurrency: true,
                     &block)
     Class.new do
-      include EventSourcery::Command::AggregateRoot
+      include EventSourcery::AggregateRoot
 
       def initialize(id,
                      event_sink,
@@ -49,7 +49,7 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
       context 'using the default on_unknown_event' do
         it 'raises an error' do
           expect { load_history }
-            .to raise_error(EventSourcery::Command::AggregateRoot::UnknownEventError)
+            .to raise_error(EventSourcery::AggregateRoot::UnknownEventError)
         end
       end
 
@@ -61,7 +61,7 @@ RSpec.describe EventSourcery::Command::AggregateRoot do
           load_history
           expect(custom_on_unknown_event)
             .to have_received(:call)
-            .with(events.first, kind_of(EventSourcery::Command::AggregateRoot))
+            .with(events.first, kind_of(EventSourcery::AggregateRoot))
         end
       end
     end

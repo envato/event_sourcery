@@ -36,8 +36,8 @@ require 'event_sourcery/postgres/tracker'
 require 'event_sourcery/utils/queue_with_interval_callback'
 require 'event_sourcery/config'
 require 'event_sourcery/event_body_serializer'
-require 'event_sourcery/command/aggregate_root'
-require 'event_sourcery/command/repository'
+require 'event_sourcery/aggregate_root'
+require 'event_sourcery/repository'
 require 'event_sourcery/command/handler'
 
 module EventSourcery

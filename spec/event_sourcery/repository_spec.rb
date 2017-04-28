@@ -1,10 +1,10 @@
-RSpec.describe EventSourcery::Command::Repository do
+RSpec.describe EventSourcery::Repository do
   let(:event_store) { EventSourcery::EventStore::Memory.new }
   let(:event_sink) { EventSourcery::EventStore::EventSink.new(event_store) }
   let(:aggregate_id) { SecureRandom.uuid }
   let(:aggregate_class) {
     Class.new do
-      include EventSourcery::Command::AggregateRoot
+      include EventSourcery::AggregateRoot
 
       apply ItemAdded do |event|
         @item_added_events ||= []

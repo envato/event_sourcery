@@ -9,7 +9,6 @@ require 'event_sourcery/version'
 require 'event_sourcery/event'
 require 'event_sourcery/event_store/event_sink'
 require 'event_sourcery/event_store/event_source'
-require 'event_sourcery/command'
 require 'event_sourcery/errors'
 require 'event_sourcery/event_store/each_by_range'
 require 'event_sourcery/postgres/schema'
@@ -38,7 +37,6 @@ require 'event_sourcery/config'
 require 'event_sourcery/event_body_serializer'
 require 'event_sourcery/command/aggregate_root'
 require 'event_sourcery/command/repository'
-require 'event_sourcery/command/handler'
 
 module EventSourcery
   def self.configure

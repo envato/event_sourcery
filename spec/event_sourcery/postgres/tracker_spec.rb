@@ -82,8 +82,9 @@ RSpec.describe EventSourcery::Postgres::Tracker do
     end
 
     context 'unable to lock tracker row' do
+      let(:db) { new_connection }
+
       it "raises an error" do
-        db = new_connection
         expect {
           tracker = described_class.new(db)
           tracker.setup(processor_name)
@@ -92,12 +93,15 @@ RSpec.describe EventSourcery::Postgres::Tracker do
 
       context 'with obtain_processor_lock: false' do
         it "doesn't raises an error" do
-          db = new_connection
           expect {
             tracker = described_class.new(db, obtain_processor_lock: false)
             tracker.setup(processor_name)
           }.to_not raise_error
         end
+      end
+
+      after do
+        release_advisory_locks(db)
       end
     end
   end

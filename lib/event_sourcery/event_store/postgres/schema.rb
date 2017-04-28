@@ -80,8 +80,14 @@ begin
   index := 1;
   eventVersion := currentVersion + 1;
   if _lockTable then
-    -- ensure this transaction is the only one writing events to guarantee linear growth of sequence IDs
-    lock #{events_table_name} in exclusive mode;
+    -- Ensure this transaction is the only one writing events to guarantee
+    -- linear growth of sequence IDs.
+    -- Any value that won't conflict with other advisory locks will work.
+    -- The Postgres tracker currently obtains an advisory lock using it's
+    -- integer row ID, so values 1 to the number of ESP's in the system would
+    -- be taken if the tracker is running in the same database as your
+    -- projections.
+    perform pg_try_advisory_lock(-1);
   end if;
   foreach body IN ARRAY(_bodies)
   loop

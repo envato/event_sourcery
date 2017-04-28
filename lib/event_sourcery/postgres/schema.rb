@@ -69,11 +69,14 @@ else
     update #{aggregates_table_name} set version = version + numEvents where aggregate_id = _aggregateId returning version into newVersion;
     currentVersion := newVersion - numEvents;
   else
-    -- increment the version if it's at our expected versionn
+    -- increment the version if it's at our expected version
     update #{aggregates_table_name} set version = version + numEvents where aggregate_id = _aggregateId and version = _expectedVersion;
     if not found then
-      -- version was not at expected_version, raise an error
-      raise 'Concurrency conflict. Current version: %, expected version: %', currentVersion, _expectedVersion;
+      -- version was not at expected_version, raise an error.
+      -- currentVersion may not equal what it did in the database when the
+      -- above update statement is executed (it may have been incremented by another
+      -- process)
+      raise 'Concurrency conflict. Last known current version: %, expected version: %', currentVersion, _expectedVersion;
     end if;
   end if;
 end if;

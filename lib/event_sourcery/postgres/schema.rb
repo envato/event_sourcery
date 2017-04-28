@@ -97,7 +97,11 @@ loop
     createdAt := now();
   end if;
 
-  insert into #{events_table_name}(uuid, aggregate_id, type, body, version, created_at) values(_eventUUIDs[index], _aggregateId, _eventTypes[index], body, eventVersion, createdAt) returning id into eventId;
+  insert into #{events_table_name}
+    (uuid, aggregate_id, type, body, version, created_at)
+  values
+    (_eventUUIDs[index], _aggregateId, _eventTypes[index], body, eventVersion, createdAt)
+  returning id into eventId;
 
   eventVersion := eventVersion + 1;
   index := index + 1;

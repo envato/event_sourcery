@@ -114,6 +114,11 @@ RSpec.describe EventSourcery::Event do
         it { should be true }
       end
 
+      context 'compared to an Event with same UUID (uppercase)' do
+        let(:other) { EventSourcery::Event.new(uuid: event_uuid.upcase) }
+        it { should be true }
+      end
+
       context 'compared to an event with different UUID' do
         let(:other) { EventSourcery::Event.new(uuid: SecureRandom.uuid) }
         it { should be false }

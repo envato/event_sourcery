@@ -50,6 +50,7 @@ eventId text;
 index int;
 newVersion int;
 numEvents int;
+createdAt timestamp without time zone;
 begin
 numEvents := array_length(_bodies, 1);
 select version into currentVersion from #{aggregates_table_name} where aggregate_id = _aggregateId;
@@ -91,10 +92,12 @@ end if;
 foreach body IN ARRAY(_bodies)
 loop
   if _createdAtTimes[index] is not null then
-    insert into #{events_table_name}(uuid, aggregate_id, type, body, version, created_at) values(_eventUUIDs[index], _aggregateId, _eventTypes[index], body, eventVersion, _createdAtTimes[index]) returning id into eventId;
+    createdAt := _createdAtTimes[index];
   else
-    insert into #{events_table_name}(uuid, aggregate_id, type, body, version) values(_eventUUIDs[index], _aggregateId, _eventTypes[index], body, eventVersion) returning id into eventId;
+    createdAt := now();
   end if;
+
+  insert into #{events_table_name}(uuid, aggregate_id, type, body, version, created_at) values(_eventUUIDs[index], _aggregateId, _eventTypes[index], body, eventVersion, createdAt) returning id into eventId;
 
   eventVersion := eventVersion + 1;
   index := index + 1;

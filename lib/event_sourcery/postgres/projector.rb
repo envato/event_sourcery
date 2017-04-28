@@ -1,8 +1,8 @@
 module EventSourcery
-  module EventProcessing
+  module Postgres
     module Projector
       def self.included(base)
-        base.include(EventStreamProcessor)
+        base.include(EventProcessing::EventStreamProcessor)
         base.prepend(TableOwner)
         base.include(InstanceMethods)
         base.class_eval do

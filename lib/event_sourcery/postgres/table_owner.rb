@@ -1,5 +1,5 @@
 module EventSourcery
-  module EventProcessing
+  module Postgres
     module TableOwner
       DefaultTableError = Class.new(StandardError)
       NoSuchTableError = Class.new(StandardError)

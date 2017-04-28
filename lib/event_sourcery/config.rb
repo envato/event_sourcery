@@ -45,9 +45,9 @@ module EventSourcery
     def event_store
       if @event_store_database
         if use_optimistic_concurrency
-          EventStore::Postgres::ConnectionWithOptimisticConcurrency.new(@event_store_database)
+          Postgres::EventStoreWithOptimisticConcurrency.new(@event_store_database)
         else
-          EventStore::Postgres::Connection.new(@event_store_database)
+          Postgres::EventStore.new(@event_store_database)
         end
       else
         @event_store
@@ -64,7 +64,7 @@ module EventSourcery
 
     def projections_database=(sequel_connection)
       @projections_database = sequel_connection
-      @event_tracker = EventProcessing::EventTrackers::Postgres.new(sequel_connection)
+      @event_tracker = Postgres::Tracker.new(sequel_connection)
     end
 
     def logger

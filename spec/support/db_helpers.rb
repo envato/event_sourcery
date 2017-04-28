@@ -10,7 +10,7 @@ module DBHelpers
     @connection ||= pg_connection
   end
 
-  def new_connection
+  module_function def new_connection
     if ENV['CI']
       Sequel.connect(adapter: 'postgres', database: 'event_sourcery_test')
     else
@@ -18,7 +18,7 @@ module DBHelpers
     end
   end
 
-  def postgres_url
+  module_function def postgres_url
     if ENV['BUILDKITE']
       'postgres://buildkite-agent:127.0.0.1:5432/'
     else
@@ -30,14 +30,20 @@ module DBHelpers
 
   def reset_database
     connection.execute('truncate table aggregates')
-    connection.execute('truncate table events')
-    connection.execute('alter sequence events_id_seq restart with 1')
+    %w[ events events_without_optimistic_locking ].each do |table|
+      connection.execute('truncate table events')
+      connection.execute('alter sequence events_id_seq restart with 1')
+    end
   end
 
   def recreate_database
     pg_connection.execute("drop table if exists events")
+    pg_connection.execute("drop table if exists events_without_optimistic_locking")
     pg_connection.execute("drop table if exists aggregates")
-    EventSourcery::EventStore::Postgres::Schema.create(db: pg_connection)
+    pg_connection.execute("drop table if exists projector_tracker")
+    EventSourcery::Postgres::Schema.create_event_store(db: pg_connection, use_optimistic_concurrency: true)
+    EventSourcery::Postgres::Schema.create_event_store(db: pg_connection, use_optimistic_concurrency: false, events_table_name: :events_without_optimistic_locking)
+    EventSourcery::Postgres::Schema.create_projector_tracker(db: pg_connection)
   end
 
   def release_advisory_locks

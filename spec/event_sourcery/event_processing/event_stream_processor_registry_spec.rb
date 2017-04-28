@@ -1,7 +1,19 @@
+module MyProjector
+  def self.included(base)
+    base.send(:include, EventSourcery::EventProcessing::EventStreamProcessor)
+  end
+end
+module MyReactor
+  def self.included(base)
+    base.send(:include, EventSourcery::EventProcessing::EventStreamProcessor)
+  end
+end
+
 RSpec.describe EventSourcery::EventProcessing::EventStreamProcessorRegistry do
   subject(:registry) { described_class.new }
-  let(:projector) { Class.new { include EventSourcery::EventProcessing::Projector; processor_name 'projector' } }
-  let(:reactor) { Class.new { include EventSourcery::EventProcessing::Reactor; processor_name 'reactor' } }
+
+  let(:projector) { Class.new { include MyProjector; processor_name 'projector' } }
+  let(:reactor) { Class.new { include MyReactor; processor_name 'reactor' } }
 
   before do
     registry.register(projector)
@@ -17,11 +29,11 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessorRegistry do
     expect(registry.all).to eq [projector, reactor]
   end
 
-  it 'can filter to projectors' do
-    expect(registry.projectors).to eq [projector]
+  it 'can filter by type' do
+    expect(registry.by_type(MyProjector)).to eq [projector]
   end
 
   it 'can filter to reactors' do
-    expect(registry.reactors).to eq [reactor]
+    expect(registry.by_type(MyReactor)).to eq [reactor]
   end
 end

@@ -1,9 +1,11 @@
-RSpec.describe EventSourcery::EventStore::Postgres::Connection do
+RSpec.describe EventSourcery::Postgres::EventStore do
   let(:supports_versions) { false }
-  subject(:event_store) { described_class.new(pg_connection) }
+  subject(:event_store) { described_class.new(pg_connection, events_table_name: :events_without_optimistic_locking) }
 
-  before(:context) { create_old_events_schema }
-  after(:context) { recreate_database }
+  before do
+    pg_connection.execute('truncate table events_without_optimistic_locking')
+    connection.execute('alter sequence events_without_optimistic_locking_id_seq restart with 1')
+  end
 
   include_examples 'an event store'
 

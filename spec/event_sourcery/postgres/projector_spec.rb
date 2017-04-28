@@ -1,7 +1,7 @@
-RSpec.describe EventSourcery::EventProcessing::Projector do
+RSpec.describe EventSourcery::Postgres::Projector do
   let(:projector_class) {
     Class.new do
-      include EventSourcery::EventProcessing::Projector
+      include EventSourcery::Postgres::Projector
       processor_name 'test_processor'
 
       processes_events :terms_accepted
@@ -21,11 +21,11 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
     end
   }
   let(:projector_name) { 'my_projector' }
-  let(:tracker) { EventSourcery::EventProcessing::EventTrackers::Postgres.new(pg_connection) }
+  let(:tracker) { EventSourcery::Postgres::Tracker.new(pg_connection) }
   let(:events) { [] }
   def new_projector(&block)
     Class.new do
-      include EventSourcery::EventProcessing::Projector
+      include EventSourcery::Postgres::Projector
       processor_name 'test_processor'
       processes_events :terms_accepted
 
@@ -55,7 +55,7 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
     let(:event_tracker) { double }
 
     before do
-      allow(EventSourcery::EventProcessing::EventTrackers::Postgres).to receive(:new).with(projections_database).and_return(event_tracker)
+      allow(EventSourcery::Postgres::Tracker).to receive(:new).with(projections_database).and_return(event_tracker)
 
       EventSourcery.configure do |config|
         config.projections_database = projections_database
@@ -114,7 +114,7 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
   describe '.projects_events' do
     it 'is aliased to processes_events' do
       projector_class = Class.new do
-        include EventSourcery::EventProcessing::Projector
+        include EventSourcery::Postgres::Projector
         projects_events :item_added
       end
       expect(projector_class.processes?(:item_added)).to eq true
@@ -138,7 +138,7 @@ RSpec.describe EventSourcery::EventProcessing::Projector do
     let(:subscription_master) { spy(EventSourcery::EventStore::SignalHandlingSubscriptionMaster) }
     let(:projector_class) {
       Class.new do
-        include EventSourcery::EventProcessing::Projector
+        include EventSourcery::Postgres::Projector
         processor_name 'test_processor'
 
         processes_events :terms_accepted

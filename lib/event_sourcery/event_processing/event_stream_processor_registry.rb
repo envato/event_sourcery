@@ -15,15 +15,9 @@ module EventSourcery
         end
       end
 
-      def projectors
+      def by_type(constant)
         @processors.select do |processor|
-          processor.included_modules.include?(EventSourcery::EventProcessing::Projector)
-        end
-      end
-
-      def reactors
-        @processors.select do |processor|
-          processor.included_modules.include?(EventSourcery::EventProcessing::Reactor)
+          processor.included_modules.include?(constant)
         end
       end
 

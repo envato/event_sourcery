@@ -1,5 +1,6 @@
 module EventSourcery
   class Event
+    include Comparable
 
     def self.type
       unless self == Event
@@ -27,6 +28,15 @@ module EventSourcery
 
     def persisted?
       !id.nil?
+    end
+
+    def eql?(other)
+      instance_of?(other.class) && uuid.eql?(other.uuid)
+    end
+
+    def <=>(other)
+      return nil unless other.is_a? Event
+      id <=> other.id
     end
   end
 end

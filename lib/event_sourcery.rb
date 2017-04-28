@@ -1,5 +1,6 @@
 require 'json'
 require 'sequel'
+require 'securerandom'
 
 Sequel.extension :pg_json
 Sequel.default_timezone = :utc

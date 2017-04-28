@@ -86,7 +86,7 @@ if _lockTable then
     -- integer row ID, so values 1 to the number of ESP's in the system would
     -- be taken if the tracker is running in the same database as your
     -- projections.
-    perform pg_try_advisory_lock(-1);
+    perform pg_advisory_xact_lock(-1);
 end if;
 foreach body IN ARRAY(_bodies)
 loop

@@ -25,7 +25,7 @@ module EventSourcery
 
     def initialize
       @on_unknown_event = proc { |event, aggregate|
-        raise Command::AggregateRoot::UnknownEventError, "#{event.type} is unknown to #{aggregate.class.name}"
+        raise AggregateRoot::UnknownEventError, "#{event.type} is unknown to #{aggregate.class.name}"
       }
       @on_event_processor_error = proc { |exception, processor_name|
         # app specific custom logic ie. report to rollbar

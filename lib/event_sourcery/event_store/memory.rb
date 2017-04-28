@@ -40,7 +40,8 @@ module EventSourcery
       end
 
       def get_events_for_aggregate_id(id)
-        @events.select { |event| event.aggregate_id == id }
+        stringified_id = id.to_str
+        @events.select { |event| event.aggregate_id == stringified_id }
       end
     end
   end

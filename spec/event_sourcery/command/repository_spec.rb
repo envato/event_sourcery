@@ -15,14 +15,29 @@ RSpec.describe EventSourcery::Command::Repository do
   }
   let(:events) { [new_event(type: :item_added, aggregate_id: aggregate_id)] }
 
-  before do
-    events.each do |event|
-      event_store.sink(event)
-    end
-  end
+  before { events.inject(event_store, :sink) }
 
-  it 'news up an aggregate and loads history' do
-    aggregate = described_class.load(aggregate_class, aggregate_id, event_source: event_store, event_sink: event_sink)
-    expect(aggregate.item_added_events).to eq event_store.get_events_for_aggregate_id(aggregate_id)
+  describe '.load' do
+    RSpec.shared_examples 'news up an aggregate and loads history' do
+      let(:added_events) { event_store.get_events_for_aggregate_id(aggregate_id) }
+
+      subject(:aggregate) do
+        described_class.load(aggregate_class, uuid, event_source: event_store, event_sink: event_sink)
+      end
+
+      specify { expect(aggregate.item_added_events).to eq(added_events) }
+    end
+
+    context 'when aggregate_id is a string' do
+      include_examples 'news up an aggregate and loads history' do
+        let(:uuid) { aggregate_id }
+      end
+    end
+
+    context 'when aggregate_id is convertible to a string' do
+      include_examples 'news up an aggregate and loads history' do
+        let(:uuid) { double(to_str: aggregate_id) }
+      end
+    end
   end
 end

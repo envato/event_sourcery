@@ -25,7 +25,6 @@ RSpec.describe EventSourcery::Postgres::Reactor do
   }
 
   let(:tracker) { EventSourcery::Postgres::Tracker.new(pg_connection) }
-  let(:reactor_name) { 'my_reactor' }
   # TODO: Should we be using pg event store here?
   let(:event_store) { EventSourcery::EventStore::Memory.new(events) }
   let(:event_source) { EventSourcery::EventStore::EventSource.new(event_store) }

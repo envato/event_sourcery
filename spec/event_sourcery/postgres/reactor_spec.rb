@@ -272,6 +272,76 @@ RSpec.describe EventSourcery::Postgres::Reactor do
         end
       end
 
+      describe 'already actioned' do
+        let(:event_1) { ItemAdded.new(id: 1, aggregate_id: '00000000-0000-0000-0000-000000000001', version: 1) }
+        let(:event_3) { ItemAdded.new(id: 3, aggregate_id: '00000000-0000-0000-0000-000000000002', version: 2) }
+
+        let(:event_store) { EventSourcery::Postgres::EventStore.new(pg_connection, events_table_name: :events_without_optimistic_locking) }
+
+        let(:reactor_class) {
+          Class.new do
+            include EventSourcery::Postgres::Reactor
+
+            processor_name :test_processor
+            processes_events ItemAdded
+            emits_events ItemRemoved.type
+
+            process ItemAdded do |event|
+              emit_event ItemRemoved.new(aggregate_id: event.aggregate_id)
+            end
+          end
+        }
+
+        it 'does not re-emit previously actioned events' do
+          # Add first event that will be reacted to
+          event_store.sink event_1
+
+          # Run through all events
+          catch_up_esp(reactor)
+
+          expect(events).to eq [
+            [1, {}],
+            [2, {driven_by_event_payload_key.to_s => 1}],
+          ]
+
+          # Add another event that will be reacted to
+          event_store.sink event_3
+
+          # Set the last_processed_event_id back to 0
+          # The last_actioned_event_id will still be 1
+          reactor.reset
+
+          # Re-run through all events
+          catch_up_esp(reactor)
+
+          expect(events).to eq [
+            [1, {}],
+            [2, {driven_by_event_payload_key.to_s => 1}],
+            [3, {}],
+            [4, {driven_by_event_payload_key.to_s => 3}],
+          ]
+        end
+
+        def events
+          latest_events(0).map do |event|
+            [
+              event.id,
+              event.body.to_h,
+            ]
+          end
+        end
+
+        def catch_up_esp(esp)
+          latest_event_id = event_store.latest_event_id
+          events = []
+          esp.setup
+          event_store.each_by_range(esp.last_processed_event_id + 1, latest_event_id) do |event|
+            events << event
+          end
+          esp.send(:process_events, events, EventSourcery::EventStore::SignalHandlingSubscriptionMaster.new) if events.any?
+        end
+      end
+
       it 'adds methods to emit permitted events' do
         allow(reactor).to receive(:emit_event).with(type: 'echo_event', aggregate_id: 123, body: { a: :b })
         reactor.emit_echo_event(123, { a: :b })

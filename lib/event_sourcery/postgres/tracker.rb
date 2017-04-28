@@ -31,6 +31,13 @@ module EventSourcery
         true
       end
 
+      def actioned_event(processor_name, event_id)
+        table.
+          where(name: processor_name.to_s).
+                update(last_actioned_event_id: event_id)
+        true
+      end
+
       def processing_event(processor_name, event_id)
         @connection.transaction do
           yield
@@ -46,6 +53,15 @@ module EventSourcery
         track_entry = table.where(name: processor_name.to_s).first
         if track_entry
           track_entry[:last_processed_event_id]
+        else
+          0
+        end
+      end
+
+      def last_actioned_event_id(processor_name)
+        track_entry = table.where(name: processor_name.to_s).first
+        if track_entry
+          track_entry[:last_actioned_event_id]
         else
           0
         end

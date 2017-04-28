@@ -46,7 +46,7 @@ module DBHelpers
     EventSourcery::Postgres::Schema.create_projector_tracker(db: pg_connection)
   end
 
-  def release_advisory_locks
+  def release_advisory_locks(connection=pg_connection)
     connection.fetch("SELECT pg_advisory_unlock_all();").to_a
   end
 end

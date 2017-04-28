@@ -33,6 +33,7 @@ RSpec.describe EventSourcery::Postgres::Reactor do
   let(:aggregate_id) { SecureRandom.uuid }
   let(:events) { [] }
   subject(:reactor) { reactor_class.new(tracker: tracker, event_source: event_source, event_sink: event_sink) }
+  let(:driven_by_event_payload_key) { EventSourcery::Postgres::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY }
 
   describe '.new' do
     let(:event_source) { double }
@@ -152,11 +153,11 @@ RSpec.describe EventSourcery::Postgres::Reactor do
 
     context 'with a reactor that emits events' do
       let(:event_1) { EventSourcery::Event.new(id: 1, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
-      let(:event_2) { EventSourcery::Event.new(id: 2, type: 'echo_event', aggregate_id: aggregate_id, body: event_1.body.merge(EventSourcery::Postgres::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 1)) }
+      let(:event_2) { EventSourcery::Event.new(id: 2, type: 'echo_event', aggregate_id: aggregate_id, body: event_1.body.merge(driven_by_event_payload_key => 1)) }
       let(:event_3) { EventSourcery::Event.new(id: 3, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
       let(:event_4) { EventSourcery::Event.new(id: 4, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
       let(:event_5) { EventSourcery::Event.new(id: 5, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
-      let(:event_6) { EventSourcery::Event.new(id: 6, type: 'echo_event', aggregate_id: aggregate_id, body: event_3.body.merge(EventSourcery::Postgres::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 3)) }
+      let(:event_6) { EventSourcery::Event.new(id: 6, type: 'echo_event', aggregate_id: aggregate_id, body: event_3.body.merge(driven_by_event_payload_key => 3)) }
       let(:events) { [event_1, event_2, event_3, event_4] }
       let(:action_stub_class) {
         Class.new do

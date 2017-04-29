@@ -39,6 +39,14 @@ RSpec.describe EventSourcery::Postgres::EventStoreWithOptimisticConcurrency do
         event_id = Integer(payload)
       end
     end
+
+    it 'correctly inserts created at times when inserting multiple events atomically' do
+      time = Time.parse('2016-10-14T00:00:00.646191Z')
+      event_store.sink([new_event(aggregate_id: aggregate_id, created_at: nil), new_event(aggregate_id: aggregate_id, created_at: time)])
+      created_ats = event_store.get_next_from(0).map(&:created_at)
+      expect(created_ats.map(&:class)).to eq [Time, Time]
+      expect(created_ats.last).to eq time
+    end
   end
 
   describe '#subscribe' do

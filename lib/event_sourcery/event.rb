@@ -31,7 +31,7 @@ module EventSourcery
     end
 
     def eql?(other)
-      instance_of?(other.class) && uuid.downcase.eql?(other.uuid.downcase)
+      instance_of?(other.class) && uuid&.downcase.eql?(other.uuid&.downcase)
     end
 
     def <=>(other)

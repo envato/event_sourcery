@@ -124,8 +124,32 @@ RSpec.describe EventSourcery::Event do
         it { should be false }
       end
 
+      context 'compared to an event without UUID' do
+        let(:other) { EventSourcery::Event.new(uuid: nil) }
+        it { should be false }
+      end
+
       context 'compared to an ItemAdded event with same UUID' do
         let(:other) { ItemAdded.new(uuid: event_uuid) }
+        it { should be false }
+      end
+    end
+
+    context 'given an Event without UUID' do
+      let(:event) { EventSourcery::Event.new(uuid: nil) }
+
+      context 'compared to itself' do
+        let(:other) { event }
+        it { should be true }
+      end
+
+      context 'compared to an Event without UUID' do
+        let(:other) { EventSourcery::Event.new(uuid: nil) }
+        it { should be true }
+      end
+
+      context 'compared to an event with UUID' do
+        let(:other) { EventSourcery::Event.new(uuid: SecureRandom.uuid) }
         it { should be false }
       end
     end
@@ -231,6 +255,25 @@ RSpec.describe EventSourcery::Event do
 
       context 'compared to a non-event' do
         let(:other) { 3 }
+        it { should be false }
+      end
+    end
+
+    context 'given an Event without id' do
+      let(:event) { EventSourcery::Event.new(id: nil) }
+
+      context 'compared to itself' do
+        let(:other) { event }
+        it { should be true }
+      end
+
+      context 'compared to an ItemAdded event without id' do
+        let(:other) { ItemAdded.new(id: nil) }
+        it { should be true }
+      end
+
+      context 'compared to an ItemAdded event with id 1' do
+        let(:other) { ItemAdded.new(id: 1) }
         it { should be false }
       end
     end

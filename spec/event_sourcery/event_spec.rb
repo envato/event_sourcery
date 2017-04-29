@@ -181,6 +181,14 @@ RSpec.describe EventSourcery::Event do
         it { should be true }
       end
 
+      context 'compared to an ItemAdded event without id' do
+        let(:other) { ItemAdded.new(id: nil) }
+
+        it 'raises an ArgumentError' do
+          expect { subject }.to raise_error(ArgumentError)
+        end
+      end
+
       context 'compared to a non-event' do
         let(:other) { 3 }
 
@@ -215,6 +223,14 @@ RSpec.describe EventSourcery::Event do
       context 'compared to an ItemAdded event with id 3' do
         let(:other) { ItemAdded.new(id: 3) }
         it { should be true }
+      end
+
+      context 'compared to an ItemAdded event without id' do
+        let(:other) { ItemAdded.new(id: nil) }
+
+        it 'raises an ArgumentError' do
+          expect { subject }.to raise_error(ArgumentError)
+        end
       end
 
       context 'compared to a non-event' do
@@ -305,6 +321,14 @@ RSpec.describe EventSourcery::Event do
         it { should be true }
       end
 
+      context 'compared to an ItemAdded event without id' do
+        let(:other) { ItemAdded.new(id: nil) }
+
+        it 'raises an ArgumentError' do
+          expect { subject }.to raise_error(ArgumentError)
+        end
+      end
+
       context 'compared to a non-event' do
         let(:other) { 3 }
 
@@ -339,6 +363,14 @@ RSpec.describe EventSourcery::Event do
       context 'compared to an ItemAdded event with id 3' do
         let(:other) { ItemAdded.new(id: 3) }
         it { should be true }
+      end
+
+      context 'compared to an ItemAdded event without id' do
+        let(:other) { ItemAdded.new(id: nil) }
+
+        it 'raises an ArgumentError' do
+          expect { subject }.to raise_error(ArgumentError)
+        end
       end
 
       context 'compared to a non-event' do

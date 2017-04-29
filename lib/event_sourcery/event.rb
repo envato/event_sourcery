@@ -35,8 +35,7 @@ module EventSourcery
     end
 
     def <=>(other)
-      return nil unless other.is_a? Event
-      id <=> other.id
+      id <=> other.id if other.is_a? Event
     end
   end
 end

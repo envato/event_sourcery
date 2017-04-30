@@ -18,7 +18,7 @@ module EventSourcery
                    version: nil,
                    created_at: nil)
       @id = id
-      @uuid = uuid
+      @uuid = uuid && uuid.downcase
       @aggregate_id = aggregate_id
       @type = self.class.type || type.to_s
       @body = body ? EventSourcery::EventBodySerializer.serialize(body) : {}
@@ -31,7 +31,7 @@ module EventSourcery
     end
 
     def eql?(other)
-      instance_of?(other.class) && uuid&.downcase.eql?(other.uuid&.downcase)
+      instance_of?(other.class) && uuid.eql?(other.uuid)
     end
 
     def <=>(other)

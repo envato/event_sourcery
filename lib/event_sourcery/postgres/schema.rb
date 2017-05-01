@@ -97,7 +97,7 @@ loop
   if _createdAtTimes[index] is not null then
     createdAt := _createdAtTimes[index];
   else
-    createdAt := now();
+    createdAt := now() at time zone 'utc';
   end if;
 
   insert into #{events_table_name}

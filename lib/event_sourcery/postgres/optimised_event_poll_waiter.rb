@@ -29,8 +29,8 @@ module EventSourcery
       end
 
       def shutdown!
-        if @listen_thread.alive?
-          @listen_thread.kill
+        while @listen_thread.kill.alive? do
+          sleep 0.1
         end
       end
 

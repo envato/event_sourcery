@@ -62,7 +62,7 @@ RSpec.describe EventSourcery::Postgres::EventStoreWithOptimisticConcurrency do
       context 'and the expected version is correct - 0' do
         it 'saves the event with and sets the aggregate version to version 1' do
           save_event(expected_version: 0)
-          expect(last_event[:version]).to eq 1
+          expect(last_event.version).to eq 1
           expect(aggregate_version).to eq 1
         end
       end
@@ -78,7 +78,7 @@ RSpec.describe EventSourcery::Postgres::EventStoreWithOptimisticConcurrency do
       context 'with no expected version' do
         it 'saves the event with and sets the aggregate version to version 1' do
           save_event
-          expect(last_event[:version]).to eq 1
+          expect(last_event.version).to eq 1
           expect(aggregate_version).to eq 1
         end
       end
@@ -100,7 +100,7 @@ RSpec.describe EventSourcery::Postgres::EventStoreWithOptimisticConcurrency do
       context 'with a correct expected version - 1' do
         it 'saves the event with and sets the aggregate version to version 2' do
           save_event
-          expect(last_event[:version]).to eq 2
+          expect(last_event.version).to eq 2
           expect(aggregate_version).to eq 2
         end
       end
@@ -108,7 +108,7 @@ RSpec.describe EventSourcery::Postgres::EventStoreWithOptimisticConcurrency do
       context 'with no aggregate version' do
         it 'automatically sets the version on the event and aggregate' do
           save_event
-          expect(last_event[:version]).to eq 2
+          expect(last_event.version).to eq 2
           expect(aggregate_version).to eq 2
         end
       end
@@ -130,14 +130,14 @@ RSpec.describe EventSourcery::Postgres::EventStoreWithOptimisticConcurrency do
                                  type: :billing_details_provided,
                                  body: { my_event: 'data' },
                                  created_at: time))
-      expect(last_event[:created_at]).to eq time
+      expect(last_event.created_at).to eq time
     end
 
     it 'defaults to now() when no created_at timestamp is supplied' do
       event_store.sink(new_event(aggregate_id: aggregate_id,
                                  type: :billing_details_provided,
                                  body: { my_event: 'data' }))
-      expect(last_event[:created_at]).to be_instance_of(Time)
+      expect(last_event.created_at).to be_instance_of(Time)
     end
   end
 end

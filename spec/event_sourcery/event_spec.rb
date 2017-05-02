@@ -96,4 +96,290 @@ RSpec.describe EventSourcery::Event do
       end
     end
   end
+
+  describe '#eql?' do
+    subject(:eql?) { event.eql?(other) }
+
+    context 'given an Event with UUID' do
+      let(:event) { EventSourcery::Event.new(uuid: event_uuid) }
+      let(:event_uuid) { SecureRandom.uuid }
+
+      context 'compared to itself' do
+        let(:other) { event }
+        it { should be true }
+      end
+
+      context 'compared to an Event with same UUID' do
+        let(:other) { EventSourcery::Event.new(uuid: event_uuid) }
+        it { should be true }
+      end
+
+      context 'compared to an Event with same UUID (uppercase)' do
+        let(:other) { EventSourcery::Event.new(uuid: event_uuid.upcase) }
+        it { should be true }
+      end
+
+      context 'compared to an event with different UUID' do
+        let(:other) { EventSourcery::Event.new(uuid: SecureRandom.uuid) }
+        it { should be false }
+      end
+
+      context 'compared to an event without UUID' do
+        let(:other) { EventSourcery::Event.new(uuid: nil) }
+        it { should be false }
+      end
+
+      context 'compared to an ItemAdded event with same UUID' do
+        let(:other) { ItemAdded.new(uuid: event_uuid) }
+        it { should be false }
+      end
+    end
+
+    context 'given an Event without UUID' do
+      let(:event) { EventSourcery::Event.new(uuid: nil) }
+
+      context 'compared to itself' do
+        let(:other) { event }
+        it { should be true }
+      end
+
+      context 'compared to an Event without UUID' do
+        let(:other) { EventSourcery::Event.new(uuid: nil) }
+        it { should be true }
+      end
+
+      context 'compared to an event with UUID' do
+        let(:other) { EventSourcery::Event.new(uuid: SecureRandom.uuid) }
+        it { should be false }
+      end
+    end
+  end
+
+  describe '#<' do
+    subject(:<) { event < other }
+
+    context 'given an Event with id 2' do
+      let(:event) { EventSourcery::Event.new(id: 2) }
+
+      context 'compared to itself' do
+        let(:other) { event }
+        it { should be false }
+      end
+
+      context 'compared to an ItemAdded event with id 1' do
+        let(:other) { ItemAdded.new(id: 1) }
+        it { should be false }
+      end
+
+      context 'compared to an ItemAdded event with id 2' do
+        let(:other) { ItemAdded.new(id: 2) }
+        it { should be false }
+      end
+
+      context 'compared to an ItemAdded event with id 3' do
+        let(:other) { ItemAdded.new(id: 3) }
+        it { should be true }
+      end
+
+      context 'compared to an ItemAdded event without id' do
+        let(:other) { ItemAdded.new(id: nil) }
+
+        it 'raises an ArgumentError' do
+          expect { subject }.to raise_error(ArgumentError)
+        end
+      end
+
+      context 'compared to a non-event' do
+        let(:other) { 3 }
+
+        it 'raises an ArgumentError' do
+          expect { subject }.to raise_error(ArgumentError)
+        end
+      end
+    end
+  end
+
+  describe '#<=' do
+    subject(:<=) { event <= other }
+
+    context 'given an Event with id 2' do
+      let(:event) { EventSourcery::Event.new(id: 2) }
+
+      context 'compared to itself' do
+        let(:other) { event }
+        it { should be true }
+      end
+
+      context 'compared to an ItemAdded event with id 1' do
+        let(:other) { ItemAdded.new(id: 1) }
+        it { should be false }
+      end
+
+      context 'compared to an ItemAdded event with id 2' do
+        let(:other) { ItemAdded.new(id: 2) }
+        it { should be true }
+      end
+
+      context 'compared to an ItemAdded event with id 3' do
+        let(:other) { ItemAdded.new(id: 3) }
+        it { should be true }
+      end
+
+      context 'compared to an ItemAdded event without id' do
+        let(:other) { ItemAdded.new(id: nil) }
+
+        it 'raises an ArgumentError' do
+          expect { subject }.to raise_error(ArgumentError)
+        end
+      end
+
+      context 'compared to a non-event' do
+        let(:other) { 3 }
+
+        it 'raises an ArgumentError' do
+          expect { subject }.to raise_error(ArgumentError)
+        end
+      end
+    end
+  end
+
+  describe '#==' do
+    subject(:==) { event == other }
+
+    context 'given an Event with id 2' do
+      let(:event) { EventSourcery::Event.new(id: 2) }
+
+      context 'compared to itself' do
+        let(:other) { event }
+        it { should be true }
+      end
+
+      context 'compared to an ItemAdded event with id 1' do
+        let(:other) { ItemAdded.new(id: 1) }
+        it { should be false }
+      end
+
+      context 'compared to an ItemAdded event with id 2' do
+        let(:other) { ItemAdded.new(id: 2) }
+        it { should be true }
+      end
+
+      context 'compared to an ItemAdded event with id 3' do
+        let(:other) { ItemAdded.new(id: 3) }
+        it { should be false }
+      end
+
+      context 'compared to a non-event' do
+        let(:other) { 3 }
+        it { should be false }
+      end
+    end
+
+    context 'given an Event without id' do
+      let(:event) { EventSourcery::Event.new(id: nil) }
+
+      context 'compared to itself' do
+        let(:other) { event }
+        it { should be true }
+      end
+
+      context 'compared to an ItemAdded event without id' do
+        let(:other) { ItemAdded.new(id: nil) }
+        it { should be true }
+      end
+
+      context 'compared to an ItemAdded event with id 1' do
+        let(:other) { ItemAdded.new(id: 1) }
+        it { should be false }
+      end
+    end
+  end
+
+  describe '#<=' do
+    subject(:<=) { event <= other }
+
+    context 'given an ItemRemoved event with id 2' do
+      let(:event) { ItemRemoved.new(id: 2) }
+
+      context 'compared to itself' do
+        let(:other) { event }
+        it { should be true }
+      end
+
+      context 'compared to an ItemAdded event with id 1' do
+        let(:other) { ItemAdded.new(id: 1) }
+        it { should be false }
+      end
+
+      context 'compared to an ItemAdded event with id 2' do
+        let(:other) { ItemAdded.new(id: 2) }
+        it { should be true }
+      end
+
+      context 'compared to an ItemAdded event with id 3' do
+        let(:other) { ItemAdded.new(id: 3) }
+        it { should be true }
+      end
+
+      context 'compared to an ItemAdded event without id' do
+        let(:other) { ItemAdded.new(id: nil) }
+
+        it 'raises an ArgumentError' do
+          expect { subject }.to raise_error(ArgumentError)
+        end
+      end
+
+      context 'compared to a non-event' do
+        let(:other) { 3 }
+
+        it 'raises an ArgumentError' do
+          expect { subject }.to raise_error(ArgumentError)
+        end
+      end
+    end
+  end
+
+  describe '#<' do
+    subject(:<) { event < other }
+
+    context 'given an Event with id 2' do
+      let(:event) { EventSourcery::Event.new(id: 2) }
+
+      context 'compared to itself' do
+        let(:other) { event }
+        it { should be false }
+      end
+
+      context 'compared to an ItemAdded event with id 1' do
+        let(:other) { ItemAdded.new(id: 1) }
+        it { should be false }
+      end
+
+      context 'compared to an ItemAdded event with id 2' do
+        let(:other) { ItemAdded.new(id: 2) }
+        it { should be false }
+      end
+
+      context 'compared to an ItemAdded event with id 3' do
+        let(:other) { ItemAdded.new(id: 3) }
+        it { should be true }
+      end
+
+      context 'compared to an ItemAdded event without id' do
+        let(:other) { ItemAdded.new(id: nil) }
+
+        it 'raises an ArgumentError' do
+          expect { subject }.to raise_error(ArgumentError)
+        end
+      end
+
+      context 'compared to a non-event' do
+        let(:other) { 3 }
+
+        it 'raises an ArgumentError' do
+          expect { subject }.to raise_error(ArgumentError)
+        end
+      end
+    end
+  end
 end

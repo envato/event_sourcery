@@ -13,35 +13,64 @@ module EventSourcery
         events = Array(event_or_events)
         aggregate_ids = events.map(&:aggregate_id).uniq
         raise AtomicWriteToMultipleAggregatesNotSupported unless aggregate_ids.count == 1
-        aggregate_id = aggregate_ids.first
-        bodies = events.map { |event| @pg_connection.literal(Sequel.pg_json(event.body)) }.join(', ')
-        types = events.map { |event| @pg_connection.literal(event.type) }.join(', ')
-        created_ats = events.map(&:created_at).compact.map { |created_at| "'#{created_at.iso8601(6)}'::timestamp without time zone" }.join(', ')
-        if created_ats == ''
-          created_ats = "null"
-        else
-          created_ats = "array[#{created_ats}]"
-        end
-        event_uuids = events.map { |event| @pg_connection.literal(event.uuid) }.join(', ')
-        sql = <<-SQL
-          select #{@write_events_function_name}('#{aggregate_id}'::uuid,
-                             array[#{types}]::varchar[],
-                             #{expected_version ? expected_version : "null"}::int,
-                             array[#{bodies}]::json[],
-                             #{created_ats},
-                             array[#{event_uuids}]::uuid[],
-                             #{@lock_table}::boolean);
-        SQL
-        @pg_connection.run sql
-        events.each do |event|
-          EventSourcery.logger.debug { "Saved event: #{event.inspect}" }
-        end
+        sql = write_events_sql(aggregate_ids.first, events, expected_version)
+        @pg_connection.run(sql)
+        log_events_saved(events)
         true
       rescue Sequel::DatabaseError => e
         if e.message =~ /Concurrency conflict/
           raise ConcurrencyError, "expected version was not #{expected_version}. Error: #{e.message}"
         else
           raise
+        end
+      end
+
+      private
+
+      def write_events_sql(aggregate_id, events, expected_version)
+        bodies = sql_literal_array(events, 'json', &:body)
+        types = sql_literal_array(events, 'varchar', &:type)
+        created_ats = sql_literal_array(events, 'timestamp without time zone', &:created_at)
+        event_uuids = sql_literal_array(events, 'uuid', &:uuid)
+        <<-SQL
+          select #{@write_events_function_name}(
+            #{sql_literal(aggregate_id, 'uuid')},
+            #{types},
+            #{sql_literal(expected_version, 'int')},
+            #{bodies},
+            #{created_ats},
+            #{event_uuids},
+            #{sql_literal(@lock_table, 'boolean')}
+          );
+        SQL
+      end
+
+      def sql_literal_array(events, type, &block)
+        sql_array = events.map do |event|
+         to_sql_literal(block.call(event))
+        end.join(', ')
+        "array[#{sql_array}]::#{type}[]"
+      end
+
+      def sql_literal(value, type)
+        "#{to_sql_literal(value)}::#{type}"
+      end
+
+      def to_sql_literal(value)
+        return 'null' unless value
+        wrapped_value = if Time === value
+          value.iso8601(6)
+        elsif Hash === value
+          Sequel.pg_json(value)
+        else
+          value
+        end
+        @pg_connection.literal(wrapped_value)
+      end
+
+      def log_events_saved(events)
+        events.each do |event|
+          EventSourcery.logger.debug { "Saved event: #{event.inspect}" }
         end
       end
     end

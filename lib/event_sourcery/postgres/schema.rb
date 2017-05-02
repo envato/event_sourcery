@@ -50,6 +50,7 @@ eventId text;
 index int;
 newVersion int;
 numEvents int;
+createdAt timestamp without time zone;
 begin
 numEvents := array_length(_bodies, 1);
 select version into currentVersion from #{aggregates_table_name} where aggregate_id = _aggregateId;
@@ -68,11 +69,14 @@ else
     update #{aggregates_table_name} set version = version + numEvents where aggregate_id = _aggregateId returning version into newVersion;
     currentVersion := newVersion - numEvents;
   else
-    -- increment the version if it's at our expected versionn
+    -- increment the version if it's at our expected version
     update #{aggregates_table_name} set version = version + numEvents where aggregate_id = _aggregateId and version = _expectedVersion;
     if not found then
-      -- version was not at expected_version, raise an error
-      raise 'Concurrency conflict. Current version: %, expected version: %', currentVersion, _expectedVersion;
+      -- version was not at expected_version, raise an error.
+      -- currentVersion may not equal what it did in the database when the
+      -- above update statement is executed (it may have been incremented by another
+      -- process)
+      raise 'Concurrency conflict. Last known current version: %, expected version: %', currentVersion, _expectedVersion;
     end if;
   end if;
 end if;
@@ -91,10 +95,16 @@ end if;
 foreach body IN ARRAY(_bodies)
 loop
   if _createdAtTimes[index] is not null then
-    insert into #{events_table_name}(uuid, aggregate_id, type, body, version, created_at) values(_eventUUIDs[index], _aggregateId, _eventTypes[index], body, eventVersion, _createdAtTimes[index]) returning id into eventId;
+    createdAt := _createdAtTimes[index];
   else
-    insert into #{events_table_name}(uuid, aggregate_id, type, body, version) values(_eventUUIDs[index], _aggregateId, _eventTypes[index], body, eventVersion) returning id into eventId;
+    createdAt := now() at time zone 'utc';
   end if;
+
+  insert into #{events_table_name}
+    (uuid, aggregate_id, type, body, version, created_at)
+  values
+    (_eventUUIDs[index], _aggregateId, _eventTypes[index], body, eventVersion, createdAt)
+  returning id into eventId;
 
   eventVersion := eventVersion + 1;
   index := index + 1;

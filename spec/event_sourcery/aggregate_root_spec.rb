@@ -1,15 +1,13 @@
 RSpec.describe EventSourcery::AggregateRoot do
   def new_aggregate(id,
                     on_unknown_event: EventSourcery.config.on_unknown_event,
-                    use_optimistic_concurrency: true,
                     &block)
     Class.new do
       include EventSourcery::AggregateRoot
 
       def initialize(id,
                      event_sink,
-                     on_unknown_event: -> {},
-                     use_optimistic_concurrency: true)
+                     on_unknown_event: -> {})
         super
         @item_added_events = []
       end
@@ -22,8 +20,7 @@ RSpec.describe EventSourcery::AggregateRoot do
       class_eval(&block) if block_given?
     end.new(id,
             event_sink,
-            on_unknown_event: on_unknown_event,
-            use_optimistic_concurrency: use_optimistic_concurrency)
+            on_unknown_event: on_unknown_event)
   end
 
   let(:aggregate_uuid) { SecureRandom.uuid }
@@ -83,7 +80,7 @@ RSpec.describe EventSourcery::AggregateRoot do
 
     context 'when optimistic concurrency is turned off' do
       subject(:aggregate) {
-        new_aggregate(aggregate_uuid, use_optimistic_concurrency: false) do
+        new_aggregate(aggregate_uuid) do
           def add_item(item)
             apply_event(ItemAdded.new(body: { id: item.id }))
           end
@@ -139,7 +136,7 @@ RSpec.describe EventSourcery::AggregateRoot do
 
     context 'given an event hash' do
       subject(:aggregate) do
-        new_aggregate(aggregate_uuid, use_optimistic_concurrency: false) do
+        new_aggregate(aggregate_uuid) do
           def add_item(item)
             apply_event(ItemAdded.new(body: { id: item.id }))
           end

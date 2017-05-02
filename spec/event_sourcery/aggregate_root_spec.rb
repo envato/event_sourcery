@@ -6,10 +6,11 @@ RSpec.describe EventSourcery::AggregateRoot do
       include EventSourcery::AggregateRoot
 
       def initialize(id,
+                     events,
                      event_sink,
                      on_unknown_event: -> {})
-        super
         @item_added_events = []
+        super
       end
 
       apply ItemAdded do |event|
@@ -19,6 +20,7 @@ RSpec.describe EventSourcery::AggregateRoot do
 
       class_eval(&block) if block_given?
     end.new(id,
+            events,
             event_sink,
             on_unknown_event: on_unknown_event)
   end
@@ -28,14 +30,11 @@ RSpec.describe EventSourcery::AggregateRoot do
   let(:event_store) { EventSourcery::Postgres::EventStoreWithOptimisticConcurrency.new(pg_connection, event_builder: EventSourcery.config.event_builder) }
   let(:event_sink) { EventSourcery::EventStore::EventSink.new(event_store) }
 
-  describe '#load_history' do
-    subject(:load_history) { aggregate.load_history(events) }
-
+  describe '#initialize', 'with events' do
     context 'when the event type has a state change method' do
       let(:events) { [new_event(type: :item_added)] }
 
       it 'calls it' do
-        load_history
         expect(aggregate.item_added_events).to eq events
       end
     end
@@ -45,7 +44,7 @@ RSpec.describe EventSourcery::AggregateRoot do
 
       context 'using the default on_unknown_event' do
         it 'raises an error' do
-          expect { load_history }
+          expect { aggregate }
             .to raise_error(EventSourcery::AggregateRoot::UnknownEventError)
         end
       end
@@ -55,7 +54,7 @@ RSpec.describe EventSourcery::AggregateRoot do
         let(:aggregate) { new_aggregate(aggregate_uuid, on_unknown_event: custom_on_unknown_event) }
 
         it 'yields the event and aggregate to the on_unknown_event block' do
-          load_history
+          aggregate
           expect(custom_on_unknown_event)
             .to have_received(:call)
             .with(events.first, kind_of(EventSourcery::AggregateRoot))
@@ -65,6 +64,8 @@ RSpec.describe EventSourcery::AggregateRoot do
   end
 
   describe '#apply_event' do
+    let(:events) { [] }
+
     before do
       # add a dummy event so that event.id != event.version
       event_store.sink(new_event(id: 1, type: :dummy, version: 1, aggregate_id: SecureRandom.uuid))
@@ -77,24 +78,6 @@ RSpec.describe EventSourcery::AggregateRoot do
         end
       end
     }
-
-    context 'when optimistic concurrency is turned off' do
-      subject(:aggregate) {
-        new_aggregate(aggregate_uuid) do
-          def add_item(item)
-            apply_event(ItemAdded.new(body: { id: item.id }))
-          end
-        end
-      }
-
-      it "doesn't set version" do
-        aggregate.add_item(OpenStruct.new(id: 1234))
-        event = aggregate.item_added_events.first
-        expect(event.type).to eq 'item_added'
-        expect(event.body).to eq("id" => 1234)
-        expect(event.version).to eq(nil)
-      end
-    end
 
     it 'updates state' do
       aggregate.add_item(OpenStruct.new(id: 1234))
@@ -124,8 +107,10 @@ RSpec.describe EventSourcery::AggregateRoot do
     end
 
     context 'when a concurrency error occurs' do
+      let(:events) { event_store.get_events_for_aggregate_id(aggregate_uuid) }
+
       it 'is raised' do
-        aggregate.load_history(event_store.get_events_for_aggregate_id(aggregate_uuid))
+        aggregate
         # change version
         event_store.sink(EventSourcery::Event.new(type: :item_added, aggregate_id: aggregate_uuid))
         expect {
@@ -182,6 +167,8 @@ RSpec.describe EventSourcery::AggregateRoot do
     let(:item_removed_event) { ItemRemoved.new(id: 2) }
 
     context 'with custom event classes' do
+      let(:events) { [item_added_event] }
+
       it 'sends events to the event handlers' do
         aggregate = new_aggregate(aggregate_uuid) do |event|
           apply(ItemAdded) do |event|
@@ -195,28 +182,30 @@ RSpec.describe EventSourcery::AggregateRoot do
           attr_reader :item_added_event_via_dsl,
                       :item_removed_event_via_dsl
         end
-        aggregate.load_history([item_added_event])
         expect(aggregate.item_added_event_via_dsl).to eq item_added_event
         expect(aggregate.item_removed_event_via_dsl).to be_nil
       end
 
-      it 'handles multiple events in handlers' do
-        aggregate = new_aggregate(aggregate_uuid) do
-          apply ItemAdded do |event|
-            @added_event = event
+      context 'with multiple events' do
+        let(:events) { [item_added_event, item_removed_event] }
+
+        it 'handles multiple events in handlers' do
+          aggregate = new_aggregate(aggregate_uuid) do
+            apply ItemAdded do |event|
+              @added_event = event
+            end
+
+            apply ItemAdded, ItemRemoved do |event|
+              @added_and_removed_events ||= []
+              @added_and_removed_events << event
+            end
+
+            attr_reader :added_and_removed_events, :added_event
           end
 
-          apply ItemAdded, ItemRemoved do |event|
-            @added_and_removed_events ||= []
-            @added_and_removed_events << event
-          end
-
-          attr_reader :added_and_removed_events, :added_event
+          expect(aggregate.added_event).to eq item_added_event
+          expect(aggregate.added_and_removed_events).to eq [item_added_event, item_removed_event]
         end
-
-        aggregate.load_history([item_added_event, item_removed_event])
-        expect(aggregate.added_event).to eq item_added_event
-        expect(aggregate.added_and_removed_events).to eq [item_added_event, item_removed_event]
       end
     end
   end

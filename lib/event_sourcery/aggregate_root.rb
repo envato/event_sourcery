@@ -20,18 +20,19 @@ module EventSourcery
       end
     end
 
-    def initialize(id, event_sink, on_unknown_event: EventSourcery.config.on_unknown_event)
+    def initialize(id, events, event_sink, on_unknown_event: EventSourcery.config.on_unknown_event)
       @id = id
       @event_sink = event_sink
       @current_version = 0
       @on_unknown_event = on_unknown_event
+      load_history(events)
     end
+
+    private
 
     def load_history(events)
       events.each { |event| apply_event(event) }
     end
-
-    private
 
     attr_reader :id, :event_sink, :current_version
 

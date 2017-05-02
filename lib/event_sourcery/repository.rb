@@ -11,9 +11,7 @@ module EventSourcery
 
     def load(aggregate_class, aggregate_id)
       events = event_source.get_events_for_aggregate_id(aggregate_id)
-      aggregate_class.new(aggregate_id, event_sink).tap do |aggregate|
-        aggregate.load_history(events)
-      end
+      aggregate_class.new(aggregate_id, events, event_sink)
     end
 
     private

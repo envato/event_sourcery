@@ -19,6 +19,7 @@ module EventSourcery
               insert(aggregate_id: event.aggregate_id,
                      type: event.type.to_s,
                      body: ::Sequel.pg_json(event.body),
+                     metadata: ::Sequel.pg_json(event.metadata),
                      uuid: event.uuid)
             event_id = result.first.fetch(:id)
             @pg_connection.notify('new_event', payload: event_id)

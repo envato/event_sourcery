@@ -13,11 +13,13 @@ module EventSourcery
         events.each do |event|
           id = @events.size + 1
           serialized_body = EventBodySerializer.serialize(event.body)
+          serialized_metadata = EventBodySerializer.serialize(event.metadata)
           @events << @event_builder.build(
             id: id,
             aggregate_id: event.aggregate_id,
             type: event.type,
             body: serialized_body,
+            metadata: serialized_metadata,
             created_at: Time.now,
             uuid: event.uuid
           )

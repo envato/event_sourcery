@@ -277,6 +277,7 @@ RSpec.describe EventSourcery::Postgres::Reactor do
         let(:event_3) { ItemAdded.new(id: 3, aggregate_id: '00000000-0000-0000-0000-000000000002', version: 2) }
 
         let(:event_store) { EventSourcery::Postgres::EventStore.new(pg_connection, events_table_name: :events_without_optimistic_locking) }
+        let(:causation_id_metadata_key) { EventSourcery::Postgres::Reactor::CAUSATION_ID_METADATA_KEY }
 
         let(:reactor_class) {
           Class.new do
@@ -300,8 +301,8 @@ RSpec.describe EventSourcery::Postgres::Reactor do
           catch_up_esp(reactor)
 
           expect(events).to eq [
-            [1, {}],
-            [2, {driven_by_event_payload_key.to_s => 1}],
+            [1, {}, {}],
+            [2, {driven_by_event_payload_key.to_s => 1}, {causation_id_metadata_key.to_s => 1}],
           ]
 
           # Add another event that will be reacted to
@@ -315,10 +316,10 @@ RSpec.describe EventSourcery::Postgres::Reactor do
           catch_up_esp(reactor)
 
           expect(events).to eq [
-            [1, {}],
-            [2, {driven_by_event_payload_key.to_s => 1}],
-            [3, {}],
-            [4, {driven_by_event_payload_key.to_s => 3}],
+            [1, {}, {}],
+            [2, {driven_by_event_payload_key.to_s => 1}, {causation_id_metadata_key.to_s => 1}],
+            [3, {}, {}],
+            [4, {driven_by_event_payload_key.to_s => 3}, {causation_id_metadata_key.to_s => 3}],
           ]
         end
 
@@ -327,6 +328,7 @@ RSpec.describe EventSourcery::Postgres::Reactor do
             [
               event.id,
               event.body.to_h,
+              event.metadata.to_h,
             ]
           end
         end

@@ -53,6 +53,7 @@ module EventSourcery
       end
 
       DRIVEN_BY_EVENT_PAYLOAD_KEY = :_driven_by_event_id
+      CAUSATION_ID_METADATA_KEY = :causation_id
 
       private
 
@@ -66,6 +67,7 @@ module EventSourcery
         end
         raise UndeclaredEventEmissionError unless self.class.emits_event?(event.type)
         event.body.merge!(DRIVEN_BY_EVENT_PAYLOAD_KEY => _event.id)
+        event.metadata.merge!(CAUSATION_ID_METADATA_KEY => _event.id)
         if already_actioned?
           EventSourcery.logger.debug { "[#{self.processor_name}] Already actioned event: #{event.inspect}. Skipping." }
         else

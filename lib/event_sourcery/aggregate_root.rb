@@ -28,9 +28,7 @@ module EventSourcery
     end
 
     def load_history(events)
-      events.each do |event|
-        apply_event(event)
-      end
+      events.each { |event| apply_event(event) }
     end
 
     private

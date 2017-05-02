@@ -123,8 +123,7 @@ NUM_WRITER_PROCESSES.times do
     # inserts and no gaps are detected
     event_store = EventSourcery::Postgres::EventStoreWithOptimisticConcurrency.new(db, lock_table: false)
     puts "#{Process.pid}: starting to write events"
-    loop do
-      break if stop
+    until stop
       event_store.sink(new_event)
     end
   end
@@ -147,8 +146,7 @@ def wait_for_missing_ids(db, first_sequence, last_sequence, attempt: 1)
   end
 end
 
-loop do
-  break if stop
+until stop
 
   # query for the last 2 sequences in the events table
   first_sequence, last_sequence = *db[:events].

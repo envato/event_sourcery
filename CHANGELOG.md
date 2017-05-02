@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [0.9.0] - 2017-05-02
 ### Added
 - Add `table_prefix` method to `TableOwner` to declare a table name prefix for
   all tables in a projector or reactor.

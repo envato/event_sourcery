@@ -45,11 +45,11 @@
 # Why is this a problem?
 #
 # Consumers of events use the sequence ID to keep track of where they're up to
-# in the events table. If a projector processes an event with sequence ID 5, it
-# assumes that the next event it needs to process will have a sequence ID > 5.
-# This approach doesn't work when sequence IDs inserted non-linearly - event
-# stream processors would now have the potential to skip events under
-# concurrent writes to the event store.
+# in the events table. If a projector processes an event with sequence ID n, it
+# assumes that the next event it needs to process will have a sequence ID > n.
+# This approach doesn't work when sequence IDs are inserted non-linearly, event
+# stream processors would skip events under concurrent writes to the event
+# store as demonstrated with this script.
 #
 # How does EventSourcery deal with this?
 #

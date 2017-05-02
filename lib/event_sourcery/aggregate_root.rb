@@ -35,16 +35,16 @@ module EventSourcery
 
     private
 
-    attr_reader :id, :event_sink
+    attr_reader :id, :event_sink, :current_version
 
     def apply_event(event_or_hash)
       event = to_event(event_or_hash)
       mutate_state_from(event)
       unless event.persisted?
-        event_with_aggregate_id = Event.new(aggregate_id: @id,
+        event_with_aggregate_id = Event.new(aggregate_id: id,
                                             type: event.type,
                                             body: event.body)
-        event_sink.sink(event_with_aggregate_id, expected_version: @current_version)
+        event_sink.sink(event_with_aggregate_id, expected_version: current_version)
       end
       @current_version = event.version
     end

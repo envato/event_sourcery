@@ -20,7 +20,7 @@ RSpec.describe EventSourcery::Postgres::EventStoreWithOptimisticConcurrency do
   end
 
   def aggregate_version
-    result = connection[:aggregates].
+    result = pg_connection[:aggregates].
       where(aggregate_id: aggregate_id).
       first
     if result
@@ -124,7 +124,7 @@ RSpec.describe EventSourcery::Postgres::EventStoreWithOptimisticConcurrency do
 
     context 'when a database error occurs that is not a concurrency error' do
       before do
-        allow(connection).to receive(:run).and_raise(Sequel::DatabaseError)
+        allow(pg_connection).to receive(:run).and_raise(Sequel::DatabaseError)
       end
 
       it 'raises it' do

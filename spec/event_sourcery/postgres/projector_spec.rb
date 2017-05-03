@@ -43,7 +43,7 @@ RSpec.describe EventSourcery::Postgres::Projector do
   subject(:projector) {
     projector_class.new(
       tracker: tracker,
-      db_connection: connection
+      db_connection: pg_connection
     )
   }
   let(:aggregate_id) { SecureRandom.uuid }
@@ -173,7 +173,7 @@ RSpec.describe EventSourcery::Postgres::Projector do
       it "rolls back the projected changes" do
         projector.raise_error = true
         projector.subscribe_to(event_store, subscription_master: subscription_master) rescue nil
-        expect(connection[:profiles].count).to eq 0
+        expect(pg_connection[:profiles].count).to eq 0
       end
     end
 
@@ -185,7 +185,7 @@ RSpec.describe EventSourcery::Postgres::Projector do
 
       it "rolls back the projected changes" do
         projector.subscribe_to(event_store, subscription_master: subscription_master) rescue nil
-        expect(connection[:profiles].count).to eq 0
+        expect(pg_connection[:profiles].count).to eq 0
       end
     end
   end

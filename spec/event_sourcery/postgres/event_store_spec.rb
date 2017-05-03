@@ -4,7 +4,7 @@ RSpec.describe EventSourcery::Postgres::EventStore do
 
   before do
     pg_connection.execute('truncate table events_without_optimistic_locking')
-    connection.execute('alter sequence events_without_optimistic_locking_id_seq restart with 1')
+    pg_connection.execute('alter sequence events_without_optimistic_locking_id_seq restart with 1')
   end
 
   include_examples 'an event store'

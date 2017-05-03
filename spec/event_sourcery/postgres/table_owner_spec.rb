@@ -41,7 +41,7 @@ RSpec.describe EventSourcery::Postgres::TableOwner do
   describe '#reset' do
     context 'without dependent tables defined' do
       before do
-        connection.execute('DROP TABLE IF EXISTS sales')
+        pg_connection.execute('DROP TABLE IF EXISTS sales')
         table_owner.setup
         pg_connection[:sales].insert(uuid: SecureRandom.uuid)
       end
@@ -75,8 +75,8 @@ RSpec.describe EventSourcery::Postgres::TableOwner do
       end
 
       it 'recreates tables' do
-        connection.execute('DROP TABLE IF EXISTS items')
-        connection.execute('DROP TABLE IF EXISTS authors')
+        pg_connection.execute('DROP TABLE IF EXISTS items')
+        pg_connection.execute('DROP TABLE IF EXISTS authors')
         table_owner.setup
         pg_connection[:authors].insert(id: 1, uuid: SecureRandom.uuid)
         pg_connection[:items].insert(authors_id: 1, created_at: Time.now)
@@ -90,7 +90,7 @@ RSpec.describe EventSourcery::Postgres::TableOwner do
 
     context 'with table_prefix set' do
       before do
-        connection.execute('DROP TABLE IF EXISTS my_prefix_sales')
+        pg_connection.execute('DROP TABLE IF EXISTS my_prefix_sales')
         table_owner.send(:table_prefix=, :my_prefix)
         table_owner.setup
         pg_connection[:my_prefix_sales].insert(uuid: SecureRandom.uuid)

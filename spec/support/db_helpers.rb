@@ -5,11 +5,6 @@ module DBHelpers
     $connection ||= new_connection
   end
 
-  # TODO: switch references to connection to use pg_connection instead
-  def connection
-    @connection ||= pg_connection
-  end
-
   module_function def new_connection
     if ENV['CI']
       Sequel.connect(adapter: 'postgres', database: 'event_sourcery_test')
@@ -29,10 +24,10 @@ module DBHelpers
   end
 
   def reset_database
-    connection.execute('truncate table aggregates')
+    pg_connection.execute('truncate table aggregates')
     %w[ events events_without_optimistic_locking ].each do |table|
-      connection.execute("truncate table #{table}")
-      connection.execute("alter sequence #{table}_id_seq restart with 1")
+      pg_connection.execute("truncate table #{table}")
+      pg_connection.execute("alter sequence #{table}_id_seq restart with 1")
     end
   end
 

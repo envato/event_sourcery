@@ -276,7 +276,9 @@ RSpec.describe EventSourcery::Postgres::Reactor do
         let(:event_1) { ItemAdded.new(id: 1, aggregate_id: '00000000-0000-0000-0000-000000000001', version: 1) }
         let(:event_3) { ItemAdded.new(id: 3, aggregate_id: '00000000-0000-0000-0000-000000000002', version: 2) }
 
-        let(:event_store) { EventSourcery::Postgres::EventStore.new(pg_connection, events_table_name: :events_without_optimistic_locking) }
+        let(:events_table_name) { :events_without_optimistic_locking }
+        let(:event_store) { EventSourcery::Postgres::EventStore.new(pg_connection, events_table_name: events_table_name) }
+        let(:tracker) { EventSourcery::Postgres::Tracker.new(pg_connection, events_table_name: events_table_name) }
         let(:causation_id_metadata_key) { EventSourcery::Postgres::Reactor::CAUSATION_ID_METADATA_KEY }
 
         let(:reactor_class) {
@@ -321,6 +323,38 @@ RSpec.describe EventSourcery::Postgres::Reactor do
             [3, {}, {}],
             [4, {driven_by_event_payload_key.to_s => 3}, {causation_id_metadata_key.to_s => 3}],
           ]
+        end
+
+        context 'when the last_actioned_event_id is not found' do
+          it 'does not re-emit previously actioned events' do
+            # Add first event that will be reacted to
+            event_store.sink event_1
+
+            # Run through all events
+            catch_up_esp(reactor)
+
+            expect(events).to eq [
+              [1, {}, {}],
+              [2, {driven_by_event_payload_key.to_s => 1}, {causation_id_metadata_key.to_s => 1}],
+            ]
+
+            # Add another event that will be reacted to
+            event_store.sink event_3
+
+            # Set last_processed_event_id and last_actioned_event_id back to 0
+            reactor.reset
+            tracker.set_last_actioned_event_id('test_processor', 0)
+
+            # Re-run through all events
+            catch_up_esp(reactor)
+
+            expect(events).to eq [
+              [1, {}, {}],
+              [2, {driven_by_event_payload_key.to_s => 1}, {causation_id_metadata_key.to_s => 1}],
+              [3, {}, {}],
+              [4, {driven_by_event_payload_key.to_s => 3}, {causation_id_metadata_key.to_s => 3}],
+            ]
+          end
         end
 
         def events

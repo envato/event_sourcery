@@ -3,9 +3,10 @@ module EventSourcery
     class Tracker
       DEFAULT_TABLE_NAME = :projector_tracker
 
-      def initialize(connection, table_name: DEFAULT_TABLE_NAME, obtain_processor_lock: true)
+      def initialize(connection, table_name: DEFAULT_TABLE_NAME, events_table_name: EventSourcery.config.events_table_name, obtain_processor_lock: true)
         @connection = connection
         @table_name = DEFAULT_TABLE_NAME
+        @events_table_name = events_table_name
         @obtain_processor_lock = obtain_processor_lock
       end
 
@@ -19,6 +20,20 @@ module EventSourcery
         if processor_name
           create_track_entry_if_not_exists(processor_name)
           if @obtain_processor_lock
+            if last_actioned_event_id(processor_name).zero?
+              query = <<-EOF
+                SELECT metadata->'causation_id' AS causation_id
+                FROM :table
+                WHERE metadata->'causation_id' IS NOT NULL
+                ORDER BY metadata->'causation_id' DESC LIMIT 1;
+              EOF
+              dataset = @connection.fetch(query, table: Sequel.lit(events_table_name)).first
+              value = dataset && dataset[:causation_id]
+              if value
+                set_last_actioned_event_id(processor_name, value)
+              end
+            end
+
             obtain_global_lock_on_processor(processor_name)
           end
         end
@@ -56,6 +71,10 @@ module EventSourcery
         else
           0
         end
+      end
+
+      def set_last_actioned_event_id(processor_name, value)
+        table.where(name: processor_name.to_s).update(last_actioned_event_id: value)
       end
 
       def last_actioned_event_id(processor_name)
@@ -102,6 +121,10 @@ module EventSourcery
 
       def tracker_table_exists?
         @connection.table_exists?(@table_name)
+      end
+
+      def events_table_name
+        @events_table_name.to_s
       end
     end
   end

@@ -1,3 +1,5 @@
+require 'database_cleaner'
+
 module DBHelpers
   extend self
 
@@ -24,11 +26,14 @@ module DBHelpers
   end
 
   def reset_database
-    pg_connection.execute('truncate table aggregates')
     %w[ events events_without_optimistic_locking ].each do |table|
-      pg_connection.execute("truncate table #{table}")
       pg_connection.execute("alter sequence #{table}_id_seq restart with 1")
     end
+  end
+
+  def configure_database_cleaner
+    DatabaseCleaner[:sequel, connection: pg_connection]
+    DatabaseCleaner.strategy = :truncation
   end
 
   def recreate_database
@@ -48,6 +53,14 @@ end
 
 RSpec.configure do |config|
   config.include(DBHelpers)
-  config.before(:suite) { DBHelpers.recreate_database }
-  config.before(:example) { DBHelpers.reset_database }
+
+  config.before :suite do
+    DBHelpers.recreate_database
+    DBHelpers.configure_database_cleaner
+  end
+
+  config.before :each do
+    DBHelpers.reset_database
+    DatabaseCleaner.clean
+  end
 end

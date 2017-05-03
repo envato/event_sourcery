@@ -31,8 +31,7 @@ module EventSourcery
       def get_next_from(id, event_types: nil, limit: 1000)
         query = events_table.
           order(:id).
-          where('id >= :from_id',
-                from_id: id).
+          where(Sequel.lit('id >= ?', id)).
           limit(limit)
         if event_types
           query = query.where(type: event_types)

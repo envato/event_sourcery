@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Fixed
+- Resolved Sequel deprecation notice when loading events from the Postgres event
+  store.
 
 ## [0.9.0] - 2017-05-02
 ### Added

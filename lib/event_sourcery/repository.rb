@@ -11,7 +11,14 @@ module EventSourcery
 
     def load(aggregate_class, aggregate_id)
       events = event_source.get_events_for_aggregate_id(aggregate_id)
-      aggregate_class.new(aggregate_id, events, event_sink)
+      aggregate_class.new(aggregate_id, events)
+    end
+
+    def save(aggregate)
+      events = aggregate.changes
+      if events.any?
+        event_sink.sink(events, expected_version: aggregate.version)
+      end
     end
 
     private

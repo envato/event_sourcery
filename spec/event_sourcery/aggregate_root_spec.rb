@@ -73,7 +73,7 @@ RSpec.describe EventSourcery::AggregateRoot do
     subject(:aggregate) {
       new_aggregate(aggregate_uuid) do
         def add_item(item)
-          apply_event(ItemAdded.new(body: { id: item.id }))
+          apply_event ItemAdded, body: { id: item.id }
         end
       end
     }
@@ -90,9 +90,7 @@ RSpec.describe EventSourcery::AggregateRoot do
       emitted_event = aggregate.changes.first
       expect(emitted_event.type).to eq 'item_added'
       expect(emitted_event.body).to eq('id' => 1234)
-      # expect(emitted_event.aggregate_id).to eq aggregate_uuid
-      # expect(emitted_event.id).to eq 2
-      # expect(emitted_event.version).to eq 1
+      expect(emitted_event.aggregate_id).to eq aggregate_uuid
     end
 
     context 'multiple state changes' do

@@ -41,18 +41,10 @@ module EventSourcery
 
     attr_reader :id
 
-    def apply_event(event_or_hash)
-      event = to_event(event_or_hash)
+    def apply_event(event_class, options = {})
+      event = event_class.new(**options.merge(aggregate_id: id))
       mutate_state_from(event)
       @changes << event
-    end
-
-    def to_event(event_or_hash)
-      if event_or_hash.is_a?(Event)
-        event_or_hash
-      else
-        Event.new(event_or_hash)
-      end
     end
 
     def mutate_state_from(event)

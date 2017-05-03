@@ -25,7 +25,7 @@ module DBHelpers
     end
   end
 
-  def reset_database
+  def reset_sequences
     %w[ events events_without_optimistic_locking ].each do |table|
       pg_connection.execute("alter sequence #{table}_id_seq restart with 1")
     end
@@ -60,7 +60,7 @@ RSpec.configure do |config|
   end
 
   config.before :each do
-    DBHelpers.reset_database
+    DBHelpers.reset_sequences
     DatabaseCleaner.clean
   end
 end

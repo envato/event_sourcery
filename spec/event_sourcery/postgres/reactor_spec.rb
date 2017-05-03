@@ -280,6 +280,7 @@ RSpec.describe EventSourcery::Postgres::Reactor do
         let(:event_store) { EventSourcery::Postgres::EventStore.new(pg_connection, events_table_name: events_table_name) }
         let(:tracker) { EventSourcery::Postgres::Tracker.new(pg_connection, events_table_name: events_table_name) }
         let(:causation_id_metadata_key) { EventSourcery::Postgres::Reactor::CAUSATION_ID_METADATA_KEY }
+        let(:reactor_name_metadata_key) { EventSourcery::Postgres::Reactor::REACTOR_NAME_METADATA_KEY }
 
         let(:reactor_class) {
           Class.new do
@@ -304,7 +305,7 @@ RSpec.describe EventSourcery::Postgres::Reactor do
 
           expect(events).to eq [
             [1, {}, {}],
-            [2, {driven_by_event_payload_key.to_s => 1}, {causation_id_metadata_key.to_s => 1}],
+            [2, {driven_by_event_payload_key.to_s => 1}, {causation_id_metadata_key.to_s => 1, reactor_name_metadata_key.to_s => 'test_processor'}],
           ]
 
           # Add another event that will be reacted to
@@ -319,9 +320,9 @@ RSpec.describe EventSourcery::Postgres::Reactor do
 
           expect(events).to eq [
             [1, {}, {}],
-            [2, {driven_by_event_payload_key.to_s => 1}, {causation_id_metadata_key.to_s => 1}],
+            [2, {driven_by_event_payload_key.to_s => 1}, {causation_id_metadata_key.to_s => 1, reactor_name_metadata_key.to_s => 'test_processor'}],
             [3, {}, {}],
-            [4, {driven_by_event_payload_key.to_s => 3}, {causation_id_metadata_key.to_s => 3}],
+            [4, {driven_by_event_payload_key.to_s => 3}, {causation_id_metadata_key.to_s => 3, reactor_name_metadata_key.to_s => 'test_processor'}],
           ]
         end
 
@@ -335,7 +336,7 @@ RSpec.describe EventSourcery::Postgres::Reactor do
 
             expect(events).to eq [
               [1, {}, {}],
-              [2, {driven_by_event_payload_key.to_s => 1}, {causation_id_metadata_key.to_s => 1}],
+              [2, {driven_by_event_payload_key.to_s => 1}, {causation_id_metadata_key.to_s => 1, reactor_name_metadata_key.to_s => 'test_processor'}],
             ]
 
             # Add another event that will be reacted to
@@ -350,9 +351,9 @@ RSpec.describe EventSourcery::Postgres::Reactor do
 
             expect(events).to eq [
               [1, {}, {}],
-              [2, {driven_by_event_payload_key.to_s => 1}, {causation_id_metadata_key.to_s => 1}],
+              [2, {driven_by_event_payload_key.to_s => 1}, {causation_id_metadata_key.to_s => 1, reactor_name_metadata_key.to_s => 'test_processor'}],
               [3, {}, {}],
-              [4, {driven_by_event_payload_key.to_s => 3}, {causation_id_metadata_key.to_s => 3}],
+              [4, {driven_by_event_payload_key.to_s => 3}, {causation_id_metadata_key.to_s => 3, reactor_name_metadata_key.to_s => 'test_processor'}],
             ]
           end
         end

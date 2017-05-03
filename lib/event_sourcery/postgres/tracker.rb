@@ -25,9 +25,13 @@ module EventSourcery
                 SELECT metadata->'causation_id' AS causation_id
                 FROM :table
                 WHERE metadata->'causation_id' IS NOT NULL
+                AND metadata->>'reactor_name' = :reactor_name
                 ORDER BY metadata->'causation_id' DESC LIMIT 1;
               EOF
-              dataset = @connection.fetch(query, table: Sequel.lit(events_table_name)).first
+              dataset = @connection.fetch(query,
+                table: Sequel.lit(events_table_name),
+                reactor_name: processor_name.to_s,
+              ).first
               value = dataset && dataset[:causation_id]
               if value
                 set_last_actioned_event_id(processor_name, value)

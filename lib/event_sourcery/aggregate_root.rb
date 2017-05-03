@@ -20,32 +20,31 @@ module EventSourcery
       end
     end
 
-    def initialize(id, events, event_sink, on_unknown_event: EventSourcery.config.on_unknown_event)
+    def initialize(id, events, on_unknown_event: EventSourcery.config.on_unknown_event)
       @id = id
-      @event_sink = event_sink
-      @current_version = 0
+      @version = 0
       @on_unknown_event = on_unknown_event
+      @changes = []
       load_history(events)
     end
+
+    attr_reader :changes, :version
 
     private
 
     def load_history(events)
-      events.each { |event| apply_event(event) }
+      events.each do |event|
+        mutate_state_from(event)
+        @version = event.version
+      end
     end
 
-    attr_reader :id, :event_sink, :current_version
+    attr_reader :id
 
     def apply_event(event_or_hash)
       event = to_event(event_or_hash)
       mutate_state_from(event)
-      unless event.persisted?
-        event_with_aggregate_id = Event.new(aggregate_id: id,
-                                            type: event.type,
-                                            body: event.body)
-        event_sink.sink(event_with_aggregate_id, expected_version: current_version)
-      end
-      @current_version = event.version
+      @changes << event
     end
 
     def to_event(event_or_hash)

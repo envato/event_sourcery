@@ -7,7 +7,6 @@ RSpec.describe EventSourcery::AggregateRoot do
 
       def initialize(id,
                      events,
-                     event_sink,
                      on_unknown_event: -> {})
         @item_added_events = []
         super
@@ -21,21 +20,26 @@ RSpec.describe EventSourcery::AggregateRoot do
       class_eval(&block) if block_given?
     end.new(id,
             events,
-            event_sink,
             on_unknown_event: on_unknown_event)
   end
 
   let(:aggregate_uuid) { SecureRandom.uuid }
   subject(:aggregate) { new_aggregate(aggregate_uuid) }
-  let(:event_store) { EventSourcery::Postgres::EventStoreWithOptimisticConcurrency.new(pg_connection, event_builder: EventSourcery.config.event_builder) }
-  let(:event_sink) { EventSourcery::EventStore::EventSink.new(event_store) }
 
-  describe '#initialize', 'with events' do
-    context 'when the event type has a state change method' do
+  describe '#initialize' do
+    context 'when a handler for the event exists' do
       let(:events) { [new_event(type: :item_added)] }
 
       it 'calls it' do
         expect(aggregate.item_added_events).to eq events
+      end
+    end
+
+    context 'with no events' do
+      let(:events) { [] }
+
+      it 'initialises at version 0' do
+        expect(aggregate.version).to eq 0
       end
     end
 
@@ -63,13 +67,8 @@ RSpec.describe EventSourcery::AggregateRoot do
     end
   end
 
-  describe '#apply_event' do
+  context 'when state changes' do
     let(:events) { [] }
-
-    before do
-      # add a dummy event so that event.id != event.version
-      event_store.sink(new_event(id: 1, type: :dummy, version: 1, aggregate_id: SecureRandom.uuid))
-    end
 
     subject(:aggregate) {
       new_aggregate(aggregate_uuid) do
@@ -79,72 +78,30 @@ RSpec.describe EventSourcery::AggregateRoot do
       end
     }
 
-    it 'updates state' do
+    it 'updates state by calling the handler' do
       aggregate.add_item(OpenStruct.new(id: 1234))
       event = aggregate.item_added_events.first
       expect(event.type).to eq 'item_added'
       expect(event.body).to eq("id" => 1234)
     end
 
-    it 'saves the event with an initial version' do
+    it 'exposes the new event in changes' do
       aggregate.add_item(OpenStruct.new(id: 1234))
-      emitted_event = event_store.get_next_from(0).last
-      expect(emitted_event.id).to eq 2
+      emitted_event = aggregate.changes.first
       expect(emitted_event.type).to eq 'item_added'
       expect(emitted_event.body).to eq('id' => 1234)
-      expect(emitted_event.aggregate_id).to eq aggregate_uuid
-      expect(emitted_event.version).to eq 1
+      # expect(emitted_event.aggregate_id).to eq aggregate_uuid
+      # expect(emitted_event.id).to eq 2
+      # expect(emitted_event.version).to eq 1
     end
 
-    context 'processing multiple commands' do
-      it 'gets assigned the next version (no concurrent command processing occurred)' do
+    context 'multiple state changes' do
+      it 'exposes the events in order' do
         aggregate.add_item(OpenStruct.new(id: 1234))
-        aggregate.add_item(OpenStruct.new(id: 1234))
-        aggregate.add_item(OpenStruct.new(id: 1234))
-        emitted_versions = event_store.get_events_for_aggregate_id(aggregate_uuid).map(&:version)
-        expect(emitted_versions).to eq([1, 2, 3])
-      end
-    end
-
-    context 'when a concurrency error occurs' do
-      let(:events) { event_store.get_events_for_aggregate_id(aggregate_uuid) }
-
-      it 'is raised' do
-        aggregate
-        # change version
-        event_store.sink(EventSourcery::Event.new(type: :item_added, aggregate_id: aggregate_uuid))
-        expect {
-          aggregate.add_item(OpenStruct.new(id: 1234))
-        }.to raise_error(EventSourcery::ConcurrencyError)
-      end
-    end
-
-    context 'given an event hash' do
-      subject(:aggregate) do
-        new_aggregate(aggregate_uuid) do
-          def add_item(item)
-            apply_event(ItemAdded.new(body: { id: item.id }))
-          end
-        end
-      end
-
-      it 'updates state' do
-        aggregate.add_item(OpenStruct.new(id: 1234))
-
-        event = aggregate.item_added_events.first
-        expect(event.type).to eq 'item_added'
-        expect(event.body).to eq('id' => 1234)
-      end
-
-      it 'saves the event with an initial version' do
-        aggregate.add_item(OpenStruct.new(id: 1234))
-
-        emitted_event = event_store.get_next_from(0).last
-        expect(emitted_event.id).to eq 2
-        expect(emitted_event.type).to eq 'item_added'
-        expect(emitted_event.body).to eq('id' => 1234)
-        expect(emitted_event.aggregate_id).to eq aggregate_uuid
-        expect(emitted_event.version).to eq 1
+        aggregate.add_item(OpenStruct.new(id: 1235))
+        aggregate.add_item(OpenStruct.new(id: 1236))
+        emitted_versions = aggregate.changes.map { |e| e.body['id'] }
+        expect(emitted_versions).to eq([1234, 1235, 1236])
       end
     end
   end

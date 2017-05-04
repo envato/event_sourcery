@@ -21,18 +21,7 @@ module EventSourcery
           create_track_entry_if_not_exists(processor_name)
           if @obtain_processor_lock
             if last_actioned_event_id(processor_name).zero?
-              query = <<-EOF
-                SELECT metadata->'causation_id' AS causation_id
-                FROM :table
-                WHERE metadata->'causation_id' IS NOT NULL
-                AND metadata->>'reactor_name' = :reactor_name
-                ORDER BY metadata->'causation_id' DESC LIMIT 1;
-              EOF
-              dataset = @connection.fetch(query,
-                table: Sequel.lit(events_table_name),
-                reactor_name: processor_name.to_s,
-              ).first
-              value = dataset && dataset[:causation_id]
+              value = find_last_actioned_event_id(processor_name)
               if value
                 set_last_actioned_event_id(processor_name, value)
               end
@@ -88,6 +77,21 @@ module EventSourcery
         else
           0
         end
+      end
+
+      def find_last_actioned_event_id(processor_name)
+        query = <<-EOF
+          SELECT metadata->'causation_id' AS causation_id
+          FROM :table
+          WHERE metadata->'causation_id' IS NOT NULL
+          AND metadata->>'reactor_name' = :reactor_name
+          ORDER BY metadata->'causation_id' DESC LIMIT 1;
+        EOF
+        dataset = @connection.fetch(query,
+          table: Sequel.lit(events_table_name),
+          reactor_name: processor_name.to_s,
+        ).first
+        dataset && dataset[:causation_id]
       end
 
       def tracked_processors

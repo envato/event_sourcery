@@ -342,9 +342,8 @@ RSpec.describe EventSourcery::Postgres::Reactor do
             # Add another event that will be reacted to
             event_store.sink event_3
 
-            # Set last_processed_event_id and last_actioned_event_id back to 0
-            reactor.reset
-            tracker.set_last_actioned_event_id('test_processor', 0)
+            # Delete the projector_tracker data
+            pg_connection[:projector_tracker].where(name: 'test_processor').delete
 
             # Re-run through all events
             catch_up_esp(reactor)

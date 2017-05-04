@@ -5,12 +5,17 @@ module EventSourcery
                      event_store:,
                      on_event_processor_error: EventSourcery.config.on_event_processor_error,
                      stop_on_failure:,
-                     subscription_master: EventStore::SignalHandlingSubscriptionMaster.new)
+                     subscription_master: EventStore::SignalHandlingSubscriptionMaster.new,
+                     retry_strategy: EventSourcery.config.retry_strategy
+                    )
         @event_processor = event_processor
         @event_store = event_store
         @on_event_processor_error = on_event_processor_error
         @stop_on_failure = stop_on_failure
         @subscription_master = subscription_master
+        @retry_strategy = retry_strategy
+        @retry_interval = 1
+        @max_retry_interval = 64
       end
 
       def start
@@ -40,8 +45,15 @@ module EventSourcery
         if @stop_on_failure
           Process.exit(false)
         else
-          sleep(1)
+          sleep(@retry_interval)
+          update_retry_interval
           retry
+        end
+      end
+
+      def update_retry_interval
+        if @retry_strategy == :exponential && @retry_interval < @max_retry_interval
+          @retry_interval *=2
         end
       end
 

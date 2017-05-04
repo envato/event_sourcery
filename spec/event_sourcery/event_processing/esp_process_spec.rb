@@ -5,7 +5,8 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
       event_store: event_store,
       on_event_processor_error: on_event_processor_error,
       stop_on_failure: stop_on_failure,
-      subscription_master: subscription_master
+      subscription_master: subscription_master,
+      retry_strategy: retry_strategy
     )
   end
   let(:esp) { spy(:esp, processor_name: processor_name) }
@@ -14,6 +15,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
   let(:stop_on_failure) { false }
   let(:on_event_processor_error) { spy }
   let(:subscription_master) { spy(EventSourcery::EventStore::SignalHandlingSubscriptionMaster) }
+  let(:retry_strategy) { :constant }
 
   describe 'start' do
     subject(:start) { esp_process.start }
@@ -71,6 +73,16 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
         it 'logs the errors' do
           start
           expect(logger).to have_received(:error).twice
+        end
+
+        context 'and retry strategy is exponential' do
+          let(:retry_strategy) { :exponential }
+
+          it 'delays before restarting the subscription' do
+            start
+            expect(esp_process).to have_received(:sleep).with(1).once
+            expect(esp_process).to have_received(:sleep).with(2).once
+          end
         end
       end
 

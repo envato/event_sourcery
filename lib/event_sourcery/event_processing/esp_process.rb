@@ -45,6 +45,7 @@ module EventSourcery
           update_retry_interval(error) if @retry_strategy == :exponential
           report_error(error.original_error)
         else
+          @retry_interval = 1
           report_error(error)
         end
 

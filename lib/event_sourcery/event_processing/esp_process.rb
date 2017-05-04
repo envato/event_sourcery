@@ -40,21 +40,28 @@ module EventSourcery
 
       def with_error_handling
         yield
-        @retry_interval = 1
       rescue => error
-        report_error(error)
+        if error.instance_of?(EventSourcery::EventProcessingError)
+          update_retry_interval(error) if @retry_strategy == :exponential
+          report_error(error.original_error)
+        else
+          report_error(error)
+        end
+
         if @stop_on_failure
           Process.exit(false)
         else
           sleep(@retry_interval)
-          update_retry_interval
           retry
         end
       end
 
-      def update_retry_interval
-        if @retry_strategy == :exponential && @retry_interval < @max_retry_interval
+      def update_retry_interval(error)
+        if @error_event_uuid == error.event.uuid && @retry_interval < @max_retry_interval
           @retry_interval *=2
+        else
+          @error_event_uuid = error.event.uuid
+          @retry_interval = 1
         end
       end
 

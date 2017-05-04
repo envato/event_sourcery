@@ -26,8 +26,8 @@ module DBHelpers
   end
 
   def reset_sequences
-    %w[ events events_without_optimistic_locking ].each do |table|
-      pg_connection.execute("alter sequence #{table}_id_seq restart with 1")
+    pg_connection.fetch("SELECT relname FROM pg_class WHERE relkind = 'S'").map { |row| row[:relname] }.each do |rel_name|
+      pg_connection.execute("alter sequence #{rel_name} restart with 1")
     end
   end
 

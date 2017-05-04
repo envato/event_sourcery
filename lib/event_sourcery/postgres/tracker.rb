@@ -67,6 +67,8 @@ module EventSourcery
       end
 
       def set_last_actioned_event_id(processor_name, value)
+        from = table.where(name: processor_name.to_s).first[:last_actioned_event_id]
+        EventSourcery.logger.debug "[#{processor_name}] Updating last_actioned_event_id from #{from} to #{value}."
         table.where(name: processor_name.to_s).update(last_actioned_event_id: value)
       end
 

@@ -342,6 +342,9 @@ RSpec.describe EventSourcery::Postgres::Reactor do
             # Add another event that will be reacted to
             event_store.sink event_3
 
+            allow(EventSourcery.logger).to receive(:debug)
+            expect(EventSourcery.logger).to receive(:debug).with '[test_processor] Updating last_actioned_event_id from 0 to 1.'
+
             # Delete the projector_tracker data
             pg_connection[:projector_tracker].where(name: 'test_processor').delete
 

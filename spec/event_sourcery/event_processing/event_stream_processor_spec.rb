@@ -239,6 +239,26 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
           expect(event_processor.added_and_removed_events).to eq [item_added_event, item_removed_event]
         end
       end
+
+      context 'processing events and raise error' do
+        let(:event_processor) {
+          new_esp do
+            process ItemAdded do |event|
+              raise 'Something is wrong'
+            end
+          end
+        }
+
+        it 'wraps raised exception with EventProcessingError' do
+          expect {
+            event_processor.process(item_added_event)
+          }.to raise_error { |error|
+            expect(error).to be_a(EventSourcery::EventProcessingError)
+            expect(error.event).to eq item_added_event
+            expect(error.original_error.message).to eq 'Something is wrong'
+          }
+        end
+      end
     end
   end
 end

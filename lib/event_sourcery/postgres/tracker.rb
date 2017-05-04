@@ -6,7 +6,7 @@ module EventSourcery
       def initialize(connection, table_name: DEFAULT_TABLE_NAME, events_table_name: EventSourcery.config.events_table_name, obtain_processor_lock: true)
         @connection = connection
         @table_name = DEFAULT_TABLE_NAME
-        @events_table_name = events_table_name
+        @events_table_name = events_table_name.to_s
         @obtain_processor_lock = obtain_processor_lock
       end
 
@@ -96,6 +96,8 @@ module EventSourcery
 
       private
 
+      attr_reader :events_table_name
+
       def obtain_global_lock_on_processor(processor_name)
         lock_obtained = @connection.fetch("select pg_try_advisory_lock(#{@track_entry_id})").to_a.first[:pg_try_advisory_lock]
         if lock_obtained == false
@@ -125,10 +127,6 @@ module EventSourcery
 
       def tracker_table_exists?
         @connection.table_exists?(@table_name)
-      end
-
-      def events_table_name
-        @events_table_name.to_s
       end
     end
   end

@@ -40,6 +40,7 @@ module EventSourcery
 
       def with_error_handling
         yield
+        @retry_interval = 1
       rescue => error
         report_error(error)
         if @stop_on_failure

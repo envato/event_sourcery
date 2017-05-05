@@ -6,7 +6,6 @@ module EventSourcery
                   :event_tracker,
                   :on_unknown_event,
                   :on_event_processor_error,
-                  :use_optimistic_concurrency,
                   :lock_table_to_guarantee_linear_sequence_id_growth,
                   :write_events_function_name,
                   :events_table_name,
@@ -30,7 +29,6 @@ module EventSourcery
       @on_event_processor_error = proc { |exception, processor_name|
         # app specific custom logic ie. report to rollbar
       }
-      @use_optimistic_concurrency = true
       @lock_table_to_guarantee_linear_sequence_id_growth = true
       @write_events_function_name = 'writeEvents'
       @events_table_name = :events
@@ -44,11 +42,7 @@ module EventSourcery
 
     def event_store
       if @event_store_database
-        if use_optimistic_concurrency
-          Postgres::EventStoreWithOptimisticConcurrency.new(@event_store_database)
-        else
-          Postgres::EventStore.new(@event_store_database)
-        end
+        Postgres::EventStore.new(@event_store_database)
       else
         @event_store
       end

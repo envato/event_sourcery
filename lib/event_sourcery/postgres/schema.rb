@@ -3,15 +3,13 @@ module EventSourcery
     module Schema
       extend self
 
-      def create_event_store(db: EventSourcery.config.event_store_database, events_table_name: EventSourcery.config.events_table_name, aggregates_table_name: EventSourcery.config.aggregates_table_name, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency, write_events_function_name: EventSourcery.config.write_events_function_name)
-        create_events(db: db, table_name: events_table_name, use_optimistic_concurrency: use_optimistic_concurrency)
-        if use_optimistic_concurrency
-          create_aggregates(db: db, table_name: aggregates_table_name)
-          create_or_update_functions(db: db, events_table_name: events_table_name, function_name: write_events_function_name, aggregates_table_name: aggregates_table_name)
-        end
+      def create_event_store(db: EventSourcery.config.event_store_database, events_table_name: EventSourcery.config.events_table_name, aggregates_table_name: EventSourcery.config.aggregates_table_name, write_events_function_name: EventSourcery.config.write_events_function_name)
+        create_events(db: db, table_name: events_table_name)
+        create_aggregates(db: db, table_name: aggregates_table_name)
+        create_or_update_functions(db: db, events_table_name: events_table_name, function_name: write_events_function_name, aggregates_table_name: aggregates_table_name)
       end
 
-      def create_events(db: EventSourcery.config.event_store_database, table_name: EventSourcery.config.events_table_name, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency)
+      def create_events(db: EventSourcery.config.event_store_database, table_name: EventSourcery.config.events_table_name)
         db.run 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'
         db.create_table(table_name) do
           primary_key :id, type: :Bignum
@@ -19,13 +17,9 @@ module EventSourcery
           column :aggregate_id, 'uuid not null'
           column :type, 'varchar(255) not null'
           column :body, 'json not null'
-          column :version, 'bigint not null' if use_optimistic_concurrency
+          column :version, 'bigint not null'
           column :created_at, 'timestamp without time zone not null default (now() at time zone \'utc\')'
-          if use_optimistic_concurrency
-            index [:aggregate_id, :version], unique: true
-          else
-            index :aggregate_id
-          end
+          index [:aggregate_id, :version], unique: true
           index :uuid, unique: true
           index :type
           index :created_at

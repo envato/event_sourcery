@@ -20,7 +20,7 @@ module EventSourcery
       end
     end
 
-    def initialize(id, event_sink, on_unknown_event: EventSourcery.config.on_unknown_event, use_optimistic_concurrency: EventSourcery.config.use_optimistic_concurrency)
+    def initialize(id, event_sink, on_unknown_event: EventSourcery.config.on_unknown_event, use_optimistic_concurrency: true)
       @id = id
       @event_sink = event_sink
       @current_version = 0

@@ -104,7 +104,7 @@ end
 def create_events_schema(db)
   db.execute 'drop table if exists events'
   db.execute 'drop table if exists aggregates'
-  EventSourcery::Postgres::Schema.create_event_store(db: db, use_optimistic_concurrency: true)
+  EventSourcery::Postgres::Schema.create_event_store(db: db)
 end
 
 db = connect
@@ -120,7 +120,7 @@ NUM_WRITER_PROCESSES.times do
     db = connect
     # when lock_table is set to true an advisory lock is used to synchronise
     # inserts and no gaps are detected
-    event_store = EventSourcery::Postgres::EventStoreWithOptimisticConcurrency.new(db, lock_table: false)
+    event_store = EventSourcery::Postgres::EventStore.new(db, lock_table: false)
     puts "#{Process.pid}: starting to write events"
     until stop
       event_store.sink(new_event)

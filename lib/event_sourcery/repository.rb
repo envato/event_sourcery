@@ -15,10 +15,11 @@ module EventSourcery
     end
 
     def save(aggregate)
-      events = aggregate.changes
-      if events.any?
-        event_sink.sink(events, expected_version: aggregate.version)
+      new_events = aggregate.changes
+      if new_events.any?
+        event_sink.sink(new_events, expected_version: aggregate.version - new_events.count)
       end
+      aggregate.clear_changes!
     end
 
     private

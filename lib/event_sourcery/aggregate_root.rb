@@ -30,12 +30,15 @@ module EventSourcery
 
     attr_reader :changes, :version
 
+    def clear_changes!
+      @changes.clear
+    end
+
     private
 
     def load_history(events)
       events.each do |event|
         mutate_state_from(event)
-        @version = event.version
       end
     end
 
@@ -56,6 +59,11 @@ module EventSourcery
       else
         @on_unknown_event.call(event, self)
       end
+      increment_version
+    end
+
+    def increment_version
+      @version += 1
     end
   end
 end

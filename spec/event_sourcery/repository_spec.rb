@@ -30,7 +30,7 @@ RSpec.describe EventSourcery::Repository do
 
   describe '#save' do
     let(:version) { 20 }
-    let(:aggregate) { double(EventSourcery::AggregateRoot, changes: changes, id: aggregate_id, version: version) }
+    let(:aggregate) { double(EventSourcery::AggregateRoot, changes: changes, id: aggregate_id, version: version, clear_changes!: nil) }
     let(:event_sink) { double(EventSourcery::EventStore::EventSink, sink: nil) }
     let(:event_source) { double(EventSourcery::EventStore::EventSink, get_events_for_aggregate_id: nil) }
     subject(:repository) { EventSourcery::Repository.new(event_source: event_source, event_sink: event_sink) }
@@ -47,9 +47,9 @@ RSpec.describe EventSourcery::Repository do
     context 'with one change' do
       let(:changes) { [ItemAdded.new(body: { title: 'Space Jam' })] }
 
-      it 'saves the new events with the expected version set to the aggregate version' do
+      it 'saves the new events with the expected version set to the aggregate version minus the number of new events' do
         repository.save(aggregate)
-        expect(event_sink).to have_received(:sink).with(changes, expected_version: version)
+        expect(event_sink).to have_received(:sink).with(changes, expected_version: version - changes.count)
       end
     end
 
@@ -58,7 +58,7 @@ RSpec.describe EventSourcery::Repository do
 
       it 'saves the new events with the expected version set to the aggregate version' do
         repository.save(aggregate)
-        expect(event_sink).to have_received(:sink).with(changes, expected_version: version)
+        expect(event_sink).to have_received(:sink).with(changes, expected_version: version - changes.count)
       end
     end
   end

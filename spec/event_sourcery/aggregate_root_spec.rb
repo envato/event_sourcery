@@ -118,12 +118,12 @@ RSpec.describe EventSourcery::AggregateRoot do
 
     context 'when changes are cleared' do
       it 'has no changes' do
-        aggregate.clear_changes!
+        aggregate.clear_changes
         expect(aggregate.changes).to eq []
       end
 
       it "maintains it's version" do
-        aggregate.clear_changes!
+        aggregate.clear_changes
         expect(aggregate.version).to eq 1
       end
     end

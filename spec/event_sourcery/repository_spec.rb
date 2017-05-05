@@ -30,7 +30,7 @@ RSpec.describe EventSourcery::Repository do
 
   describe '#save' do
     let(:version) { 20 }
-    let(:aggregate) { double(EventSourcery::AggregateRoot, changes: changes, id: aggregate_id, version: version, clear_changes!: nil) }
+    let(:aggregate) { double(EventSourcery::AggregateRoot, changes: changes, id: aggregate_id, version: version, clear_changes: nil) }
     let(:event_sink) { double(EventSourcery::EventStore::EventSink, sink: nil) }
     let(:event_source) { double(EventSourcery::EventStore::EventSink, get_events_for_aggregate_id: nil) }
     subject(:repository) { EventSourcery::Repository.new(event_source: event_source, event_sink: event_sink) }

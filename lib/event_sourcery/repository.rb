@@ -19,7 +19,7 @@ module EventSourcery
       if new_events.any?
         event_sink.sink(new_events, expected_version: aggregate.version - new_events.count)
       end
-      aggregate.clear_changes!
+      aggregate.clear_changes
     end
 
     private

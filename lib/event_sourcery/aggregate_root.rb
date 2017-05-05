@@ -30,7 +30,7 @@ module EventSourcery
 
     attr_reader :changes, :version
 
-    def clear_changes!
+    def clear_changes
       @changes.clear
     end
 

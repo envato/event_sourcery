@@ -1,8 +1,8 @@
 RSpec.describe EventSourcery::Postgres::Tracker do
-  subject(:postgres_tracker) { described_class.new(connection) }
+  subject(:postgres_tracker) { described_class.new(pg_connection) }
   let(:table_name) { described_class::DEFAULT_TABLE_NAME }
   let(:processor_name) { 'blah' }
-  let(:table) { connection[table_name] }
+  let(:table) { pg_connection[table_name] }
   let(:track_entry) { table.where(name: processor_name).first }
 
   after do
@@ -14,19 +14,19 @@ RSpec.describe EventSourcery::Postgres::Tracker do
   end
 
   def setup_table
-    connection.execute "drop table if exists #{table_name}"
+    pg_connection.execute "drop table if exists #{table_name}"
     postgres_tracker.setup(processor_name)
   end
 
   describe '#setup' do
     before do
-      connection.execute "drop table if exists #{table_name}"
+      pg_connection.execute "drop table if exists #{table_name}"
     end
 
     context 'auto create projector tracker enabled' do
       it 'creates the table' do
         postgres_tracker.setup(processor_name)
-        expect(connection.table_exists?(table_name)).to be_truthy
+        expect(pg_connection.table_exists?(table_name)).to be_truthy
       end
 
       it "creates an entry for the projector if it doesn't exist" do
@@ -135,7 +135,7 @@ RSpec.describe EventSourcery::Postgres::Tracker do
 
   describe '#tracked_processors' do
     before do
-      connection.execute "drop table if exists #{table_name}"
+      pg_connection.execute "drop table if exists #{table_name}"
       postgres_tracker.setup
     end
 

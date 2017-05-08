@@ -1,13 +1,10 @@
+require 'database_cleaner'
+
 module DBHelpers
   extend self
 
   def pg_connection
     $connection ||= new_connection
-  end
-
-  # TODO: switch references to connection to use pg_connection instead
-  def connection
-    @connection ||= pg_connection
   end
 
   module_function def new_connection
@@ -28,12 +25,15 @@ module DBHelpers
     end
   end
 
-  def reset_database
-    connection.execute('truncate table aggregates')
-    %w[ events events_without_optimistic_locking ].each do |table|
-      connection.execute('truncate table events')
-      connection.execute('alter sequence events_id_seq restart with 1')
+  def reset_sequences
+    pg_connection.fetch("SELECT relname FROM pg_class WHERE relkind = 'S'").map { |row| row[:relname] }.each do |rel_name|
+      pg_connection.execute("alter sequence #{rel_name} restart with 1")
     end
+  end
+
+  def configure_database_cleaner
+    DatabaseCleaner[:sequel, connection: pg_connection]
+    DatabaseCleaner.strategy = :truncation
   end
 
   def recreate_database
@@ -53,6 +53,14 @@ end
 
 RSpec.configure do |config|
   config.include(DBHelpers)
-  config.before(:suite) { DBHelpers.recreate_database }
-  config.before(:example) { DBHelpers.reset_database }
+
+  config.before :suite do
+    DBHelpers.recreate_database
+    DBHelpers.configure_database_cleaner
+  end
+
+  config.before :each do
+    DBHelpers.reset_sequences
+    DatabaseCleaner.clean
+  end
 end

@@ -3,9 +3,10 @@ module EventSourcery
     class Tracker
       DEFAULT_TABLE_NAME = :projector_tracker
 
-      def initialize(connection, table_name: DEFAULT_TABLE_NAME, obtain_processor_lock: true)
+      def initialize(connection, table_name: DEFAULT_TABLE_NAME, events_table_name: EventSourcery.config.events_table_name, obtain_processor_lock: true)
         @connection = connection
         @table_name = DEFAULT_TABLE_NAME
+        @events_table_name = events_table_name.to_s
         @obtain_processor_lock = obtain_processor_lock
       end
 
@@ -19,6 +20,13 @@ module EventSourcery
         if processor_name
           create_track_entry_if_not_exists(processor_name)
           if @obtain_processor_lock
+            if last_actioned_event_id(processor_name).zero?
+              value = find_last_actioned_event_id(processor_name)
+              if value
+                set_last_actioned_event_id(processor_name, value)
+              end
+            end
+
             obtain_global_lock_on_processor(processor_name)
           end
         end
@@ -28,6 +36,13 @@ module EventSourcery
         table.
           where(name: processor_name.to_s).
                 update(last_processed_event_id: event_id)
+        true
+      end
+
+      def actioned_event(processor_name, event_id)
+        table.
+          where(name: processor_name.to_s).
+                update(last_actioned_event_id: event_id)
         true
       end
 
@@ -46,7 +61,39 @@ module EventSourcery
         track_entry = table.where(name: processor_name.to_s).first
         if track_entry
           track_entry[:last_processed_event_id]
+        else
+          0
         end
+      end
+
+      def set_last_actioned_event_id(processor_name, value)
+        from = table.where(name: processor_name.to_s).first[:last_actioned_event_id]
+        EventSourcery.logger.debug "[#{processor_name}] Updating last_actioned_event_id from #{from} to #{value}."
+        table.where(name: processor_name.to_s).update(last_actioned_event_id: value)
+      end
+
+      def last_actioned_event_id(processor_name)
+        track_entry = table.where(name: processor_name.to_s).first
+        if track_entry
+          track_entry[:last_actioned_event_id]
+        else
+          0
+        end
+      end
+
+      def find_last_actioned_event_id(processor_name)
+        query = <<-EOF
+          SELECT metadata->'causation_id' AS causation_id
+          FROM :table
+          WHERE metadata->'causation_id' IS NOT NULL
+          AND metadata->>'reactor_name' = :reactor_name
+          ORDER BY metadata->'causation_id' DESC LIMIT 1;
+        EOF
+        dataset = @connection.fetch(query,
+          table: Sequel.lit(events_table_name),
+          reactor_name: processor_name.to_s,
+        ).first
+        dataset && dataset[:causation_id]
       end
 
       def tracked_processors
@@ -54,6 +101,8 @@ module EventSourcery
       end
 
       private
+
+      attr_reader :events_table_name
 
       def obtain_global_lock_on_processor(processor_name)
         lock_obtained = @connection.fetch("select pg_try_advisory_lock(#{@track_entry_id})").to_a.first[:pg_try_advisory_lock]

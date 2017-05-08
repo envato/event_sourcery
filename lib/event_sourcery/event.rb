@@ -8,13 +8,14 @@ module EventSourcery
       end
     end
 
-    attr_reader :id, :uuid, :aggregate_id, :type, :body, :version, :created_at
+    attr_reader :id, :uuid, :aggregate_id, :type, :body, :metadata, :version, :created_at
 
     def initialize(id: nil,
                    uuid: SecureRandom.uuid,
                    aggregate_id: nil,
                    type: nil,
                    body: nil,
+                   metadata: nil,
                    version: nil,
                    created_at: nil)
       @id = id
@@ -22,6 +23,7 @@ module EventSourcery
       @aggregate_id = aggregate_id
       @type = self.class.type || type.to_s
       @body = body ? EventSourcery::EventBodySerializer.serialize(body) : {}
+      @metadata = metadata ? EventSourcery::EventBodySerializer.serialize(metadata) : {}
       @version = version ? Integer(version) : nil
       @created_at = created_at
     end

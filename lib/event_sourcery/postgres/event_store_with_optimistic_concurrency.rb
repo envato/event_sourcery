@@ -30,6 +30,7 @@ module EventSourcery
       def write_events_sql(aggregate_id, events, expected_version)
         bodies = sql_literal_array(events, 'json', &:body)
         types = sql_literal_array(events, 'varchar', &:type)
+        # TODO: add metadatas
         created_ats = sql_literal_array(events, 'timestamp without time zone', &:created_at)
         event_uuids = sql_literal_array(events, 'uuid', &:uuid)
         <<-SQL

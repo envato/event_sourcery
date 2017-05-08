@@ -53,6 +53,8 @@ module EventSourcery
       end
 
       DRIVEN_BY_EVENT_PAYLOAD_KEY = :_driven_by_event_id
+      CAUSATION_ID_METADATA_KEY = :causation_id
+      REACTOR_NAME_METADATA_KEY = :reactor_name
 
       private
 
@@ -66,13 +68,30 @@ module EventSourcery
         end
         raise UndeclaredEventEmissionError unless self.class.emits_event?(event.type)
         event.body.merge!(DRIVEN_BY_EVENT_PAYLOAD_KEY => _event.id)
-        invoke_action_and_emit_event(event, block)
-        EventSourcery.logger.debug { "[#{self.processor_name}] Emitted event: #{event.inspect}" }
+        event.metadata.merge!(
+          CAUSATION_ID_METADATA_KEY => _event.id,
+          REACTOR_NAME_METADATA_KEY => self.processor_name,
+        )
+        if already_actioned?
+          EventSourcery.logger.debug { "[#{self.processor_name}] Already actioned event: #{event.inspect}. Skipping." }
+        else
+          invoke_action_and_emit_event(event, block)
+          tracker.actioned_event(processor_name, _event.id)
+          EventSourcery.logger.debug { "[#{self.processor_name}] Emitted event: #{event.inspect}" }
+        end
+      end
+
+      def already_actioned?
+        last_processed_event_id < last_actioned_event_id
       end
 
       def invoke_action_and_emit_event(event, action)
         action.call(event.body) if action
         event_sink.sink(event)
+      end
+
+      def last_actioned_event_id
+        tracker.last_actioned_event_id(processor_name)
       end
     end
   end

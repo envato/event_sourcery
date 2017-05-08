@@ -19,6 +19,7 @@ module EventSourcery
           column :aggregate_id, 'uuid not null'
           column :type, 'varchar(255) not null'
           column :body, 'json not null'
+          column :metadata, 'jsonb'
           column :version, 'bigint not null' if use_optimistic_concurrency
           column :created_at, 'timestamp without time zone not null default (now() at time zone \'utc\')'
           if use_optimistic_concurrency
@@ -120,6 +121,7 @@ SQL
           primary_key :id, type: :Bignum
           column :name, 'varchar(255) not null'
           column :last_processed_event_id, 'bigint not null default 0'
+          column :last_actioned_event_id, 'bigint not null default 0'
           index :name, unique: true
         end
       end

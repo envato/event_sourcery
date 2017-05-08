@@ -24,8 +24,8 @@ RSpec.describe EventSourcery::Postgres::Reactor do
     end
   }
 
-  let(:tracker) { EventSourcery::EventProcessing::EventTrackers::Memory.new }
-  let(:reactor_name) { 'my_reactor' }
+  let(:tracker) { EventSourcery::Postgres::Tracker.new(pg_connection) }
+  # TODO: Should we be using pg event store here?
   let(:event_store) { EventSourcery::EventStore::Memory.new(events) }
   let(:event_source) { EventSourcery::EventStore::EventSource.new(event_store) }
 
@@ -33,6 +33,7 @@ RSpec.describe EventSourcery::Postgres::Reactor do
   let(:aggregate_id) { SecureRandom.uuid }
   let(:events) { [] }
   subject(:reactor) { reactor_class.new(tracker: tracker, event_source: event_source, event_sink: event_sink) }
+  let(:driven_by_event_payload_key) { EventSourcery::Postgres::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY }
 
   describe '.new' do
     let(:event_source) { double }
@@ -152,11 +153,11 @@ RSpec.describe EventSourcery::Postgres::Reactor do
 
     context 'with a reactor that emits events' do
       let(:event_1) { EventSourcery::Event.new(id: 1, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
-      let(:event_2) { EventSourcery::Event.new(id: 2, type: 'echo_event', aggregate_id: aggregate_id, body: event_1.body.merge(EventSourcery::Postgres::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 1)) }
+      let(:event_2) { EventSourcery::Event.new(id: 2, type: 'echo_event', aggregate_id: aggregate_id, body: event_1.body.merge(driven_by_event_payload_key => 1)) }
       let(:event_3) { EventSourcery::Event.new(id: 3, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
       let(:event_4) { EventSourcery::Event.new(id: 4, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
       let(:event_5) { EventSourcery::Event.new(id: 5, type: 'terms_accepted', aggregate_id: aggregate_id, body: { time: Time.now }) }
-      let(:event_6) { EventSourcery::Event.new(id: 6, type: 'echo_event', aggregate_id: aggregate_id, body: event_3.body.merge(EventSourcery::Postgres::Reactor::DRIVEN_BY_EVENT_PAYLOAD_KEY => 3)) }
+      let(:event_6) { EventSourcery::Event.new(id: 6, type: 'echo_event', aggregate_id: aggregate_id, body: event_3.body.merge(driven_by_event_payload_key => 3)) }
       let(:events) { [event_1, event_2, event_3, event_4] }
       let(:action_stub_class) {
         Class.new do
@@ -268,6 +269,115 @@ RSpec.describe EventSourcery::Postgres::Reactor do
         it 'stores the driven by event id in the body' do
           reactor.process(event_1)
           expect(latest_events(1).first.body["_driven_by_event_id"]).to eq event_1.id
+        end
+      end
+
+      describe 'already actioned' do
+        let(:event_1) { ItemAdded.new(id: 1, aggregate_id: '00000000-0000-0000-0000-000000000001', version: 1) }
+        let(:event_3) { ItemAdded.new(id: 3, aggregate_id: '00000000-0000-0000-0000-000000000002', version: 2) }
+
+        let(:events_table_name) { :events_without_optimistic_locking }
+        let(:event_store) { EventSourcery::Postgres::EventStore.new(pg_connection, events_table_name: events_table_name) }
+        let(:tracker) { EventSourcery::Postgres::Tracker.new(pg_connection, events_table_name: events_table_name) }
+        let(:causation_id_metadata_key) { EventSourcery::Postgres::Reactor::CAUSATION_ID_METADATA_KEY }
+        let(:reactor_name_metadata_key) { EventSourcery::Postgres::Reactor::REACTOR_NAME_METADATA_KEY }
+
+        let(:reactor_class) {
+          Class.new do
+            include EventSourcery::Postgres::Reactor
+
+            processor_name :test_processor
+            processes_events ItemAdded
+            emits_events ItemRemoved.type
+
+            process ItemAdded do |event|
+              emit_event ItemRemoved.new(aggregate_id: event.aggregate_id)
+            end
+          end
+        }
+
+        it 'does not re-emit previously actioned events' do
+          # Add first event that will be reacted to
+          event_store.sink event_1
+
+          # Run through all events
+          catch_up_esp(reactor)
+
+          expect(events).to eq [
+            [1, {}, {}],
+            [2, {driven_by_event_payload_key.to_s => 1}, {causation_id_metadata_key.to_s => 1, reactor_name_metadata_key.to_s => 'test_processor'}],
+          ]
+
+          # Add another event that will be reacted to
+          event_store.sink event_3
+
+          # Set the last_processed_event_id back to 0
+          # The last_actioned_event_id will still be 1
+          reactor.reset
+
+          # Re-run through all events
+          catch_up_esp(reactor)
+
+          expect(events).to eq [
+            [1, {}, {}],
+            [2, {driven_by_event_payload_key.to_s => 1}, {causation_id_metadata_key.to_s => 1, reactor_name_metadata_key.to_s => 'test_processor'}],
+            [3, {}, {}],
+            [4, {driven_by_event_payload_key.to_s => 3}, {causation_id_metadata_key.to_s => 3, reactor_name_metadata_key.to_s => 'test_processor'}],
+          ]
+        end
+
+        context 'when the last_actioned_event_id is not found' do
+          it 'does not re-emit previously actioned events' do
+            # Add first event that will be reacted to
+            event_store.sink event_1
+
+            # Run through all events
+            catch_up_esp(reactor)
+
+            expect(events).to eq [
+              [1, {}, {}],
+              [2, {driven_by_event_payload_key.to_s => 1}, {causation_id_metadata_key.to_s => 1, reactor_name_metadata_key.to_s => 'test_processor'}],
+            ]
+
+            # Add another event that will be reacted to
+            event_store.sink event_3
+
+            allow(EventSourcery.logger).to receive(:debug)
+            expect(EventSourcery.logger).to receive(:debug).with '[test_processor] Updating last_actioned_event_id from 0 to 1.'
+
+            # Delete the projector_tracker data
+            pg_connection[:projector_tracker].where(name: 'test_processor').delete
+
+            # Re-run through all events
+            catch_up_esp(reactor)
+
+            expect(events).to eq [
+              [1, {}, {}],
+              [2, {driven_by_event_payload_key.to_s => 1}, {causation_id_metadata_key.to_s => 1, reactor_name_metadata_key.to_s => 'test_processor'}],
+              [3, {}, {}],
+              [4, {driven_by_event_payload_key.to_s => 3}, {causation_id_metadata_key.to_s => 3, reactor_name_metadata_key.to_s => 'test_processor'}],
+            ]
+          end
+        end
+
+        def events
+          latest_events(0).map do |event|
+            [
+              event.id,
+              event.body.to_h,
+              event.metadata.to_h,
+            ]
+          end
+        end
+
+        def catch_up_esp(esp)
+          latest_event_id = event_store.latest_event_id
+          events = []
+          esp.setup
+          event_store.each_by_range(esp.last_processed_event_id + 1, latest_event_id) do |event|
+            events << event
+          end
+          esp.send(:process_events, events, EventSourcery::EventStore::SignalHandlingSubscriptionMaster.new) if events.any?
         end
       end
 

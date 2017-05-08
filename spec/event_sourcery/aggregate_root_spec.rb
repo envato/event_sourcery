@@ -87,6 +87,12 @@ RSpec.describe EventSourcery::AggregateRoot do
   context 'when state changes' do
     let(:events) { [] }
 
+    def changes(aggregate)
+      new_events = []
+      aggregate.process_new_events { |events| new_events = events.dup }
+      new_events
+    end
+
     subject(:aggregate) {
       new_aggregate(aggregate_uuid) do
         def add_item(item)
@@ -110,20 +116,20 @@ RSpec.describe EventSourcery::AggregateRoot do
     end
 
     it 'exposes the new event in changes' do
-      emitted_event = aggregate.changes.first
+      emitted_event = changes(aggregate).first
       expect(emitted_event.type).to eq 'item_added'
       expect(emitted_event.body).to eq('id' => 1234)
       expect(emitted_event.aggregate_id).to eq aggregate_uuid
     end
 
-    context 'when changes are cleared' do
+    context 'when changes are processed' do
+      before { aggregate.process_new_events { |new_events| } }
+
       it 'has no changes' do
-        aggregate.clear_changes
-        expect(aggregate.changes).to eq []
+        expect(changes(aggregate)).to eq []
       end
 
       it "maintains it's version" do
-        aggregate.clear_changes
         expect(aggregate.version).to eq 1
       end
     end
@@ -135,7 +141,7 @@ RSpec.describe EventSourcery::AggregateRoot do
       end
 
       it 'exposes the events in order' do
-        emitted_versions = aggregate.changes.map { |e| e.body['id'] }
+        emitted_versions = changes(aggregate).map { |e| e.body['id'] }
         expect(emitted_versions).to eq([1234, 1235, 1236])
       end
 

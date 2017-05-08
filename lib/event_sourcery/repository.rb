@@ -15,11 +15,9 @@ module EventSourcery
     end
 
     def save(aggregate)
-      new_events = aggregate.changes
-      if new_events.any?
+      aggregate.process_new_events do |new_events|
         event_sink.sink(new_events, expected_version: aggregate.version - new_events.count)
       end
-      aggregate.clear_changes
     end
 
     private

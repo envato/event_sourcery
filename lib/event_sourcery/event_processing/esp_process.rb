@@ -3,85 +3,44 @@ module EventSourcery
     class ESPProcess
       def initialize(event_processor:,
                      event_store:,
-                     on_event_processor_error: EventSourcery.config.on_event_processor_error,
-                     stop_on_failure:,
-                     subscription_master: EventStore::SignalHandlingSubscriptionMaster.new,
-                     retry_strategy: EventSourcery.config.retry_strategy
+                     subscription_master: EventStore::SignalHandlingSubscriptionMaster.new
                     )
         @event_processor = event_processor
         @event_store = event_store
-        @on_event_processor_error = on_event_processor_error
-        @stop_on_failure = stop_on_failure
         @subscription_master = subscription_master
-        @retry_strategy = retry_strategy
-        @retry_interval = 1
-        @max_retry_interval = 64
       end
 
       def start
-        with_error_handling do
-          with_logging do
-            name_process
-            subscribe_to_event_stream
-          end
+        name_process
+        begin
+          EventSourcery.logger.info("Starting #{processor_name}")
+          subscribe_to_event_stream
+        rescue => error
+          error_handler.handle(error)
+          retry if error_handler.retry?
+        ensure
+          EventSourcery.logger.info("Stopping #{processor_name}")
+          Process.exit(false)
         end
       end
 
       private
 
+      def processor_name
+        @event_processor.processor_name
+      end
+
+      def error_handler
+        @error_handler ||= ESPProcessErrorHandler.new(processor_name: processor_name)
+      end
+
       def name_process
-        Process.setproctitle(@event_processor.class.name)
+        Process.setproctitle(processor_name)
       end
 
       def subscribe_to_event_stream
         @event_processor.subscribe_to(@event_store,
                                       subscription_master: @subscription_master)
-      end
-
-      def with_error_handling
-        yield
-      rescue => error
-        if error.instance_of?(EventSourcery::EventProcessingError)
-          update_retry_interval(error) if @retry_strategy == :exponential
-          report_error(error.original_error)
-        else
-          @retry_interval = 1
-          report_error(error)
-        end
-
-        if @stop_on_failure
-          Process.exit(false)
-        else
-          sleep(@retry_interval)
-          retry
-        end
-      end
-
-      def update_retry_interval(error)
-        if @error_event_uuid == error.event.uuid && @retry_interval < @max_retry_interval
-          @retry_interval *=2
-        else
-          @error_event_uuid = error.event.uuid
-          @retry_interval = 1
-        end
-      end
-
-      def report_error(error)
-        EventSourcery.logger.error do
-          "Processor #{@event_processor.processor_name} died with #{error}.\n"\
-          "#{error.backtrace.join("\n")}"
-        end
-        @on_event_processor_error.call(error, @event_processor.processor_name)
-      end
-
-      def with_logging
-        EventSourcery.logger.info do
-          "Starting #{@event_processor.processor_name}"
-        end
-        yield
-        EventSourcery.logger.info do
-          "Stopping #{@event_processor.processor_name}"
-        end
       end
     end
   end

@@ -25,7 +25,6 @@ module EventSourcery
 
           sleep(@retry_interval)
         end
-
       end
 
       def retry?

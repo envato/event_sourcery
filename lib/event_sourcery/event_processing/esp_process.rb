@@ -17,10 +17,13 @@ module EventSourcery
           subscribe_to_event_stream
         rescue => error
           error_handler.handle(error)
-          retry if error_handler.retry?
+          if error_handler.retry?
+            retry
+          else
+            Process.exit(false)
+          end
         ensure
           EventSourcery.logger.info("Stopping #{processor_name}")
-          Process.exit(false)
         end
       end
 

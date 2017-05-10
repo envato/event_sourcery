@@ -24,7 +24,7 @@ end
 def create_events_schema(pg_connection)
   pg_connection.execute 'drop table if exists events'
   pg_connection.execute 'drop table if exists aggregates'
-  EventSourcery::EventStore::Postgres::Schema.create(db: pg_connection, use_optimistic_concurrency: true)
+  EventSourcery::Postgres::Schema.create_event_store(db: pg_connection)
 end
 
 event_store = EventSourcery.config.event_store
@@ -55,7 +55,7 @@ puts "Took #{time} to create events"
 
 seen_events_count = 0
 time = Benchmark.realtime do
-  event_store.subscribe(from_id: 0) do |events|
+  event_store.subscribe(from_id: 0, subscription_master: EventSourcery::EventStore::SignalHandlingSubscriptionMaster.new) do |events|
     seen_events_count += events.count
     throw :stop if seen_events_count >= NUM_EVENTS
   end

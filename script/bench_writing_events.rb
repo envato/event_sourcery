@@ -2,14 +2,10 @@
 #
 # ❯ bundle exec ruby script/bench_writing_events.rb
 # Warming up --------------------------------------
-# without_optimistic_concurrency
-#                         60.000  i/100ms
-# with_optimistic_concurrency
+# event_store.sink
 #                         70.000  i/100ms
 # Calculating -------------------------------------
-# without_optimistic_concurrency
-#                         491.453  (±18.5%) i/s -      2.400k in   5.081030s
-# with_optimistic_concurrency
+# event_store.sink
 #                         522.007  (±10.9%) i/s -      2.590k in   5.021909s
 #
 # ^ results from running on a 2016 MacBook
@@ -29,22 +25,14 @@ EventSourcery.configure do |config|
   config.logger.level = :fatal
 end
 
-def create_old_events_schema(pg_connection)
-  pg_connection.execute 'drop table if exists events_2'
-  EventSourcery::EventStore::Postgres::Schema.create(db: pg_connection, use_optimistic_concurrency: false, events_table_name: 'events_2')
-end
-
-def create_new_events_schema(pg_connection)
+def create_schema(pg_connection)
   pg_connection.execute 'drop table if exists events'
   pg_connection.execute 'drop table if exists aggregates'
-  EventSourcery::EventStore::Postgres::Schema.create(db: pg_connection, use_optimistic_concurrency: true)
+  EventSourcery::Postgres::Schema.create_event_store(db: pg_connection)
 end
 
-event_store_with_optimistic_concurrency = EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConcurrency.new(pg_connection)
-event_store_without_optimistic_concurrency = EventSourcery::EventStore::Postgres::Connection.new(pg_connection, events_table_name: :events_2)
-
-create_old_events_schema(pg_connection)
-create_new_events_schema(pg_connection)
+create_schema(pg_connection)
+event_store = EventSourcery::Postgres::EventStore.new(pg_connection)
 
 def new_event
   EventSourcery::Event.new(type: :item_added,
@@ -53,10 +41,7 @@ def new_event
 end
 
 Benchmark.ips do |b|
-  b.report("without_optimistic_concurrency") do
-    event_store_without_optimistic_concurrency.sink(new_event)
-  end
-  b.report("with_optimistic_concurrency") do
-    event_store_with_optimistic_concurrency.sink(new_event)
+  b.report("event_store.sink") do
+    event_store.sink(new_event)
   end
 end

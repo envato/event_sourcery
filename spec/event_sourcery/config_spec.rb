@@ -9,24 +9,8 @@ RSpec.describe EventSourcery::Config do
         config.event_store_database = double
       end
 
-      context 'and using optimistic concurrency' do
-        before do
-          config.use_optimistic_concurrency = true
-        end
-
-        it 'returns a EventSourcery::EventStore::Postgres::ConnectionWithOptimisticConcurrency' do
-          expect(config.event_store).to be_instance_of(EventSourcery::Postgres::EventStoreWithOptimisticConcurrency)
-        end
-      end
-
-      context 'and not using optimistic concurrency' do
-        before do
-          config.use_optimistic_concurrency = false
-        end
-
-        it 'returns a EventSourcery::EventStore::Postgres::Connection' do
-          expect(config.event_store).to be_instance_of(EventSourcery::Postgres::EventStore)
-        end
+      it 'returns a EventSourcery::Postgres::EventStore' do
+        expect(config.event_store).to be_instance_of(EventSourcery::Postgres::EventStore)
       end
     end
 

@@ -11,6 +11,9 @@ module EventSourcery
       def sink(event_or_events, expected_version: nil)
         events = Array(event_or_events)
         ensure_one_aggregate(events)
+        if expected_version && version_for(events.first.aggregate_id) != expected_version
+          raise ConcurrencyError
+        end
         events.each do |event|
           id = @events.size + 1
           serialized_body = EventBodySerializer.serialize(event.body)
@@ -46,7 +49,11 @@ module EventSourcery
       end
 
       def next_version(aggregate_id)
-        get_events_for_aggregate_id(aggregate_id).count + 1
+        version_for(aggregate_id) + 1
+      end
+
+      def version_for(aggregate_id)
+        get_events_for_aggregate_id(aggregate_id).count
       end
 
       def ensure_one_aggregate(events)

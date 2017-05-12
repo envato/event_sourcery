@@ -81,17 +81,6 @@ module EventSourcery
         @pg_connection[@events_table_name]
       end
 
-      def maybe_lock_table
-        if @lock_table
-          @pg_connection.transaction do
-            @pg_connection.execute "lock #{@events_table_name} in exclusive mode;"
-            yield
-          end
-        else
-          yield
-        end
-      end
-
       def build_event(data)
         @event_builder.build(data)
       end

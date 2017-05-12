@@ -109,8 +109,8 @@ $$ language plpgsql;
 SQL
       end
 
-      def create_projector_tracker(db: EventSourcery.config.projections_database)
-        db.create_table(:projector_tracker) do
+      def create_projector_tracker(db: EventSourcery.config.projections_database, table_name: :projector_tracker)
+        db.create_table(table_name) do
           primary_key :id, type: :Bignum
           column :name, 'varchar(255) not null'
           column :last_processed_event_id, 'bigint not null default 0'

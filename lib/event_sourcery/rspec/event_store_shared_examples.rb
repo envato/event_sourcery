@@ -306,7 +306,7 @@ RSpec.shared_examples 'an event store' do
       expect(last_event.created_at).to eq time
     end
 
-    it 'defaults to now() when no created_at timestamp is supplied' do
+    it "sets a created_at time when one isn't provided in the event" do
       event_store.sink(new_event(aggregate_id: aggregate_id,
                                  type: :billing_details_provided,
                                  body: { my_event: 'data' }))

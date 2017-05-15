@@ -28,8 +28,8 @@
 # Why does this happen?
 #
 # Sequences in Postgres (and most other DBs) are not transactional, changes
-# to the sequence are visible to other transactions immediately. Also, Inserts
-# from the forked writers are executed in parallel by postgres.
+# to the sequence are visible to other transactions immediately. Also, inserts
+# from the forked writers may be executed in parallel by postgres.
 #
 # The process of inserting into a table that has a sequence or serial column is
 # to first get the next sequence ID (changing global state), then perform the
@@ -52,7 +52,7 @@
 #
 # How does EventSourcery deal with this?
 #
-# EventSourcery uses an transaction level advisory lock to synchronise inserts
+# EventSourcery uses n transaction level advisory lock to synchronise inserts
 # to the events table within the writeEvents function. Alternatives:
 #
 # - Write events from 1 process only (serialize at the application level)

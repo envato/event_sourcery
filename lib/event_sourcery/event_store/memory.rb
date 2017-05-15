@@ -10,6 +10,10 @@ module EventSourcery
 
       def sink(event_or_events, expected_version: nil)
         events = Array(event_or_events)
+        ensure_one_aggregate(events)
+        if expected_version && version_for(events.first.aggregate_id) != expected_version
+          raise ConcurrencyError
+        end
         events.each do |event|
           id = @events.size + 1
           serialized_body = EventBodySerializer.serialize(event.body)
@@ -17,8 +21,9 @@ module EventSourcery
             id: id,
             aggregate_id: event.aggregate_id,
             type: event.type,
+            version: next_version(event.aggregate_id),
             body: serialized_body,
-            created_at: Time.now,
+            created_at: event.created_at || Time.now.utc,
             uuid: event.uuid
           )
         end
@@ -41,6 +46,20 @@ module EventSourcery
 
       def get_events_for_aggregate_id(id)
         @events.select { |event| event.aggregate_id == id }
+      end
+
+      def next_version(aggregate_id)
+        version_for(aggregate_id) + 1
+      end
+
+      def version_for(aggregate_id)
+        get_events_for_aggregate_id(aggregate_id).count
+      end
+
+      def ensure_one_aggregate(events)
+        unless events.map(&:aggregate_id).uniq.count == 1
+          raise AtomicWriteToMultipleAggregatesNotSupported
+        end
       end
     end
   end

@@ -5,7 +5,7 @@ module EventSourcery
 
       def initialize(connection, table_name: DEFAULT_TABLE_NAME, obtain_processor_lock: true)
         @connection = connection
-        @table_name = DEFAULT_TABLE_NAME
+        @table_name = table_name
         @obtain_processor_lock = obtain_processor_lock
       end
 
@@ -65,7 +65,7 @@ module EventSourcery
       def create_table_if_not_exists
         unless tracker_table_exists?
           EventSourcery.logger.info { "Projector tracker missing - attempting to create 'projector_tracker' table" }
-          EventSourcery::Postgres::Schema.create_projector_tracker(db: @connection)
+          EventSourcery::Postgres::Schema.create_projector_tracker(db: @connection, table_name: @table_name)
         end
       end
 

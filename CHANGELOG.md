@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- The core Event class accepts `correlation_id` to allow event stores to
+  add support for tracking correlation IDs with events.
+
 ### Fixed
 - Resolved Sequel deprecation notice when loading events from the Postgres event
   store.

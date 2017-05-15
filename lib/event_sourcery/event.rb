@@ -8,7 +8,7 @@ module EventSourcery
       end
     end
 
-    attr_reader :id, :uuid, :aggregate_id, :type, :body, :version, :created_at
+    attr_reader :id, :uuid, :aggregate_id, :type, :body, :version, :created_at, :correlation_id
 
     def initialize(id: nil,
                    uuid: SecureRandom.uuid,
@@ -16,7 +16,8 @@ module EventSourcery
                    type: nil,
                    body: nil,
                    version: nil,
-                   created_at: nil)
+                   created_at: nil,
+                   correlation_id: nil)
       @id = id
       @uuid = uuid && uuid.downcase
       @aggregate_id = aggregate_id
@@ -24,6 +25,7 @@ module EventSourcery
       @body = body ? EventSourcery::EventBodySerializer.serialize(body) : {}
       @version = version ? Integer(version) : nil
       @created_at = created_at
+      @correlation_id = correlation_id
     end
 
     def persisted?

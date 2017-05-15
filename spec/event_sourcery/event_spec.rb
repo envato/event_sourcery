@@ -37,7 +37,7 @@ RSpec.describe EventSourcery::Event do
       expect(event.correlation_id).to eq uuid
     end
 
-    it 'has a nil correlation_id if non is given' do
+    it 'has a nil correlation_id if none is given' do
       event = described_class.new
       expect(event.correlation_id).to be_nil
     end

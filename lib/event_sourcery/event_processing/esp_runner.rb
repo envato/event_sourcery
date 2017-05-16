@@ -1,7 +1,7 @@
 module EventSourcery
   module EventProcessing
-    # NOTE: the event store database should be disconnected before running this
-    # EventSourcery.config.event_store_database.disconnect
+    # NOTE: databases should be disconnected before running this
+    # EventSourcery.config.postgres.event_store_database.disconnect
     class ESPRunner
       def initialize(event_processors:,
                      event_store:,

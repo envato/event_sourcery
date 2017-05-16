@@ -1,10 +1,10 @@
 module EventSourcery
   class Repository
-    def self.load(aggregate_class, aggregate_id, event_source: EventSourcery.config.event_source, event_sink: EventSourcery.config.event_sink)
+    def self.load(aggregate_class, aggregate_id, event_source:, event_sink:)
       new(event_source: event_source, event_sink: event_sink).load(aggregate_class, aggregate_id)
     end
 
-    def initialize(event_source: EventSourcery.config.event_source, event_sink: EventSourcery.config.event_sink)
+    def initialize(event_source:, event_sink:)
       @event_source = event_source
       @event_sink = event_sink
     end

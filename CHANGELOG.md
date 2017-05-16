@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Resolved Sequel deprecation notice when loading events from the Postgres event
   store.
 
+### Removed
+- Postgres specific code has moved to the [event_sourcery-postgres](https://github.com/envato/event_sourcery-postgres) gem.
+  Config options for postgres have moved to `EventSourcery.config.postgres`.
+
 ## [0.9.0] - 2017-05-02
 ### Added
 - Add `table_prefix` method to `TableOwner` to declare a table name prefix for

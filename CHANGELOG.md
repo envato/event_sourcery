@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Removed
 - Postgres specific code has moved to the [event_sourcery-postgres](https://github.com/envato/event_sourcery-postgres) gem.
-  Config options for postgres have moved to `EventSourcery.config.postgres`.
+  Config options for postgres have moved to `EventSourcery::Postgres.config`.
 
 ## [0.9.0] - 2017-05-02
 ### Added

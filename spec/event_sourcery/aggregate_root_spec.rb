@@ -144,17 +144,4 @@ RSpec.describe EventSourcery::AggregateRoot do
       end
     end
   end
-
-  it 'is impossible to insert a duplicate version directly' do
-    pg_connection[:events].insert(aggregate_id: aggregate_uuid,
-                                  type: 'blah',
-                                  body: Sequel.pg_json({}),
-                                  version: 1)
-    expect {
-      pg_connection[:events].insert(aggregate_id: aggregate_uuid,
-                                    type: 'blah',
-                                    body: Sequel.pg_json({}),
-                                    version: 1)
-    }.to raise_error(Sequel::UniqueConstraintViolation)
-  end
 end

@@ -9,7 +9,7 @@ module EventSourcery
         end
 
         def with_error_handling
-          raise NotImplementedError 'Please implement #with_error_handling method'
+          raise NotImplementedError, 'Please implement #with_error_handling method'
         end
         
         private

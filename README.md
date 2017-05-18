@@ -32,6 +32,9 @@ EventSourcery.configure do |config|
   # Customize how event body attributes are serialized
   config.event_body_serializer
     .add(BigDecimal) { |decimal| decimal.to_s('F') }
+
+  # Config how your want to handle event processing errors
+  config.error_handler_class = EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoffRetry
 end
 ```
 

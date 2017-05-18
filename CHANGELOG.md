@@ -8,10 +8,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - The core Event class accepts `correlation_id` to allow event stores to
   add support for tracking correlation IDs with events.
+- `Repository#save` for saving aggregate instances.
 
 ### Fixed
 - Resolved Sequel deprecation notice when loading events from the Postgres event
   store.
+
+### Changed
+- Aggregates no longer save events directly to an event sink. They must be
+  passed back to the repository for saving with `repository.save(aggregate)`.
 
 ### Removed
 - Postgres specific code has moved to the [event_sourcery-postgres](https://github.com/envato/event_sourcery-postgres) gem.

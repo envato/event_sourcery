@@ -2,12 +2,8 @@ module EventSourcery
   module EventProcessing
     module ErrorHandlers
       class ExponentialBackoffRetry
-        DEFAULT_RETRY_INVERAL = 1
+        include EventSourcery::EventProcessing::ErrorHandlers::ErrorHandler
         MAX_RETRY_INVERVAL = 64
-        def initialize(processor_name:)
-          @processor_name = processor_name
-          @retry_interval = DEFAULT_RETRY_INVERAL
-        end
 
         def with_error_handling
           yield
@@ -33,13 +29,6 @@ module EventSourcery
             @error_event_uuid = error.event.uuid
             @retry_interval = DEFAULT_RETRY_INVERAL
           end
-        end
-
-        def report_error(error)
-          error = error.original_error if error.instance_of?(EventSourcery::EventProcessingError)
-          EventSourcery.logger.error("Processor #{@processor_name} died with #{error}.\\n #{error.backtrace.join('\n')}")
-
-          EventSourcery.config.on_event_processor_error.call(error, @processor_name)
         end
       end
     end

@@ -4,7 +4,8 @@ module EventSourcery
   class Config
     attr_accessor :on_unknown_event,
                   :on_event_processor_error,
-                  :event_type_serializer
+                  :event_type_serializer,
+                  :error_handler_class
 
     attr_writer :logger,
                 :event_body_serializer,
@@ -19,6 +20,7 @@ module EventSourcery
       }
       @event_store = nil
       @event_type_serializer = EventStore::EventTypeSerializers::Underscored.new
+      @error_handler_class = EventProcessing::ErrorHandlers::ConstantRetry
     end
 
     def logger

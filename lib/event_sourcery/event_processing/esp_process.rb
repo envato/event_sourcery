@@ -12,18 +12,9 @@ module EventSourcery
 
       def start
         name_process
-        begin
+        error_handler.with_error_handling do
           EventSourcery.logger.info("Starting #{processor_name}")
           subscribe_to_event_stream
-        rescue => error
-          error_handler.handle(error)
-          if error_handler.retry?
-            retry
-          else
-            Process.exit(false)
-          end
-        ensure
-          EventSourcery.logger.info("Stopping #{processor_name}")
         end
       end
 
@@ -34,7 +25,7 @@ module EventSourcery
       end
 
       def error_handler
-        @error_handler ||= ESPProcessErrorHandler.new(processor_name: processor_name)
+        @error_handler ||= EventSourcery.config.error_handler_class.new(processor_name: processor_name)
       end
 
       def name_process

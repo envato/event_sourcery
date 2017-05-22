@@ -2,12 +2,6 @@ module EventSourcery
   module EventProcessing
     module ErrorHandlers
       module ErrorHandler
-        DEFAULT_RETRY_INVERAL = 1
-        def initialize(processor_name:)
-          @processor_name = processor_name
-          @retry_interval = DEFAULT_RETRY_INVERAL
-        end
-
         def with_error_handling
           raise NotImplementedError, 'Please implement #with_error_handling method'
         end

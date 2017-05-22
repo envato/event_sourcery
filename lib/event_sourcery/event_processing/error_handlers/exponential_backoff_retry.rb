@@ -3,7 +3,13 @@ module EventSourcery
     module ErrorHandlers
       class ExponentialBackoffRetry
         include EventSourcery::EventProcessing::ErrorHandlers::ErrorHandler
+        DEFAULT_RETRY_INVERAL = 1
         MAX_RETRY_INVERVAL = 64
+
+        def initialize(processor_name:)
+          @processor_name = processor_name
+          @retry_interval = DEFAULT_RETRY_INVERAL
+        end
 
         def with_error_handling
           yield

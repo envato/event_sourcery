@@ -3,6 +3,11 @@ module EventSourcery
     module ErrorHandlers
       class ConstantRetry
         include EventSourcery::EventProcessing::ErrorHandlers::ErrorHandler
+        DEFAULT_RETRY_INVERAL = 1
+        def initialize(processor_name:)
+          @processor_name = processor_name
+          @retry_interval = DEFAULT_RETRY_INVERAL
+        end
 
         def with_error_handling
           yield

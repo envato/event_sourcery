@@ -23,7 +23,7 @@ module EventSourcery
       @event_body_serializer = EventBodySerializer.new
         .add(Hash, EventBodySerializer::HashSerializer)
         .add(Array, EventBodySerializer::ArraySerializer)
-        .add(Time, EventBodySerializer::TimeSerializer)
+        .add(Time, &:iso8601)
     end
 
     def logger

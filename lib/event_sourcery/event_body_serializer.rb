@@ -9,18 +9,18 @@ module EventSourcery
       @serializers = Hash.new(IdentitySerializer)
     end
 
-    def add(type, serializer)
-      @serializers[type] = serializer
+    def add(type, serializer = nil, &block_serializer)
+      @serializers[type] = serializer || block_serializer
       self
     end
 
     def serialize(object)
       serializer = @serializers[object.class]
-      serializer.serialize(object, &method(:serialize))
+      serializer.call(object, &method(:serialize))
     end
 
     module HashSerializer
-      def self.serialize(hash, &serialize)
+      def self.call(hash, &serialize)
         hash.each_with_object({}) do |(key, value), memo|
           memo[key.to_s] = serialize.call(value)
         end
@@ -28,19 +28,13 @@ module EventSourcery
     end
 
     module ArraySerializer
-      def self.serialize(array, &serialize)
+      def self.call(array, &serialize)
         array.map(&serialize)
       end
     end
 
-    module TimeSerializer
-      def self.serialize(time)
-        time.iso8601
-      end
-    end
-
     module IdentitySerializer
-      def self.serialize(object)
+      def self.call(object)
         object
       end
     end

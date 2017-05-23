@@ -15,6 +15,7 @@ module EventSourcery
         error_handler.with_error_handling do
           EventSourcery.logger.info("Starting #{processor_name}")
           subscribe_to_event_stream
+          EventSourcery.logger.info("Stopping #{@event_processor.processor_name}")
         end
       end
 

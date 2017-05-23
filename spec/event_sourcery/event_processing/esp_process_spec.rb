@@ -39,12 +39,16 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
       expect(error_handler).to have_received(:with_error_handling)
     end
 
-    it 'logs info when starting and stopping ESP' do
+    it 'logs info when starting ESP' do
       expect(logger).to have_received(:info).with("Starting #{processor_name}")
     end
 
     it 'subscribes event processor to event store' do
       expect(esp).to have_received(:subscribe_to)
+    end
+
+    it 'logs info when stopping ESP' do
+      expect(logger).to have_received(:info).with("Stopping #{processor_name}")
     end
   end
 end

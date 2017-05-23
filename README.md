@@ -16,6 +16,25 @@ Refer to [core concepts](./docs/core-concepts.md) to learn about the core pieces
 
 **TODO**
 
+## Configuration
+
+There are several ways to configure Event Sourcery to your liking. The following presents some examples:
+
+```ruby
+EventSourcery.configure do |config|
+  # Add custom reporting of errors occurring during event processing.
+  # One might set up Rollbar here.
+  config.on_event_processor_error = proc { |exception, processor_name| … }
+
+  # Enable Event Sourcery logging.
+  config.logger = Logger.new('logs/my_event_sourcery_app.log')
+
+  # Customize how event body attributes are serialized
+  config.event_body_serializer
+    .add(BigDecimal) { |decimal| decimal.to_s('F') }
+end
+```
+
 ## Applications that use EventSourcery
 
 - [Identity](https://github.com/envato/identity) (note that this was the ES/CQRS implementation that ES was initially extracted from).

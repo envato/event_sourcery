@@ -9,10 +9,11 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoff
   let(:logger) { spy(Logger) }
 
   before do
+    @sleep_intervals = []
     allow(EventSourcery.config).to receive(:on_event_processor_error).and_return(on_event_processor_error)
     allow(EventSourcery).to receive(:logger).and_return(logger)
     allow(logger).to receive(:error)
-    allow(error_handler).to receive(:sleep)
+    allow(error_handler).to receive(:sleep) { |interval| @sleep_intervals << interval }
   end
 
   describe '#with_error_handling' do
@@ -39,7 +40,7 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoff
       end
 
       it 'sleeps the process at default interval' do
-        expect(error_handler).to have_received(:sleep).with(1).thrice
+        expect(@sleep_intervals).to eq [1, 1, 1]
       end
     end
 
@@ -55,22 +56,14 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoff
       end
 
       it 'sleeps the process at exponential increasing intervals' do
-        expect(error_handler).to have_received(:sleep).with(1).once
-        expect(error_handler).to have_received(:sleep).with(2).once
-        expect(error_handler).to have_received(:sleep).with(4).once
+        expect(@sleep_intervals).to eq [1, 2, 4]
       end
 
       context 'when lots of errors are raised for the same event' do
         let(:number_of_errors_to_raise) { 10 }
 
         it 'sleeps the process at exponential increasing intervals' do
-          expect(error_handler).to have_received(:sleep).with(1).once
-          expect(error_handler).to have_received(:sleep).with(2).once
-          expect(error_handler).to have_received(:sleep).with(4).once
-          expect(error_handler).to have_received(:sleep).with(8).once
-          expect(error_handler).to have_received(:sleep).with(16).once
-          expect(error_handler).to have_received(:sleep).with(32).once
-          expect(error_handler).to have_received(:sleep).with(64).exactly(4).times
+          expect(@sleep_intervals).to eq [1, 2, 4, 8, 16, 32, 64, 64, 64, 64]
         end
       end
     end
@@ -89,9 +82,7 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoff
       end
 
       it 'resets retry interval when event uuid changes' do
-        expect(error_handler).to have_received(:sleep).with(1).twice
-        expect(error_handler).to have_received(:sleep).with(2).twice
-        expect(error_handler).to have_received(:sleep).with(4).once
+        expect(@sleep_intervals).to eq [1, 2, 4, 1, 2]
       end
     end
   end

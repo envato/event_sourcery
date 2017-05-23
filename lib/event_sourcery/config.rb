@@ -5,7 +5,8 @@ module EventSourcery
     attr_accessor :event_tracker,
                   :on_unknown_event,
                   :on_event_processor_error,
-                  :event_type_serializer
+                  :event_type_serializer,
+                  :event_body_serializer
 
     attr_writer :logger,
                 :event_builder
@@ -19,6 +20,10 @@ module EventSourcery
       }
       @event_store = nil
       @event_type_serializer = EventStore::EventTypeSerializers::Underscored.new
+      @event_body_serializer = EventBodySerializer.new
+        .add(Hash, EventBodySerializer::HashSerializer)
+        .add(Array, EventBodySerializer::ArraySerializer)
+        .add(Time, EventBodySerializer::TimeSerializer)
     end
 
     def logger

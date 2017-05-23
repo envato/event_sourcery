@@ -1,48 +1,47 @@
 module EventSourcery
   class EventBodySerializer
-    def self.serialize(event_body)
-      new(event_body).serialize
+    def self.serialize(event_body,
+                       serializer: EventSourcery.config.event_body_serializer)
+      serializer.serialize(event_body)
     end
 
-    def initialize(event_body)
-      @event_body = event_body
+    def initialize
+      @serializers = Hash.new(IdentitySerializer)
     end
 
-    def serialize
-      case event_body
-      when Hash
-        serialize_hash(event_body)
-      when Array
-        serialize_array(event_body)
-      else
-        serialize_object(event_body)
+    def add(type, serializer)
+      @serializers[type] = serializer
+      self
+    end
+
+    def serialize(object)
+      serializer = @serializers[object.class]
+      serializer.serialize(object, &method(:serialize))
+    end
+
+    module HashSerializer
+      def self.serialize(hash, &serialize)
+        hash.each_with_object({}) do |(key, value), memo|
+          memo[key.to_s] = serialize.call(value)
+        end
       end
     end
 
-    private
+    module ArraySerializer
+      def self.serialize(array, &serialize)
+        array.map(&serialize)
+      end
+    end
 
-    attr_reader :event_body
+    module TimeSerializer
+      def self.serialize(time)
+        time.iso8601
+      end
+    end
 
-    def serialize_object(object)
-      case object
-      when Hash, Array
-        self.class.serialize(object)
-      when Time
-        object.iso8601
-      else
+    module IdentitySerializer
+      def self.serialize(object)
         object
-      end
-    end
-
-    def serialize_hash(hash)
-      hash.each_with_object({}) do |(key, value), memo|
-        memo[key.to_s] = serialize_object(value)
-      end
-    end
-
-    def serialize_array(array)
-      array.map do |object|
-        serialize_object(object)
       end
     end
   end

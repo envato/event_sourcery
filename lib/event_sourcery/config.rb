@@ -2,8 +2,7 @@ require 'logger'
 
 module EventSourcery
   class Config
-    attr_accessor :event_tracker,
-                  :on_unknown_event,
+    attr_accessor :on_unknown_event,
                   :on_event_processor_error,
                   :event_type_serializer
 

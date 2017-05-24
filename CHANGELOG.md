@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Aggregates no longer save events directly to an event sink. They must be
   passed back to the repository for saving with `repository.save(aggregate)`.
+- `AggregateRoot#apply_event` signature has changed from accepting an event or
+  a hash to accepting an event class followed by what would normally go in the
+  constructor of the event.
 
 ### Removed
 - Postgres specific code has moved to the [event_sourcery-postgres](https://github.com/envato/event_sourcery-postgres) gem.

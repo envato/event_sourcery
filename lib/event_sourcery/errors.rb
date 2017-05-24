@@ -6,11 +6,10 @@ module EventSourcery
   AtomicWriteToMultipleAggregatesNotSupported = Class.new(Error)
 
   class EventProcessingError < Error
-    attr_reader :event, :original_error
+    attr_reader :event
 
-    def initialize(event, original_error)
+    def initialize(event)
       @event = event
-      @original_error = original_error
     end
   end
 end

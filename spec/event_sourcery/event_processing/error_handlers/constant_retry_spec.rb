@@ -16,7 +16,7 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ConstantRetry do
   end
 
   describe '#with_error_handling' do
-    let(:original_error) { double(to_s: 'OriginalError', backtrace: ['back', 'trace']) }
+    let(:cause) { double(to_s: 'OriginalError', backtrace: ['back', 'trace']) }
     let(:event) { double(uuid: SecureRandom.uuid) }
     let(:number_of_errors_to_raise) { 3 }
     subject(:with_error_handling) do
@@ -26,9 +26,9 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ConstantRetry do
         raise error if @count <= number_of_errors_to_raise
       end
     end
-    before { with_error_handling }
 
     context 'when the raised error is StandardError' do
+      before { with_error_handling }
       let(:error) { StandardError.new('Some error') }
       it 'logs the errors' do
         expect(logger).to have_received(:error).thrice
@@ -44,14 +44,18 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ConstantRetry do
     end
 
     context 'when the raised errors are EventProcessingError' do
-      let(:error) { EventSourcery::EventProcessingError.new(event, original_error) }
+      let(:error) { EventSourcery::EventProcessingError.new(event: event) }
+      before do
+        allow(error).to receive(:cause).and_return(cause)
+        with_error_handling
+      end
 
       it 'logs the original error' do
         expect(logger).to have_received(:error).thrice.with("Processor #{processor_name} died with OriginalError.\\n back\\ntrace")
       end
 
       it 'calls on_event_processor_error with error and processor name' do
-        expect(on_event_processor_error).to have_received(:call).thrice.with(original_error, processor_name)
+        expect(on_event_processor_error).to have_received(:call).thrice.with(cause, processor_name)
       end
 
       it 'sleeps the process at default interval' do

@@ -34,7 +34,7 @@ module EventSourcery
           end
           @_event = nil
         rescue => error
-          raise EventProcessingError.new(event, error)
+          raise EventProcessingError.new(event)
         end
       end
 

@@ -9,7 +9,7 @@ module EventSourcery
         private
 
         def report_error(error)
-          error = error.original_error if error.instance_of?(EventSourcery::EventProcessingError)
+          error = error.cause if error.instance_of?(EventSourcery::EventProcessingError)
           EventSourcery.logger.error("Processor #{@processor_name} died with #{error}.\\n #{error.backtrace.join('\n')}")
 
           EventSourcery.config.on_event_processor_error.call(error, @processor_name)

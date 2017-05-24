@@ -255,7 +255,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
           }.to raise_error { |error|
             expect(error).to be_a(EventSourcery::EventProcessingError)
             expect(error.event).to eq item_added_event
-            expect(error.original_error.message).to eq 'Something is wrong'
+            expect(error.cause.message).to eq 'Something is wrong'
           }
         end
       end

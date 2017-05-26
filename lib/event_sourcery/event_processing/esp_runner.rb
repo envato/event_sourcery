@@ -5,12 +5,10 @@ module EventSourcery
     class ESPRunner
       def initialize(event_processors:,
                      event_store:,
-                     stop_on_failure: false,
                      max_seconds_for_processes_to_terminate: 30,
                      shutdown_requested: false)
         @event_processors = event_processors
         @event_store = event_store
-        @stop_on_failure = stop_on_failure
         @pids = []
         @max_seconds_for_processes_to_terminate = max_seconds_for_processes_to_terminate
         @shutdown_requested = shutdown_requested
@@ -50,8 +48,7 @@ module EventSourcery
       def start_process(event_processor)
         process = ESPProcess.new(
           event_processor: event_processor,
-          event_store: @event_store,
-          stop_on_failure: @stop_on_failure
+          event_store: @event_store
         )
         @pids << Process.fork { process.start }
       end

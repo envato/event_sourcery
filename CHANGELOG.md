@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.11.0] - 2017-5-26
+### Added
 - Make Event processing error handler class Configurable
 - Add exponential back off retry error handler
 

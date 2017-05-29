@@ -6,7 +6,8 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
       subscription_master: subscription_master,
     )
   end
-  let(:esp) { spy(:esp, processor_name: processor_name) }
+  let(:esp) { spy(:esp, processor_name: processor_name, class: esp_class) }
+  let(:esp_class) { double(name: 'SomeApp::Reactors::SomeReactor') }
   let(:processor_name) { 'processor_name' }
   let(:event_store) { spy(:event_store) }
   let(:subscription_master) { spy(EventSourcery::EventStore::SignalHandlingSubscriptionMaster) }
@@ -32,7 +33,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
 
 
     it 'names process with ESP name' do
-      expect(Process).to have_received(:setproctitle).with(processor_name)
+      expect(Process).to have_received(:setproctitle).with('SomeApp::Reactors::SomeReactor')
     end
 
     it 'wraps event processing inside error handler' do

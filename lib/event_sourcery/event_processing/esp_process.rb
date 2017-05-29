@@ -22,7 +22,7 @@ module EventSourcery
       private
 
       def processor_name
-        @event_processor.processor_name
+        @event_processor.processor_name.to_s
       end
 
       def error_handler
@@ -30,7 +30,7 @@ module EventSourcery
       end
 
       def name_process
-        Process.setproctitle(processor_name)
+        Process.setproctitle(@event_processor.class.name)
       end
 
       def subscribe_to_event_stream

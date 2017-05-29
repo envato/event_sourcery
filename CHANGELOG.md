@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.11.0] - 2017-5-29
 ### Fixed
 - Use `processor.class.name` to set ESP process name
+- Convert `processor_name` symbol to string explicitly
 
 ## [0.11.0] - 2017-5-26
 ### Added

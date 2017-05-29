@@ -22,7 +22,7 @@ module EventSourcery
       private
 
       def processor_name
-        @event_processor.processor_name
+        @event_processor.processor_name.to_s
       end
 
       def error_handler

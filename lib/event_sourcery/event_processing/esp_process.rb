@@ -30,7 +30,7 @@ module EventSourcery
       end
 
       def name_process
-        Process.setproctitle(processor_name)
+        Process.setproctitle(@event_processor.class.name)
       end
 
       def subscribe_to_event_stream

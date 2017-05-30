@@ -14,8 +14,5 @@ module EventSourcery
         end
       end
     end
-
-    def shutdown!
-    end
   end
 end

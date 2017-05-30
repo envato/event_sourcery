@@ -19,13 +19,8 @@ module EventSourcery
 
       def start
         catch(:stop) do
-          begin
-            @poll_waiter.poll do
-              read_events
-            end
-          rescue => e
-            @poll_waiter.shutdown!
-            raise
+          @poll_waiter.poll do
+            read_events
           end
         end
       end

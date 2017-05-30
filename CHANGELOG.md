@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.12.0] - 2017-6-1
+### Removed
+- Removed usage `#shutdown!` as it should be a private method within custom PollWaiters.
+  An example of how event_sourcery-postgres has implemented `#shutdown!` can be
+  found [here](https://github.com/envato/event_sourcery-postgres/pull/5)
+  
+
 ## [0.11.2] - 2017-5-29
 ### Fixed
 - Fixed: default poll waiter now implements `shutdown!`

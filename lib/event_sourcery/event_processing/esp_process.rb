@@ -2,11 +2,11 @@ module EventSourcery
   module EventProcessing
     class ESPProcess
       def initialize(event_processor:,
-                     event_store:,
+                     event_source:,
                      subscription_master: EventStore::SignalHandlingSubscriptionMaster.new
                     )
         @event_processor = event_processor
-        @event_store = event_store
+        @event_source = event_source
         @subscription_master = subscription_master
       end
 
@@ -34,7 +34,7 @@ module EventSourcery
       end
 
       def subscribe_to_event_stream
-        @event_processor.subscribe_to(@event_store,
+        @event_processor.subscribe_to(@event_source,
                                       subscription_master: @subscription_master)
       end
     end

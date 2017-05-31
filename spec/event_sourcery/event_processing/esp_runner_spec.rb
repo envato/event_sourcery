@@ -2,12 +2,12 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
   subject(:esp_runner) do
     described_class.new(
       event_processors: event_processors,
-      event_store: event_store,
+      event_source: event_source,
       max_seconds_for_processes_to_terminate: 0.01,
       shutdown_requested: true
     )
   end
-  let(:event_store) { spy(:event_store) }
+  let(:event_source) { spy(:event_source) }
   let(:event_processors) { [esp] }
   let(:esp) { spy(:esp, processor_name: processor_name) }
   let(:processor_name) { 'processor_name' }
@@ -37,7 +37,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         .to have_received(:new)
         .with(
           event_processor: esp,
-          event_store: event_store,
+          event_source: event_source,
         )
       expect(esp_process).to have_received(:start)
     end

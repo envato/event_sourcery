@@ -2,14 +2,14 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
   subject(:esp_process) do
     described_class.new(
       event_processor: esp,
-      event_store: event_store,
+      event_source: event_source,
       subscription_master: subscription_master,
     )
   end
   let(:esp) { spy(:esp, processor_name: processor_name, class: esp_class) }
   let(:esp_class) { double(name: 'SomeApp::Reactors::SomeReactor') }
   let(:processor_name) { 'processor_name' }
-  let(:event_store) { spy(:event_store) }
+  let(:event_source) { spy(:event_source) }
   let(:subscription_master) { spy(EventSourcery::EventStore::SignalHandlingSubscriptionMaster) }
   let(:error_handler) { double }
 

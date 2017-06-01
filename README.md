@@ -69,7 +69,7 @@ To release a new version:
 
 1. Update the version number in `lib/event_sourcery/version.rb`
 2. Get this change onto master via the normal PR process
-3. Run `gem_push=false be rake release`, this will create a git tag for the
+3. Run `gem_push=false bundle exec rake release`, this will create a git tag for the
    version, push tags up to GitHub, and package the code in a `.gem` file.
 4. Manually upload the generated gem file (`pkg/event_sourcery-#{version}.gem`) to
    [rubygems.envato.com](https://rubygems.envato.com).

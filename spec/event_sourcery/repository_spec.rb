@@ -35,6 +35,14 @@ RSpec.describe EventSourcery::Repository do
     let(:event_source) { double(EventSourcery::EventStore::EventSink, get_events_for_aggregate_id: nil) }
     subject(:repository) { EventSourcery::Repository.new(event_source: event_source, event_sink: event_sink) }
 
+    before do
+      if changes.any?
+        allow(aggregate).to receive(:process_new_events).and_yield(changes)
+      else
+        allow(aggregate).to receive(:process_new_events)
+      end
+    end
+
     context 'when there are no changes' do
       let(:changes) { [] }
 

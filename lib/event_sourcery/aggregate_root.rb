@@ -28,9 +28,10 @@ module EventSourcery
       load_history(events)
     end
 
-    attr_reader :changes, :version
+    attr_reader :version
 
-    def clear_changes
+    def process_new_events
+      yield @changes if @changes.any?
       @changes.clear
     end
 

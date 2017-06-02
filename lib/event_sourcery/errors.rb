@@ -11,5 +11,9 @@ module EventSourcery
     def initialize(event)
       @event = event
     end
+
+    def message
+      cause&.message
+    end
   end
 end

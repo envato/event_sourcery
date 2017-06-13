@@ -109,10 +109,8 @@ module EventSourcery
 
       private
 
-      # @private
       attr_reader :_event
 
-      # @private
       def process_events(events, subscription_master)
         events.each do |event|
           subscription_master.shutdown_if_requested

@@ -10,6 +10,8 @@ module EventSourcery
         @subscription_master = subscription_master
       end
 
+      # This will start the defined Event Stream Processor to subscribe
+      # to the event stream source.
       def start
         name_process
         error_handler.with_error_handling do

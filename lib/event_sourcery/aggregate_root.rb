@@ -1,4 +1,5 @@
 module EventSourcery
+  #
   # EventSourcery::AggregateRoot provides a foundation for writing your own AggregateRoot classes.
   # You can use it by including in your classes, as show in the example code.
   #
@@ -17,7 +18,8 @@ module EventSourcery
   #
   # The following partial example is taken from the EventSourceryTodoApp.
   # Refer a more complete example {https://github.com/envato/event_sourcery_todo_app/blob/master/app/aggregates/todo.rb here}.
-  #@example
+  #
+  # @example
   #   module EventSourceryTodoApp
   #     module Aggregates
   #       class Todo
@@ -42,9 +44,9 @@ module EventSourcery
   #       end
   #     end
   #   end
-
   module AggregateRoot
-    # Raised when the aggregate doesn't have a state change method for a given event. Consider implementing one if you get this error.
+    # Raised when the aggregate doesn't have a state change method for a given
+    # event. Consider implementing one if you get this error.
     UnknownEventError = Class.new(RuntimeError)
     RejectedCommandError = Class.new(RuntimeError)
 
@@ -57,13 +59,16 @@ module EventSourcery
 
     module ClassMethods
       # Collection of event handlers for the events that this aggregate knows of
-      #@return Hash
+      #
+      # @return Hash
       attr_reader :event_handlers
 
       # Register an event handler for the specified event(s)
-      #@param *event_classes one or more event types for which the handler is for
-      #@param &block the event handler
-      #@example
+      #
+      # @param *event_classes one or more event types for which the handler is for
+      # @param &block the event handler
+      #
+      # @example
       #  apply TodoAdded do |event|
       #    @added = true
       #  end
@@ -75,9 +80,10 @@ module EventSourcery
     end
 
     # Load an aggregate instance based on the given ID and events
-    #@param id [Integer] ID of the aggregate instance to be loaded
-    #@param events [Array] Events from which the aggregate's current state will be formed
-    #@param on_unknown_event [Proc] Optional. The proc to be run if an unknown event type (for which no event handler is registered using {ClassMethods#apply}) is to be loaded.
+    #
+    # @param id [Integer] ID of the aggregate instance to be loaded
+    # @param events [Array] Events from which the aggregate's current state will be formed
+    # @param on_unknown_event [Proc] Optional. The proc to be run if an unknown event type (for which no event handler is registered using {ClassMethods#apply}) is to be loaded.
     def initialize(id, events, on_unknown_event: EventSourcery.config.on_unknown_event)
       @id = id
       @version = 0
@@ -87,15 +93,19 @@ module EventSourcery
     end
 
     # Collection of new events that are yet to be persisted
-    #@return Array
+    #
+    # @return Array
     attr_reader :changes
 
-    # Current version of the aggregate. This is the same as the number of events currently loaded by the aggregate.
-    #@return Integer
+    # Current version of the aggregate. This is the same as the number of events
+    # currently loaded by the aggregate.
+    #
+    # @return Integer
     attr_reader :version
 
     # Clears any changes present in {changes}
-    #@api private
+    #
+    # @api private
     def clear_changes
       @changes.clear
     end

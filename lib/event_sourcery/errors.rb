@@ -13,7 +13,7 @@ module EventSourcery
     end
 
     def message
-      cause&.message
+      cause.message if cause
     end
   end
 end

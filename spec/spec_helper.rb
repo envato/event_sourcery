@@ -1,6 +1,7 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'event_sourcery'
 require 'pry'
+require 'time'
 require 'event_sourcery/rspec/event_store_shared_examples'
 
 Dir.glob(File.dirname(__FILE__) + '/support/**/*.rb') { |f| require f }

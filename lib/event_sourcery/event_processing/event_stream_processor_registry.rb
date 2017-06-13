@@ -15,6 +15,7 @@ module EventSourcery
       # Find a registered process by it's name.
       #
       # @param processor_name [String] name of the processor you're looking for
+      #
       # @return [ESProcess] the found processor
       def find(processor_name)
         @processors.find do |processor|
@@ -25,6 +26,7 @@ module EventSourcery
       # Find a registered process by it's type.
       #
       # @param constant [String] name of the constant the processer has included
+      #
       # @return [ESProcess] the found processor
       def by_type(constant)
         @processors.select do |processor|

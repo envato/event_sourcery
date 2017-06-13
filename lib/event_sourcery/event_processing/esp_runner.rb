@@ -15,6 +15,7 @@ module EventSourcery
         @exit_status = true
       end
 
+      # Start each Event Stream Processor in a new process.
       def start!
         with_logging do
           start_processes

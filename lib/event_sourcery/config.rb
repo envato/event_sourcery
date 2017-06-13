@@ -23,6 +23,7 @@ module EventSourcery
       @error_handler_class = EventProcessing::ErrorHandlers::ConstantRetry
     end
 
+    # Logger instance used by EventSourcery. By default EventSourcery will log to STDOUT with a log level of Logger::DEBUG
     def logger
       @logger ||= ::Logger.new(STDOUT).tap do |logger|
         logger.level = Logger::DEBUG

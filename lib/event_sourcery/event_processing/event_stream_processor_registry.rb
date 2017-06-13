@@ -20,7 +20,7 @@ module EventSourcery
         end
       end
 
-      # Find a registered process by it's name.
+      # Find a registered process by it's type.
       # @param constant [String] name of the constant the processer has included
       # @return [ESProcess] the found processor
       def by_type(constant)

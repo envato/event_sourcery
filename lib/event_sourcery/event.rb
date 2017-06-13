@@ -32,6 +32,10 @@ module EventSourcery
       !id.nil?
     end
 
+    def hash
+      [self.class, uuid].hash
+    end
+
     def eql?(other)
       instance_of?(other.class) && uuid.eql?(other.uuid)
     end

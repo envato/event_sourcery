@@ -30,6 +30,26 @@ require 'event_sourcery/aggregate_root'
 require 'event_sourcery/repository'
 
 module EventSourcery
+  # Method for configuring EventSourcery
+  #
+  # Example Usage:
+  #
+  #   EventSourcery.configure do |config|
+  #     # Add custom reporting of errors occurring during event processing.
+  #     # One might set up an error reporting service like Rollbar here.
+  #     config.on_event_processor_error = proc { |exception, processor_name| … }
+  #
+  #     # Enable Event Sourcery logging.
+  #     config.logger = Logger.new('logs/my_event_sourcery_app.log')
+  #
+  #     # Customize how event body attributes are serialized
+  #     config.event_body_serializer
+  #       .add(BigDecimal) { |decimal| decimal.to_s('F') }
+  #
+  #     # Config how your want to handle event processing errors
+  #     config.error_handler_class = EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoffRetry
+  #   end
+  #
   def self.configure
     yield config
   end
@@ -38,10 +58,12 @@ module EventSourcery
     @config ||= Config.new
   end
 
+  # Logger object used by EventSourcery. Set via `configure`.
   def self.logger
     config.logger
   end
 
+  # Registry of all ESPs
   def self.event_stream_processor_registry
     @event_stream_processor_registry ||= EventProcessing::EventStreamProcessorRegistry.new
   end

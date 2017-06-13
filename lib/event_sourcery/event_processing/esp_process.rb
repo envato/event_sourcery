@@ -21,18 +21,22 @@ module EventSourcery
 
       private
 
+      # @private
       def processor_name
         @event_processor.processor_name.to_s
       end
 
+      # @private
       def error_handler
         @error_handler ||= EventSourcery.config.error_handler_class.new(processor_name: processor_name)
       end
 
+      # @private
       def name_process
         Process.setproctitle(@event_processor.class.name)
       end
 
+      # @private
       def subscribe_to_event_stream
         @event_processor.subscribe_to(@event_source,
                                       subscription_master: @subscription_master)

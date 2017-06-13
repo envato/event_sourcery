@@ -35,16 +35,19 @@ module EventSourcery
 
       private
 
+      # @private
       def with_logging
         EventSourcery.logger.info { 'Forking ESP processes' }
         yield
         EventSourcery.logger.info { 'ESP processes shutdown' }
       end
 
+      # @private
       def start_processes
         @event_processors.each(&method(:start_process))
       end
 
+      # @private
       def start_process(event_processor)
         process = ESPProcess.new(
           event_processor: event_processor,
@@ -53,28 +56,34 @@ module EventSourcery
         @pids << Process.fork { process.start }
       end
 
+      # @private
       def listen_for_shutdown_signals
         %i(TERM INT).each do |signal|
           Signal.trap(signal) { shutdown }
         end
       end
 
+      # @private
       def shutdown
         @shutdown_requested = true
       end
 
+      # @private
       def wait_till_shutdown_requested
         sleep(1) until @shutdown_requested
       end
 
+      # @private
       def terminate_remaining_processes
         send_signal_to_remaining_processes(:TERM)
       end
 
+      # @private
       def kill_remaining_processes
         send_signal_to_remaining_processes(:KILL)
       end
 
+      # @private
       def send_signal_to_remaining_processes(signal)
         Process.kill(signal, *@pids) unless all_processes_terminated?
       rescue Errno::ESRCH
@@ -82,6 +91,7 @@ module EventSourcery
         retry
       end
 
+      # @private
       def record_terminated_processes
         until all_processes_terminated? ||
               ((pid, status) = Process.wait2(-1, Process::WNOHANG)).nil?
@@ -90,15 +100,18 @@ module EventSourcery
         end
       end
 
+      # @private
       def all_processes_terminated?
         @pids.empty?
       end
 
+      # @private
       def waited_long_enough?
         @timeout ||= Time.now + @max_seconds_for_processes_to_terminate
         Time.now >= @timeout
       end
 
+      # @private
       def exit_indicating_status_of_processes
         Process.exit(@exit_status)
       end

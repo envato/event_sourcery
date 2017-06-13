@@ -6,12 +6,14 @@ module EventSourcery
       end
 
       # Register the class of the Event Stream Processor.
+      #
       # @param klass [Class] the class to register
       def register(klass)
         @processors << klass
       end
 
       # Find a registered process by it's name.
+      #
       # @param processor_name [String] name of the processor you're looking for
       # @return [ESProcess] the found processor
       def find(processor_name)
@@ -21,6 +23,7 @@ module EventSourcery
       end
 
       # Find a registered process by it's type.
+      #
       # @param constant [String] name of the constant the processer has included
       # @return [ESProcess] the found processor
       def by_type(constant)
@@ -30,6 +33,7 @@ module EventSourcery
       end
 
       # Returns an array of all the registered processors.
+      #
       # @return [Array] of all the processors that are registered
       def all
         @processors

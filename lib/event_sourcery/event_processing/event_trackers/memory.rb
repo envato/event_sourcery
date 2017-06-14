@@ -14,11 +14,6 @@ module EventSourcery
           @state[processor_name.to_s] = event_id
         end
 
-        def processing_event(processor_name, event_id)
-          yield
-          processed_event(processor_name, event_id)
-        end
-
         def reset_last_processed_event_id(processor_name)
           @state[processor_name.to_s] = 0
         end

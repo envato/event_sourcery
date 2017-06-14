@@ -45,23 +45,40 @@ module EventSourcery
       end
 
       module ClassMethods
+
+        # @attr_reader processes_event_types [Array] Process Event Types
+        # @attr_reader event_handlers [Hash] Hash of handler blocks keyed by event
         attr_reader :processes_event_types, :event_handlers
 
+        # This will register the event types to process.
+        #
+        # @param event_types a collection of event types to process
         def processes_events(*event_types)
           @processes_event_types = Array(@processes_event_types) | event_types.map(&:to_s)
         end
 
+        # Process all the events.
         def processes_all_events
           define_singleton_method :processes? do |_|
             true
           end
         end
 
+        # Can this class process this event type.
+        # If you use process_all_events this will always return true
+        #
+        # @param event_type the event type to check
+        #
+        # @return [True, False]
         def processes?(event_type)
           processes_event_types &&
             processes_event_types.include?(event_type.to_s)
         end
 
+        # Set the name of the processor.
+        # If no name given then it will be the class name.
+        #
+        # @param name [String] the name of the processor to set
         def processor_name(name = nil)
           if name
             @processor_name = name
@@ -70,6 +87,10 @@ module EventSourcery
           end
         end
 
+        # Process the events for the given event types with the given block.
+        #
+        # @param event_classes the event type classes to process
+        # @param block the code block used to process
         def process(*event_classes, &block)
           event_classes.each do |event_class|
             processes_events event_class.type
@@ -78,30 +99,42 @@ module EventSourcery
         end
       end
 
+      # This calls the class method of processes_event_types
       def processes_event_types
         self.class.processes_event_types
       end
 
+      # Set up the event tracker
       def setup
         tracker.setup(processor_name)
       end
 
+      # Reset the event tracker
       def reset
         tracker.reset_last_processed_event_id(processor_name)
       end
 
+      # Return the last process event id
+      #
+      # @return [Int] the id of the last processed event
       def last_processed_event_id
         tracker.last_processed_event_id(processor_name)
       end
 
+      # This calls the class method of processor_name
       def processor_name
         self.class.processor_name
       end
 
+      # This calls the class method of processes?
       def processes?(event_type)
         self.class.processes?(event_type)
       end
 
+      # Subscribe to the given event source.
+      #
+      # @param event_source the event source to subscribe to
+      # @param subscription_master [SignalHandlingSubscriptionMaster] 
       def subscribe_to(event_source, subscription_master: EventStore::SignalHandlingSubscriptionMaster.new)
         setup
         event_source.subscribe(from_id: last_processed_event_id + 1,
@@ -111,6 +144,7 @@ module EventSourcery
         end
       end
 
+      # @attr_writer tracker the tracker for the class
       attr_accessor :tracker
 
       private

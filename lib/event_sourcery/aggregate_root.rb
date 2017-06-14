@@ -1,7 +1,7 @@
 module EventSourcery
   #
   # EventSourcery::AggregateRoot provides a foundation for writing your own AggregateRoot classes.
-  # You can use it by including in your classes, as show in the example code.
+  # You can use it by including it in your classes, as show in the example code.
   #
   # Excerpt from {https://github.com/envato/event_sourcery/blob/master/docs/core-concepts.md EventSourcery Core Concepts} on Aggregates follows:
   # === Aggregates and Command Handling
@@ -12,6 +12,7 @@ module EventSourcery
   #   The root can thus ensure the integrity of the aggregate as a whole.
   #
   #   — DDD Aggregate
+  #
   # Clients execute domain transactions against the system by issuing commands against aggregates.
   # The web layer will take a command and pass it to the appropriate command handler. The command handler instantiates the aggregate in question and defers to it to process the command.
   # When created, an aggregate loads its state by loading all events that pertain to it from the event store. The aggregate then processes the command by either rejecting it or accepting it. The aggregate emits events into the event store when it successfully processes a command.
@@ -25,10 +26,12 @@ module EventSourcery
   #       class Todo
   #         include EventSourcery::AggregateRoot
   #
+  #         # An event handler that updates the aggregate's state from a event
   #         apply TodoAdded do |event|
   #           @added = true
   #         end
   #
+  #         # Method on the aggregate that processes a command and emits an event as a result
   #         def add(payload)
   #           raise UnprocessableEntity, "Todo #{id.inspect} already exists" if added
   #
@@ -57,7 +60,7 @@ module EventSourcery
     end
 
     module ClassMethods
-      # Collection of event handlers for the events that this aggregate knows of
+      # Collection of event handlers for the events that this aggregate cares about
       #
       # @return Hash
       attr_reader :event_handlers

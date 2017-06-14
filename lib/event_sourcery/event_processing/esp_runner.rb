@@ -14,8 +14,8 @@ module EventSourcery
         @shutdown_requested = shutdown_requested
         @exit_status = true
       end
-      
-      # Start each Event Stream Processor in a new process.
+
+      # Start each Event Stream Processor in a new child process.
       def start!
         with_logging do
           start_processes

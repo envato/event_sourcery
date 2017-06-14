@@ -19,13 +19,13 @@ module EventSourcery
           sleep(@retry_interval)
           retry
         end
-        
+
         private
 
         def update_retry_interval(error)
           if error.instance_of?(EventSourcery::EventProcessingError)
             if @error_event_uuid == error.event.uuid
-              @retry_interval *=2 if @retry_interval < MAX_RETRY_INVERVAL
+              @retry_interval *= 2 if @retry_interval < MAX_RETRY_INVERVAL
             else
               @error_event_uuid = error.event.uuid
               @retry_interval = DEFAULT_RETRY_INVERAL

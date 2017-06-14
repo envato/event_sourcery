@@ -16,7 +16,7 @@ module EventSourcery
       #
       # @param processor_name [String] name of the processor you're looking for
       #
-      # @return [ESProcess] the found processor
+      # @return [ESProcess, nil] the found processor object or nil
       def find(processor_name)
         @processors.find do |processor|
           processor.processor_name == processor_name
@@ -27,7 +27,7 @@ module EventSourcery
       #
       # @param constant [String] name of the constant the processer has included
       #
-      # @return [ESProcess] the found processor
+      # @return [ESProcess, nil] the found processor object or nil
       def by_type(constant)
         @processors.select do |processor|
           processor.included_modules.include?(constant)

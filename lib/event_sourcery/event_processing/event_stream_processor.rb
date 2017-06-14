@@ -18,6 +18,12 @@ module EventSourcery
       end
 
       module ProcessHandler
+        # Handler that will process the given event.
+        #
+        # @raise [EventProcessingError] error raised due to processing isssues
+        # @raise [UnableToProcessEventError] raised if unable to process event type
+        #
+        # @param event [Event] the event to process
         def process(event)
           @_event = event
           handlers = self.class.event_handlers[event.type]

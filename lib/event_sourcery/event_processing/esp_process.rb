@@ -9,6 +9,7 @@ module EventSourcery
         @event_source = event_source
         @subscription_master = subscription_master
       end
+      
       # This will start the defined Event Stream Processor to subscribe
       # to the event stream source.
       def start

@@ -16,7 +16,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   An example of how event_sourcery-postgres has implemented `#shutdown!` can be
   found [here](https://github.com/envato/event_sourcery-postgres/pull/5)
 
-
 ## [0.11.2] - 2017-5-29
 ### Fixed
 - Fixed: default poll waiter now implements `shutdown!`

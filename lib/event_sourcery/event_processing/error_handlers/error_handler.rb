@@ -2,6 +2,9 @@ module EventSourcery
   module EventProcessing
     module ErrorHandlers
       module ErrorHandler
+        # The default with_error_handling method. Will awlays raise NotImplementedError
+        #
+        # @raise [NotImplementedError]
         def with_error_handling
           raise NotImplementedError, 'Please implement #with_error_handling method'
         end

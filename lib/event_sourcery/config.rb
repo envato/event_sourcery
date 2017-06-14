@@ -59,7 +59,7 @@ module EventSourcery
 
     # The event body serializer used by the default event builder
     # ({EventStore::EventBuilder}). By default {EventBodySerializer} will be used.
-    # Provide a custom serializer here to change how the event body is de/serialized.
+    # Provide a custom serializer here to change how the event body is serialized.
     def event_body_serializer
       @event_body_serializer ||= EventBodySerializer.new
         .add(Hash, EventBodySerializer::HashSerializer)

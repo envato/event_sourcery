@@ -48,7 +48,6 @@ module EventSourcery
     # Raised when the aggregate doesn't have a state change method for a given
     # event. Consider implementing one if you get this error.
     UnknownEventError = Class.new(RuntimeError)
-    RejectedCommandError = Class.new(RuntimeError)
 
     def self.included(base)
       base.extend(ClassMethods)

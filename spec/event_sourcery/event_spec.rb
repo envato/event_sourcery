@@ -108,6 +108,58 @@ RSpec.describe EventSourcery::Event do
     end
   end
 
+  describe '#hash' do
+    subject(:hash) { event.hash }
+
+    context 'given an Event with UUID' do
+      let(:event) { EventSourcery::Event.new(uuid: event_uuid) }
+      let(:event_uuid) { SecureRandom.uuid }
+
+      it { should be_an Integer }
+
+      context 'compared to an Event with same UUID' do
+        let(:other) { EventSourcery::Event.new(uuid: event_uuid) }
+        it { should eq other.hash }
+      end
+
+      context 'compared to an Event with same UUID (uppercase)' do
+        let(:other) { EventSourcery::Event.new(uuid: event_uuid.upcase) }
+        it { should eq other.hash }
+      end
+
+      context 'compared to an event with different UUID' do
+        let(:other) { EventSourcery::Event.new(uuid: SecureRandom.uuid) }
+        it { should_not eq other.hash }
+      end
+
+      context 'compared to an event without UUID' do
+        let(:other) { EventSourcery::Event.new(uuid: nil) }
+        it { should_not eq other.hash }
+      end
+
+      context 'compared to an ItemAdded event with same UUID' do
+        let(:other) { ItemAdded.new(uuid: event_uuid) }
+        it { should_not eq other.hash }
+      end
+    end
+
+    context 'given an Event without UUID' do
+      let(:event) { EventSourcery::Event.new(uuid: nil) }
+
+      it { should be_an Integer }
+
+      context 'compared to an Event without UUID' do
+        let(:other) { EventSourcery::Event.new(uuid: nil) }
+        it { should eq other.hash }
+      end
+
+      context 'compared to an event with UUID' do
+        let(:other) { EventSourcery::Event.new(uuid: SecureRandom.uuid) }
+        it { should_not eq other.hash }
+      end
+    end
+  end
+
   describe '#eql?' do
     subject(:eql?) { event.eql?(other) }
 

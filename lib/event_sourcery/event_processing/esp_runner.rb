@@ -27,9 +27,7 @@ module EventSourcery
             record_terminated_processes
           end
           kill_remaining_processes
-          until all_processes_terminated?
-            record_terminated_processes
-          end
+          record_terminated_processes until all_processes_terminated?
         end
         exit_indicating_status_of_processes
       end

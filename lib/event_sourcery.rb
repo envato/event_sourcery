@@ -1,5 +1,6 @@
 require 'json'
 require 'securerandom'
+require 'time'
 
 require 'event_sourcery/version'
 require 'event_sourcery/event'

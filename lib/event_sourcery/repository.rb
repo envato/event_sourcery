@@ -20,7 +20,8 @@ module EventSourcery
     # @param event_source event source to be used for loading the events for the aggregate
     # @param event_sink event sink to be used for saving any new events for the aggregate
     def self.load(aggregate_class, aggregate_id, event_source:, event_sink:)
-      new(event_source: event_source, event_sink: event_sink).load(aggregate_class, aggregate_id)
+      new(event_source: event_source, event_sink: event_sink)
+        .load(aggregate_class, aggregate_id)
     end
 
     # @param event_source event source to be used for loading the events for the aggregate
@@ -45,7 +46,8 @@ module EventSourcery
     def save(aggregate)
       new_events = aggregate.changes
       if new_events.any?
-        event_sink.sink(new_events, expected_version: aggregate.version - new_events.count)
+        event_sink.sink(new_events,
+                        expected_version: aggregate.version - new_events.count)
       end
       aggregate.clear_changes
     end

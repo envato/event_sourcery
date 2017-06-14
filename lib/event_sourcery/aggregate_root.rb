@@ -1,7 +1,6 @@
 module EventSourcery
   module AggregateRoot
     UnknownEventError = Class.new(RuntimeError)
-    RejectedCommandError = Class.new(RuntimeError)
 
     def self.included(base)
       base.extend(ClassMethods)

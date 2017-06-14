@@ -44,12 +44,6 @@ EventSourcery.configure do |config|
 end
 ```
 
-## Applications that use EventSourcery
-
-- [Identity](https://github.com/envato/identity) (note that this was the ES/CQRS implementation that ES was initially extracted from).
-- [Payables](https://github.com/envato/payables).
-- [Calendar Example App](https://github.com/envato/calendar-es-example).
-
 ## Development
 
 ### Dependencies

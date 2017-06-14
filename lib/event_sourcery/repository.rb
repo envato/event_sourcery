@@ -1,7 +1,8 @@
 module EventSourcery
   class Repository
     def self.load(aggregate_class, aggregate_id, event_source:, event_sink:)
-      new(event_source: event_source, event_sink: event_sink).load(aggregate_class, aggregate_id)
+      new(event_source: event_source, event_sink: event_sink)
+        .load(aggregate_class, aggregate_id)
     end
 
     def initialize(event_source:, event_sink:)
@@ -17,7 +18,8 @@ module EventSourcery
     def save(aggregate)
       new_events = aggregate.changes
       if new_events.any?
-        event_sink.sink(new_events, expected_version: aggregate.version - new_events.count)
+        event_sink.sink(new_events,
+                        expected_version: aggregate.version - new_events.count)
       end
       aggregate.clear_changes
     end

@@ -51,7 +51,7 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ConstantRetry do
       end
 
       it 'logs the original error' do
-        expect(logger).to have_received(:error).thrice.with("Processor #{processor_name} died with OriginalError.\\n back\\ntrace")
+        expect(logger).to have_received(:error).thrice.with("Processor #{processor_name} died with OriginalError.\nback\ntrace")
       end
 
       it 'calls on_event_processor_error with error and processor name' do

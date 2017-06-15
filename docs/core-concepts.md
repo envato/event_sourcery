@@ -133,7 +133,7 @@ When used in this fashion the event store can be thought of as an event sink.
 
 ### Reading Events
 
-The `EventStore` also allows clients to read events. Clients can poll the store for events of specific types after a specific event ID. They can also subscribe to the event store to be notified when new events are added to the event that match the above criteria.
+The `EventStore` also allows clients to read events. Clients can poll the store for events of specific types after a specific event ID. They can also subscribe to the event store to be notified when new events are added to the event store that match the above criteria.
 
 When used in this fashion the event store can be thought of as an event source.
 

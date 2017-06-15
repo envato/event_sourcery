@@ -24,7 +24,8 @@ module EventSourcery
             version: next_version(event.aggregate_id),
             body: serialized_body,
             created_at: event.created_at || Time.now.utc,
-            uuid: event.uuid
+            uuid: event.uuid,
+            causation_id: event.causation_id,
           )
         end
         true

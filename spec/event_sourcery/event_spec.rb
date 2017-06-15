@@ -42,6 +42,17 @@ RSpec.describe EventSourcery::Event do
       expect(event.correlation_id).to be_nil
     end
 
+    it 'assigns a given causation_id' do
+      uuid = SecureRandom.uuid
+      event = described_class.new(causation_id: uuid)
+      expect(event.causation_id).to eq uuid
+    end
+
+    it 'has a nil causation_id if none is given' do
+      event = described_class.new
+      expect(event.causation_id).to be_nil
+    end
+
     context 'event body is nil' do
       let(:body) { nil }
 

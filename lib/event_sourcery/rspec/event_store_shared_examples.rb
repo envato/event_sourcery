@@ -1,14 +1,16 @@
 RSpec.shared_examples 'an event store' do
   let(:aggregate_id) { SecureRandom.uuid }
 
-  def new_event(aggregate_id: SecureRandom.uuid, type: 'test_event', body: {}, id: nil, version: 1, created_at: nil, uuid: SecureRandom.uuid)
+  def new_event(aggregate_id: SecureRandom.uuid, type: 'test_event', body: {}, id: nil, version: 1,
+                created_at: nil, uuid: SecureRandom.uuid, causation_id: SecureRandom.uuid)
     EventSourcery::Event.new(id: id,
                              aggregate_id: aggregate_id,
                              type: type,
                              body: body,
                              version: version,
                              created_at: created_at,
-                             uuid: uuid)
+                             uuid: uuid,
+                             causation_id: causation_id)
   end
 
   describe '#sink' do
@@ -37,6 +39,13 @@ RSpec.shared_examples 'an event store' do
       event = new_event(body: { 'time' => time })
       expect(event_store.sink(event)).to eq true
       expect(event_store.get_next_from(1, limit: 1).first.body).to eq('time' => time.iso8601)
+    end
+
+    it 'saves the causation_id' do
+      causation_id = SecureRandom.uuid
+      event = new_event(causation_id: causation_id)
+      event_store.sink(event)
+      expect(event_store.get_next_from(1, limit: 1).first.causation_id).to eq(causation_id)
     end
 
     it 'writes multiple events' do

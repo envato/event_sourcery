@@ -2,6 +2,12 @@
 
 A framework for building event sourced, CQRS applications.
 
+## Development Status
+
+EventSourcery is currently being used in production by multiple apps but we
+haven't finalized the API yet and things are still moving rapidly. Until we
+release a 1.0 things may change without first being deprecated.
+
 ## Goals
 
 The goal of EventSourcery is to make it easier to build event sourced, CQRS applications.
@@ -37,12 +43,6 @@ EventSourcery.configure do |config|
   config.error_handler_class = EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoffRetry
 end
 ```
-
-## Applications that use EventSourcery
-
-- [Identity](https://github.com/envato/identity) (note that this was the ES/CQRS implementation that ES was initially extracted from).
-- [Payables](https://github.com/envato/payables).
-- [Calendar Example App](https://github.com/envato/calendar-es-example).
 
 ## Development
 

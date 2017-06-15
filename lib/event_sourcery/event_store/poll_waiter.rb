@@ -5,7 +5,7 @@ module EventSourcery
         @interval = interval
       end
 
-      def poll(*args, &block)
+      def poll(&block)
         catch(:stop) do
           loop do
             block.call

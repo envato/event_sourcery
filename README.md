@@ -1,5 +1,7 @@
 # EventSourcery
 
+[![Build Status](https://travis-ci.org/envato/event_sourcery.svg?branch=master)](https://travis-ci.org/envato/event_sourcery)
+
 A framework for building event sourced, CQRS applications.
 
 ## Development Status

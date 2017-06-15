@@ -121,17 +121,19 @@ The event store is a persistent store of events.
 
 EventSourcery currently supports a Postgres-based event store via the [event_sourcery-postgres gem](https://github.com/envato/event_sourcery-postgres).
 
+For more information about the `EventStore` API refer to [the postgres event store](https://github.com/envato/event_sourcery-postgres/blob/master/lib/event_sourcery/postgres/event_store.rb) or the [in memory event store in this repo](../lib/event_sourcery/event_store/memory.rb)
+
 ### Storing Events
 
 Naturally, it provides the ability to store events. The event store is append-only and immutable. The events in the store form a time-ordered sequence which can be viewed as a stream of events.
 
-EventStore clients can optionally provide an expected version of event when saving to the store. This provides a mechanism for EventStore clients to effectively serialise the processing they perform against an instance of an aggregate.
+`EventStore` clients can optionally provide an expected version of event when saving to the store. This provides a mechanism for `EventStore` clients to effectively serialise the processing they perform against an instance of an aggregate.
 
 When used in this fashion the event store can be thought of as an event sink.
 
 ### Reading Events
 
-The event store also allows clients to read events. Clients can poll the store for events of specific types after a specific event ID. They can also subscribe to the event store to be notified when new events are added to the event that match the above criteria.
+The `EventStore` also allows clients to read events. Clients can poll the store for events of specific types after a specific event ID. They can also subscribe to the event store to be notified when new events are added to the event that match the above criteria.
 
 When used in this fashion the event store can be thought of as an event source.
 
@@ -141,13 +143,13 @@ When used in this fashion the event store can be thought of as an event source.
 >
 > <cite>— [DDD Aggregate](http://martinfowler.com/bliki/DDD_Aggregate.html)</cite>
 
-Clients execute domain transactions against the system by issuing commands against aggregates. The result of these commands is new events being saved to the event store.
+Clients execute domain transactions against the system by issuing commands against aggregate roots. The result of these commands is new events being saved to the event store.
 
-A typical EventSourcery application will have one or more aggregates with multiple commands.
+A typical EventSourcery application will have one or more aggregate roots with multiple commands.
 
 ## Event Processing
 
-A central part of EventSourcery is the processing of events in the store. Event Sourcery provide the Event Stream Processor abstraction to support this.
+A central part of EventSourcery is the processing of events in the store. Event Sourcery provides the Event Stream Processor abstraction to support this.
 
 ```
                                            ┌─────────────┐          Subscribe to the event store
@@ -164,9 +166,10 @@ Listens for events and takes      │             │      │             │  
    action. Actions include      ─▶│   Reactor   │      │  Projector  │◀─ ┐     projects data into a
 emitting new events into the ─ ┘  │             │      │             │    ─ ─       projection.
 store and/or triggering side      └─────────────┘      └─────────────┘
+    effects in the world.
 ```
 
-A typical Event Sourcery application will have multiple projectors and reactors running
+A typical Event Sourcery application will have multiple projectors and reactors running as background processes.
 
 ### Event Stream Processors
 
@@ -198,13 +201,14 @@ Note that you may instead choose to run each ESP in their own process directly. 
 
 ## Typical Flow of State in an Event Sourcery Application
 
-Below we see the typical flow of state in an Event Sourcery application. Note that steps 1 and 2 are not synchronous. This means Event Sourcery applications need to embrace [eventual consistency](https://en.wikipedia.org/wiki/Eventual_consistency).
+Below we see the typical flow of state in an Event Sourcery application (arrows indicate data flow). Note that steps 1 and 2 are not synchronous. This means Event Sourcery applications need to embrace [eventual consistency](https://en.wikipedia.org/wiki/Eventual_consistency).
 
 ```
+
        1. Issue Command   │      2. Update Projection     │        3. Issue Query
 
                           │                               │
-               │                                                          │
+               │                                                          ▲
                │          │                               │               │
                │                                                          │
                │          │                               │          F. Handle
@@ -212,20 +216,20 @@ Below we see the typical flow of state in an Event Sourcery application. Note th
             Command       │                               │               │
                │                                                          │
                │          │                               │               │
-               ▼                       ┌─────────────┐                    ▼
+               ▼                       ┌─────────────┐                    │
         ┌─────────────┐   │            │             │    │        ┌─────────────┐
         │             │       ┌───────▶│  Projector  │             │             │
-     ┌──│  Aggregate  │   │   │        │             │    │        │Query Handler│
+     ┌─▶│  Aggregate  │   │   │        │             │    │        │Query Handler│
      │  │             │       │        └─────────────┘             │             │
      │  └─────────────┘   │  D. Read          │           │        └─────────────┘
-     │         │              event      E. Update                        │
+     │         │              event      E. Update                        ▲
  A. Load   C. Emit        │   │          Projection       │               │
-  events    Event             │               │                       G. Read
-     │         │          │   │               │           │          Projection
+state from  Event             │               │                       G. Read
+  events       │          │   │               │           │          Projection
      │         ▼              │               ▼                           │
      │  ┌─────────────┐   │   │        ┌─────────────┐    │               │
      │  │             │       │        │             │                    │
-     └─▶│ Event Store │───┼───┘        │ Projection  │◀───┼───────────────┘
+     └──│ Event Store │───┼───┘        │ Projection  │────┼───────────────┘
         │             │                │             │
         └─────────────┘   │            └─────────────┘    │
 
@@ -240,7 +244,7 @@ A command comes into the application and is routed to a command handler. The com
 ```ruby
 class AddTodoCommandHandler
   def handle(id:, title:, description:)
-    # The repository provides access to the event store
+    # The repository provides access to the event store for saving and loading aggregates
     repository = EventSourcery::Repository.new(
       event_source: EventSourcery.config.event_source,
       event_sink: EventSourcery.config.event_sink,
@@ -249,7 +253,8 @@ class AddTodoCommandHandler
     # Load up the aggregate from events in the store
     aggregate = repository.load(TodoAggregate, id)
 
-    # Defer to the aggregate to execute the add command
+    # Defer to the aggregate to execute the add command.
+    # This may raise new events in the aggregate which we'll need to save.
     aggregate.add(title, description)
 
     # Save any newly raised events back into the event store
@@ -297,3 +302,12 @@ end
 
 A query comes into the application and is routed to a query handler. The query handler queries the projection directly and returns the result.
 
+```ruby
+module OutstandingTodos
+  class QueryHandler
+    def handle
+      EventSourceryTodoApp.projections_database[:outstanding_todos].all
+    end
+  end
+end
+```

@@ -134,7 +134,7 @@ module EventSourcery
       # Subscribe to the given event source.
       #
       # @param event_source the event source to subscribe to
-      # @param subscription_master [SignalHandlingSubscriptionMaster] 
+      # @param subscription_master [SignalHandlingSubscriptionMaster]
       def subscribe_to(event_source, subscription_master: EventStore::SignalHandlingSubscriptionMaster.new)
         setup
         event_source.subscribe(from_id: last_processed_event_id + 1,

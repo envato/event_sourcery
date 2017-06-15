@@ -46,7 +46,7 @@ module EventSourcery
   #     config.event_body_serializer
   #       .add(BigDecimal) { |decimal| decimal.to_s('F') }
   #
-  #     # Config how your want to handle event processing errors
+  #     # Config how you want to handle event processing errors
   #     config.error_handler_class = EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoffRetry
   #   end
   #

@@ -7,6 +7,7 @@ module EventSourcery
           @processor_name = processor_name
         end
 
+        # Will yield the block and exit the process if an error is raised.
         def with_error_handling
           yield
         rescue => error

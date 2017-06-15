@@ -5,7 +5,7 @@ module EventSourcery
       # is important. In here are mechanisms to do so.
       class Memory
         # Tracking where you're in an event stream at via an in memory hash.
-
+        # Note: This is not persisted and is generally used for testing.
         def initialize
           @state = Hash.new(0)
         end
@@ -26,7 +26,7 @@ module EventSourcery
           @state[processor_name.to_s] = event_id
         end
 
-        # Reset an existing trackers knows event id back to the start. (0)
+        # Reset an existing trackers last processed event id back to the start. (0)
         #
         # @param processor_name [String] the name of the processor to reset
         def reset_last_processed_event_id(processor_name)

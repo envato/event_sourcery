@@ -31,17 +31,12 @@ module EventSourcery
       end
 
       def get_next_from(id, event_types: nil, limit: 1000)
-        events = @events.select { |event| event.id >= id }
-        if event_types
-          events = events.select { |event| event_types.include?(event.type) }
-        end
-        events.first(limit)
+        get_events_by_type(event_types).select { |event| event.id >= id }.first(limit)
       end
 
       def latest_event_id(event_types: nil)
-        event = event_types ? @events.select { |e| event_types.include?(e.type) }.last : @events.last
-
-        event ? event.id : 0
+        event = get_events_by_type(event_types).last
+        event.nil? ? 0 : event.id
       end
 
       def get_events_for_aggregate_id(id)
@@ -60,6 +55,12 @@ module EventSourcery
         unless events.map(&:aggregate_id).uniq.count == 1
           raise AtomicWriteToMultipleAggregatesNotSupported
         end
+      end
+
+      private
+
+      def get_events_by_type(event_types)
+        event_types.nil? ? @events : @events.select { |event| event_types.include?(event.type) }
       end
     end
   end

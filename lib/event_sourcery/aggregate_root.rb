@@ -67,8 +67,8 @@ module EventSourcery
 
       # Register an event handler for the specified event(s)
       #
-      # @param *event_classes one or more event types for which the handler is for
-      # @param &block the event handler
+      # @param event_classes one or more event types for which the handler is for
+      # @param block the event handler
       #
       # @example
       #  apply TodoAdded do |event|

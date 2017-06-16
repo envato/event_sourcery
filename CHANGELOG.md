@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - The core Event class accepts `causation_id` to allow event stores to
   add support for tracking causation ids with events.
 - The core Memory event store saves the `causation_id` and `correlation_id`.
+- Added `Event#to_h` method. This returns a hash of the event attributes.
+- Added `Event#with` method. This provides a way to create a new event
+  identical to the old event except for the provided changes.
 
 ### Changed
 - The event store shared RSpec examples specify event stores should save

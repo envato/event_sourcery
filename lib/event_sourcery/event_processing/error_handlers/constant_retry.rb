@@ -1,7 +1,7 @@
 module EventSourcery
   module EventProcessing
     module ErrorHandlers
-      # Module which includes multiple ways of error handling.
+      # Strategies for error handling.
       class ConstantRetry
         include EventSourcery::EventProcessing::ErrorHandlers::ErrorHandler
 

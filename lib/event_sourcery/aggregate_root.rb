@@ -20,7 +20,7 @@ module EventSourcery
     end
 
     def initialize(id, events, on_unknown_event: EventSourcery.config.on_unknown_event)
-      @id = id
+      @id = id.to_str
       @version = 0
       @on_unknown_event = on_unknown_event
       @changes = []

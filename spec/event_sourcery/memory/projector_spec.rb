@@ -45,7 +45,7 @@ RSpec.describe EventSourcery::Memory::Projector do
   end
 
   describe '#project' do
-    let(:event) { new_event(type: :terms_accepted) }
+    let(:event) { TermsAccepted.new }
 
     it 'processes events via project method' do
       projector = new_projector do

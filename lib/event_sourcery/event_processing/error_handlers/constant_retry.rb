@@ -5,7 +5,7 @@ module EventSourcery
       class ConstantRetry
         include EventSourcery::EventProcessing::ErrorHandlers::ErrorHandler
 
-        # The retry interval.
+        # The retry interval used with {with_error_handling}.
         #
         # @api private
         DEFAULT_RETRY_INVERAL = 1
@@ -15,7 +15,7 @@ module EventSourcery
           @retry_interval = DEFAULT_RETRY_INVERAL
         end
 
-        # Will yeild the black and attempt to retry after a defined retry interval.
+        # Will yield the block and attempt to retry after a defined retry interval {DEFAULT_RETRY_INVERAL}.
         def with_error_handling
           yield
         rescue => error

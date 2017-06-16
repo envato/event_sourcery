@@ -38,9 +38,7 @@ module EventSourcery
           @events.select { |e| event_types.include?(e.type) }
         end
 
-        events
-          .select { |event| event.id >= id }
-          .first(limit)
+        events.select { |event| event.id >= id }.first(limit)
       end
 
       def latest_event_id(event_types: nil)

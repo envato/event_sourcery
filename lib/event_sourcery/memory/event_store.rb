@@ -1,7 +1,7 @@
 module EventSourcery
-  module EventStore
-    class Memory
-      include EachByRange
+  module Memory
+    class EventStore
+      include EventSourcery::EventStore::EachByRange
 
       def initialize(events = [], event_builder: EventSourcery.config.event_builder)
         @events = events

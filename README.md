@@ -8,7 +8,8 @@ A framework for building event sourced, CQRS applications.
 
 - [Development Status](#development-status)
 - [Goals](#goals)
-- [Getting Started Guide](#getting-started-guide)
+- [Related Repositories](#related-repositories)
+- [Getting Started](#getting-started)
 - [Configuration](#configuration)
 - [Development](#development)
     - [Dependencies](#dependencies)
@@ -26,7 +27,7 @@ A framework for building event sourced, CQRS applications.
         - [Projectors](#projectors)
         - [Reactors](#reactors)
         - [Running Multiple ESPs](#running-multiple-esps)
-    - [Typical Flow of State in an Event Sourcery Application](#typical-flow-of-state-in-an-event-sourcery-application)
+    - [Typical Flow of State in an EventSourcery Application](#typical-flow-of-state-in-an-eventsourcery-application)
         - [1. Handling a Command](#1-handling-a-command)
         - [2. Updating a Projection](#2-updating-a-projection)
         - [3. Handling a Query](#3-handling-a-query)
@@ -43,15 +44,21 @@ The goal of EventSourcery is to make it easier to build event sourced, CQRS appl
 
 The hope is that by using EventSourcery you can focus on modeling your domain with aggregates, commands, and events; and not worry about stitching together application plumbing.
 
-## Getting Started Guide
+## Related Repositories
 
-EventSourcery currently supports a Postgres-based event store via the [event_sourcery-postgres](https://github.com/envato/event_sourcery-postgres) gem.
+- EventSourcery's Postgres-based event store implementation: [event_sourcery-postgres](https://github.com/envato/event_sourcery-postgres).
+- Example EventSourcery application: [event_sourcery_todo_app](https://github.com/envato/event_sourcery_todo_app).
+- An opinionated CLI tool for building event sourced Ruby services with EventSourcery: [event_sourcery_generators](https://github.com/envato/event_sourcery_generators).
 
-**TODO**
+## Getting Started
+
+The [example EventSourcery application](https://github.com/envato/event_sourcery_todo_app) is intended to illustrate concepts in EventSourcery, how they relate to each other, and how to use them in practice. If you'd like a succinct look at the library in practice take a look at that.
+
+Otherwise you will generally need to add both event_sourcery and [event_sourcery-postgres](https://github.com/envato/event_sourcery-postgres) to your application.
 
 ## Configuration
 
-There are several ways to configure Event Sourcery to your liking. The following presents some examples:
+There are several ways to configure EventSourcery to your liking. The following presents some examples:
 
 ```ruby
 EventSourcery.configure do |config|
@@ -59,7 +66,7 @@ EventSourcery.configure do |config|
   # One might set up Rollbar here.
   config.on_event_processor_error = proc { |exception, processor_name| … }
 
-  # Enable Event Sourcery logging.
+  # Enable EventSourcery logging.
   config.logger = Logger.new('logs/my_event_sourcery_app.log')
 
   # Customize how event body attributes are serialized
@@ -162,7 +169,7 @@ Below is a high level view of a CQRS, event-sourced web application built using 
 
 ### Events
 
-Events are value objects that record something of meaning in the domain. Think of a sequence of events as a time series of immutable domain facts.
+Events are value objects that record something of meaning in the domain. Think of a sequence of events as a time series of immutable domain facts. Together they form the source of truth for our application's state.
 
 Events are targeted at an aggregate via an `aggregate_id` and have the following attributes.
 
@@ -235,7 +242,7 @@ A typical EventSourcery application will have one or more aggregate roots with m
 
 ### Event Processing
 
-A central part of EventSourcery is the processing of events in the store. Event Sourcery provides the Event Stream Processor abstraction to support this.
+A central part of EventSourcery is the processing of events in the store. EventSourcery provides the Event Stream Processor abstraction to support this.
 
 ```
                                            ┌─────────────┐          Subscribe to the event store
@@ -255,7 +262,7 @@ store and/or triggering side      └─────────────┘ 
     effects in the world.
 ```
 
-A typical Event Sourcery application will have multiple projectors and reactors running as background processes.
+A typical EventSourcery application will have multiple projectors and reactors running as background processes.
 
 #### Event Stream Processors
 
@@ -279,15 +286,17 @@ A Reactor is an EventStreamProcessor that listens to events and emits events bac
 
 They typically record any external side effects they've triggered as events in the store.
 
+Reactors can be used to build [process managers or sagas](https://msdn.microsoft.com/en-us/library/jj591569.aspx).
+
 #### Running Multiple ESPs
 
 An EventSourcery application will typically have multiple ESPs running. EventSourcery provides a class called [ESPRunner](lib/event_sourcery/event_processing/esp_runner.rb) which can be used to run ESPs. It runs each ESP in a forked child process so each ESP can process the event store independently. You can find an example in [event_sourcery_todo_app](https://github.com/envato/event_sourcery_todo_app/blob/master/Rakefile).
 
 Note that you may instead choose to run each ESP in their own process directly. The coordination of this is not currently provided by EventSourcery.
 
-### Typical Flow of State in an Event Sourcery Application
+### Typical Flow of State in an EventSourcery Application
 
-Below we see the typical flow of state in an Event Sourcery application (arrows indicate data flow). Note that steps 1 and 2 are not synchronous. This means Event Sourcery applications need to embrace [eventual consistency](https://en.wikipedia.org/wiki/Eventual_consistency).
+Below we see the typical flow of state in an EventSourcery application (arrows indicate data flow). Note that steps 1 and 2 are not synchronous. This means EventSourcery applications need to embrace [eventual consistency](https://en.wikipedia.org/wiki/Eventual_consistency).
 
 ```
 
@@ -351,7 +360,9 @@ end
 
 #### 2. Updating a Projection
 
-Projecting is process of converting (or collecting) a stream of events into a structural representation. You can think of the process as a fold over a sequence of events. You can think of a projection as a read model that is generally persisted somewhere like a database table.
+You can think of projections as read-only models. They are created and updated by projectors and show different views over the events that are the source of truth for our application state. Projections are typically stored as database tables.
+
+Projecting is process of converting (or collecting) a stream of events into these database tables. You can think of this process as a fold over a sequence of events.
 
 A projector is a process that listens for new events in the event store. When it sees a new event it cares about it updates its projection.
 
@@ -361,14 +372,14 @@ class OutstandingTodosProjector
 
   projector_name :outstanding_todos
 
-  # Define our database table projection
+  # Database table that forms the projection.
   table :outstanding_todos do
     column :todo_id, 'UUID NOT NULL'
     column :title, :text
     column :description, :text
   end
 
-  # Handle TodoAdded events by adding the todo to our projection
+  # Handle TodoAdded events by adding the todo to our projection.
   project TodoAdded do |event|
     table.insert(
       todo_id: event.aggregate_id,
@@ -377,7 +388,7 @@ class OutstandingTodosProjector
     )
   end
 
-  # Handle TodoCompleted events by removing the todo from our projection
+  # Handle TodoCompleted events by removing the todo from our projection.
   project TodoCompleted, TodoAbandoned do |event|
     table.where(todo_id: event.aggregate_id).delete
   end
@@ -390,6 +401,7 @@ A query comes into the application and is routed to a query handler. The query h
 
 ```ruby
 module OutstandingTodos
+  # Query handler that queries the projection table.
   class QueryHandler
     def handle
       EventSourceryTodoApp.projections_database[:outstanding_todos].all

@@ -15,7 +15,7 @@ module EventSourcery
       #
       # @see SignalHandlingSubscriptionMaster
       # @see Subscription
-      def poll(*args, &block)
+      def poll(&block)
         catch(:stop) do
           loop do
             block.call

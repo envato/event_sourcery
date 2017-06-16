@@ -42,6 +42,17 @@ RSpec.describe EventSourcery::Event do
       expect(event.correlation_id).to be_nil
     end
 
+    it 'assigns a given causation_id' do
+      uuid = SecureRandom.uuid
+      event = described_class.new(causation_id: uuid)
+      expect(event.causation_id).to eq uuid
+    end
+
+    it 'has a nil causation_id if none is given' do
+      event = described_class.new
+      expect(event.causation_id).to be_nil
+    end
+
     context 'event body is nil' do
       let(:body) { nil }
 
@@ -104,6 +115,62 @@ RSpec.describe EventSourcery::Event do
       it "can't be overridden with the provided type" do
         event = EventSourcery::Event.new(type: 'blah')
         expect(event.type).to eq 'ItemAdded'
+      end
+    end
+  end
+
+  describe '#with' do
+    subject(:with) { original_event.with(**changes) }
+
+    let(:original_event) { EventSourcery::Event.new(**original_attributes) }
+    let(:original_attributes) do
+      {
+        id:             73,
+        uuid:           SecureRandom.uuid,
+        aggregate_id:   SecureRandom.uuid,
+        type:           'type',
+        body:           { 'attr' => 'value' },
+        version:        89,
+        created_at:     Time.now.utc,
+        correlation_id: SecureRandom.uuid,
+        causation_id:   SecureRandom.uuid,
+      }
+    end
+    let(:changes) do
+      {
+        causation_id: SecureRandom.uuid,
+      }
+    end
+
+    it 'returns a new event' do
+      expect(with).to_not be(original_event)
+    end
+
+    it 'makes the changes to the new event' do
+      changes.each do |attribute, value|
+        expect(with.send(attribute)).to eq(value)
+      end
+    end
+
+    it 'maintains the original, unchanged values on the new event' do
+      original_attributes.each do |attribute, value|
+        expect(with.send(attribute)).to(eq(value)) unless changes.include?(attribute)
+      end
+    end
+
+    it 'does not mutate the original event' do
+      original_attributes.each do |attribute, value|
+        expect(original_event.send(attribute)).to(eq(value))
+      end
+    end
+  end
+
+  describe '#to_h' do
+    %i[id uuid aggregate_id type body version created_at correlation_id causation_id].each do |attribute|
+      it "includes #{attribute}" do
+        value = %i[id version].include?(attribute) ? 42 : '42'
+        event = EventSourcery::Event.new(attribute => value)
+        expect(event.to_h).to include(attribute => value)
       end
     end
   end

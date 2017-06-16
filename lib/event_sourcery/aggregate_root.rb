@@ -87,7 +87,7 @@ module EventSourcery
     # @param events [Array] Events from which the aggregate's current state will be formed
     # @param on_unknown_event [Proc] Optional. The proc to be run if an unknown event type (for which no event handler is registered using {ClassMethods#apply}) is to be loaded.
     def initialize(id, events, on_unknown_event: EventSourcery.config.on_unknown_event)
-      @id = id
+      @id = id.to_str
       @version = 0
       @on_unknown_event = on_unknown_event
       @changes = []

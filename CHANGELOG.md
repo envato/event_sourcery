@@ -5,6 +5,21 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Added `Event#to_h` method. This returns a hash of the event attributes.
+- Added `Event#with` method. This provides a way to create a new event
+  identical to the old event except for the provided changes.
+
+## [0.13.0] - 2016-6-16
+### Added
+- The core Event class accepts `causation_id` to allow event stores to
+  add support for tracking causation ids with events.
+- The core Memory event store saves the `causation_id` and `correlation_id`.
+
+### Changed
+- The event store shared RSpec examples specify event stores should save
+  the `causation_id` and `correlation_id`.
+
 ### Removed
 - The `processing_event` method from the memory tracker. It was intended to
   be a mechanism to wrap processing and tracker updates which appears to be

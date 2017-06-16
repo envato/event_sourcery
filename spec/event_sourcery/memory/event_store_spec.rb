@@ -1,4 +1,4 @@
-RSpec.describe EventSourcery::EventStore::Memory do
+RSpec.describe EventSourcery::Memory::EventStore do
   let(:supports_versions) { false }
   subject(:event_store) { described_class.new([], event_builder: EventSourcery.config.event_builder) }
 

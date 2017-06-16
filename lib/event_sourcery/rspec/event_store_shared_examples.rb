@@ -188,7 +188,7 @@ RSpec.shared_examples 'an event store' do
     RSpec.shared_examples 'gets events for a specific aggregate id' do
       before do
         event_store.sink(new_event(aggregate_id: aggregate_id, type: 'item_added', body: { 'my' => 'body' }))
-        event_store.sink(new_event(aggregate_id: aggregate_id))
+        event_store.sink(new_event(aggregate_id: double(to_str: aggregate_id)))
         event_store.sink(new_event(aggregate_id: SecureRandom.uuid))
       end
 

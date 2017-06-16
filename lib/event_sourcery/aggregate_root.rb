@@ -1,6 +1,6 @@
 module EventSourcery
   #
-  # EventSourcery::AggregateRoot provides a foundation for writing your own AggregateRoot classes.
+  # EventSourcery::AggregateRoot provides a foundation for writing your own aggregate root classes.
   # You can use it by including it in your classes, as show in the example code.
   #
   # Excerpt from {https://github.com/envato/event_sourcery/blob/master/docs/core-concepts.md EventSourcery Core Concepts} on Aggregates follows:
@@ -48,8 +48,8 @@ module EventSourcery
   #     end
   #   end
   module AggregateRoot
-    # Raised when the aggregate doesn't have a state change method for a given
-    # event. Consider implementing one if you get this error.
+    # Raised when the aggregate doesn't have a method to handle a given event.
+    # Consider implementing one if you get this error.
     UnknownEventError = Class.new(RuntimeError)
 
     def self.included(base)

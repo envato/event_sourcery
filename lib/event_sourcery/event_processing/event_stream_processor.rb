@@ -57,7 +57,8 @@ module EventSourcery
           @processes_event_types = Array(@processes_event_types) | event_types.map(&:to_s)
         end
 
-        # Process all the events.
+        # Indicate that this class can process all event types. Note that you will need to call this method if you
+        # intend to process all event types, without calling {ProcessHandler#process} for each event type.
         def processes_all_events
           define_singleton_method :processes? do |_|
             true

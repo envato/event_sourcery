@@ -83,7 +83,7 @@ module EventSourcery
 
     # Load an aggregate instance based on the given ID and events
     #
-    # @param id [Integer] ID of the aggregate instance to be loaded
+    # @param id [String] ID (a UUID represented as a string) of the aggregate instance to be loaded
     # @param events [Array] Events from which the aggregate's current state will be formed
     # @param on_unknown_event [Proc] Optional. The proc to be run if an unknown event type (for which no event handler is registered using {ClassMethods#apply}) is to be loaded.
     def initialize(id, events, on_unknown_event: EventSourcery.config.on_unknown_event)

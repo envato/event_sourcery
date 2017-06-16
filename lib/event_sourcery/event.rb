@@ -46,6 +46,10 @@ module EventSourcery
       id <=> other.id if other.is_a? Event
     end
 
+    def with(**attributes)
+      self.class.new(**to_h.merge!(attributes))
+    end
+
     def to_h
       {
         id:             id,

@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [0.13.0] - 2016-6-16
 ### Added
 - The core Event class accepts `causation_id` to allow event stores to
   add support for tracking causation ids with events.

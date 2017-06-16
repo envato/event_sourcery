@@ -8,9 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - The core Event class accepts `causation_id` to allow event stores to
   add support for tracking causation ids with events.
-- The core Memory event store saves the `causation_id`.
+- The core Memory event store saves the `causation_id` and `correlation_id`.
+
+### Changed
 - The event store shared RSpec examples specify event stores should save
-  the `causation_id`.
+  the `causation_id` and `correlation_id`.
 
 ### Removed
 - The `processing_event` method from the memory tracker. It was intended to

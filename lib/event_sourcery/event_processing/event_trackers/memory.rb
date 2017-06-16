@@ -26,7 +26,7 @@ module EventSourcery
           @state[processor_name.to_s] = event_id
         end
 
-        # Reset an existing trackers last processed event id back to the start. (0)
+        # Reset a existing tracker's last processed event id back to 0
         #
         # @param processor_name [String] the name of the processor to reset
         def reset_last_processed_event_id(processor_name)

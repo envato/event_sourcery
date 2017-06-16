@@ -12,7 +12,7 @@ module EventSourcery
         @processors << klass
       end
 
-      # Find a registered processor by it's name.
+      # Find a registered processor by its name.
       #
       # @param processor_name [String] name of the processor you're looking for
       #

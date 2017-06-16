@@ -1,5 +1,5 @@
 module EventSourcery
-  # EventBodySerializer is used for serializing event bodies when persisting events. It also contains
+  # EventBodySerializer is used for serializing event bodies when persisting events.
   class EventBodySerializer
     # Serialize the given event body, with the default or the provided, serializer
     #

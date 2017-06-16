@@ -114,7 +114,7 @@ module EventSourcery
         tracker.reset_last_processed_event_id(processor_name)
       end
 
-      # Return the last process event id
+      # Return the last processed event id
       #
       # @return [Int] the id of the last processed event
       def last_processed_event_id

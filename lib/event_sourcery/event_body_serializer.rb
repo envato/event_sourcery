@@ -26,7 +26,7 @@ module EventSourcery
 
     # Serialize the given event body
     #
-    # @param event_body event body to be serialized
+    # @param object event body to be serialized
     def serialize(object)
       serializer = @serializers[object.class]
       serializer.call(object, &method(:serialize))

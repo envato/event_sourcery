@@ -13,9 +13,9 @@ module EventSourcery
   #
   #   — DDD Aggregate
   #
-  # Clients execute domain transactions against the system by issuing commands against aggregates.
-  # The web layer will take a command and pass it to the appropriate command handler. The command handler instantiates the aggregate in question and defers to it to process the command.
-  # When created, an aggregate loads its state by loading all events that pertain to it from the event store. The aggregate then processes the command by either rejecting it or accepting it. The aggregate emits events into the event store when it successfully processes a command.
+  # Clients execute domain transactions against the system by issuing commands against aggregate roots.
+  # The result of these commands is new events being saved to the event store.
+  # A typical EventSourcery application will have one or more aggregate roots with multiple commands.
   #
   # The following partial example is taken from the EventSourceryTodoApp.
   # Refer a more complete example {https://github.com/envato/event_sourcery_todo_app/blob/master/app/aggregates/todo.rb here}.

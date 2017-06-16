@@ -4,12 +4,12 @@ module EventSourcery
       class ExponentialBackoffRetry
         include EventSourcery::EventProcessing::ErrorHandlers::ErrorHandler
 
-        # The retry interval.
+        # The starting value for the retry interval used with {with_error_handling}.
         #
         # @api private
         DEFAULT_RETRY_INVERAL = 1
 
-        # The max retry attempts.
+        # The maximum retry interval value to be used with {with_error_handling}.
         #
         # @api private
         MAX_RETRY_INVERVAL = 64

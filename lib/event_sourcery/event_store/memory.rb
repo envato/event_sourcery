@@ -32,12 +32,24 @@ module EventSourcery
       end
 
       def get_next_from(id, event_types: nil, limit: 1000)
-        events = event_types.nil? ? @events : @events.select { |e| event_types.include?(e.type) }
-        events.select { |event| event.id >= id }.first(limit)
+        events = if event_types.nil?
+          @events
+        else
+          @events.select { |e| event_types.include?(e.type) }
+        end
+
+        events
+          .select { |event| event.id >= id }
+          .first(limit)
       end
 
       def latest_event_id(event_types: nil)
-        events = event_types.nil? ? @events : @events.select { |e| event_types.include?(e.type) }
+        events = if event_types.nil?
+          @events
+        else
+          @events.select { |e| event_types.include?(e.type) }
+        end
+
         events.empty? ? 0 : events.last.id
       end
 

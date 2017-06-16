@@ -1,8 +1,9 @@
 RSpec.shared_examples 'an event store' do
   let(:aggregate_id) { SecureRandom.uuid }
 
-  def new_event(aggregate_id: SecureRandom.uuid, type: 'test_event', body: {}, id: nil, version: 1,
-                created_at: nil, uuid: SecureRandom.uuid, causation_id: SecureRandom.uuid)
+  def new_event(aggregate_id: SecureRandom.uuid, type: 'test_event', body: {},
+                id: nil, version: 1, created_at: nil, uuid: SecureRandom.uuid,
+                correlation_id: SecureRandom.uuid, causation_id: SecureRandom.uuid)
     EventSourcery::Event.new(id: id,
                              aggregate_id: aggregate_id,
                              type: type,
@@ -10,6 +11,7 @@ RSpec.shared_examples 'an event store' do
                              version: version,
                              created_at: created_at,
                              uuid: uuid,
+                             correlation_id: correlation_id,
                              causation_id: causation_id)
   end
 
@@ -46,6 +48,13 @@ RSpec.shared_examples 'an event store' do
       event = new_event(causation_id: causation_id)
       event_store.sink(event)
       expect(event_store.get_next_from(1, limit: 1).first.causation_id).to eq(causation_id)
+    end
+
+    it 'saves the correlation_id' do
+      correlation_id = SecureRandom.uuid
+      event = new_event(correlation_id: correlation_id)
+      event_store.sink(event)
+      expect(event_store.get_next_from(1, limit: 1).first.correlation_id).to eq(correlation_id)
     end
 
     it 'writes multiple events' do
@@ -176,16 +185,34 @@ RSpec.shared_examples 'an event store' do
   end
 
   describe '#get_events_for_aggregate_id' do
-    it 'gets events for a specific aggregate id' do
-      event_store.sink(new_event(aggregate_id: aggregate_id, type: 'item_added', body: { 'my' => 'body' }))
-      event_store.sink(new_event(aggregate_id: aggregate_id))
-      event_store.sink(new_event(aggregate_id: SecureRandom.uuid))
-      events = event_store.get_events_for_aggregate_id(aggregate_id)
-      expect(events.map(&:id)).to eq([1, 2])
-      expect(events.first.aggregate_id).to eq aggregate_id
-      expect(events.first.type).to eq 'item_added'
-      expect(events.first.body).to eq({ 'my' => 'body' })
-      expect(events.first.created_at).to be_instance_of(Time)
+    RSpec.shared_examples 'gets events for a specific aggregate id' do
+      before do
+        event_store.sink(new_event(aggregate_id: aggregate_id, type: 'item_added', body: { 'my' => 'body' }))
+        event_store.sink(new_event(aggregate_id: aggregate_id))
+        event_store.sink(new_event(aggregate_id: SecureRandom.uuid))
+      end
+
+      subject(:events) { event_store.get_events_for_aggregate_id(uuid) }
+
+      specify do
+        expect(events.map(&:id)).to eq([1, 2])
+        expect(events.first.aggregate_id).to eq aggregate_id
+        expect(events.first.type).to eq 'item_added'
+        expect(events.first.body).to eq({ 'my' => 'body' })
+        expect(events.first.created_at).to be_instance_of(Time)
+      end
+    end
+
+    context 'when aggregate_id is a string' do
+      include_examples 'gets events for a specific aggregate id' do
+        let(:uuid) { aggregate_id }
+      end
+    end
+
+    context 'when aggregate_id is convertible to a string' do
+      include_examples 'gets events for a specific aggregate id' do
+        let(:uuid) { double(to_str: aggregate_id) }
+      end
     end
   end
 

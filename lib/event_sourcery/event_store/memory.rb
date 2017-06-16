@@ -11,42 +11,51 @@ module EventSourcery
       def sink(event_or_events, expected_version: nil)
         events = Array(event_or_events)
         ensure_one_aggregate(events)
+
         if expected_version && version_for(events.first.aggregate_id) != expected_version
           raise ConcurrencyError
         end
+
         events.each do |event|
-          id = @events.size + 1
-          serialized_body = EventBodySerializer.serialize(event.body)
           @events << @event_builder.build(
-            id: id,
+            id: @events.size + 1,
             aggregate_id: event.aggregate_id,
             type: event.type,
             version: next_version(event.aggregate_id),
-            body: serialized_body,
+            body: EventBodySerializer.serialize(event.body),
             created_at: event.created_at || Time.now.utc,
             uuid: event.uuid,
+            correlation_id: event.correlation_id,
             causation_id: event.causation_id,
           )
         end
+
         true
       end
 
       def get_next_from(id, event_types: nil, limit: 1000)
-        events = @events.select { |event| event.id >= id }
-        if event_types
-          events = events.select { |event| event_types.include?(event.type) }
+        events = if event_types.nil?
+          @events
+        else
+          @events.select { |e| event_types.include?(e.type) }
         end
-        events.first(limit)
+
+        events.select { |event| event.id >= id }.first(limit)
       end
 
       def latest_event_id(event_types: nil)
-        event = event_types ? @events.select { |e| event_types.include?(e.type) }.last : @events.last
+        events = if event_types.nil?
+          @events
+        else
+          @events.select { |e| event_types.include?(e.type) }
+        end
 
-        event ? event.id : 0
+        events.empty? ? 0 : events.last.id
       end
 
       def get_events_for_aggregate_id(id)
-        @events.select { |event| event.aggregate_id == id }
+        stringified_id = id.to_str
+        @events.select { |event| event.aggregate_id == stringified_id }
       end
 
       def next_version(aggregate_id)
@@ -58,7 +67,7 @@ module EventSourcery
       end
 
       def ensure_one_aggregate(events)
-        unless events.map(&:aggregate_id).uniq.count == 1
+        unless events.map(&:aggregate_id).uniq.one?
           raise AtomicWriteToMultipleAggregatesNotSupported
         end
       end

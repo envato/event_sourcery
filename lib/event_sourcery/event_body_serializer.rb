@@ -32,7 +32,7 @@ module EventSourcery
       serializer.call(object, &method(:serialize))
     end
 
-    # Built in implementation for serializing Hash objects
+    # Default serializer for Hash objects
     module HashSerializer
       def self.call(hash, &serialize)
         hash.each_with_object({}) do |(key, value), memo|
@@ -41,14 +41,14 @@ module EventSourcery
       end
     end
 
-    # Built in implementation for serializing Array objects
+    # Default serializer for Array objects
     module ArraySerializer
       def self.call(array, &serialize)
         array.map(&serialize)
       end
     end
 
-    # Built in catch all implementation for serializing any object
+    # Default catch all implementation for serializing any object
     module IdentitySerializer
       def self.call(object)
         object

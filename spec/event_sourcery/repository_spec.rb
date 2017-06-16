@@ -1,5 +1,5 @@
 RSpec.describe EventSourcery::Repository do
-  let(:event_store) { EventSourcery::EventStore::Memory.new }
+  let(:event_store) { EventSourcery::Memory::EventStore.new }
   let(:event_sink) { EventSourcery::EventStore::EventSink.new(event_store) }
   let(:aggregate_id) { SecureRandom.uuid }
   let(:aggregate_class) {

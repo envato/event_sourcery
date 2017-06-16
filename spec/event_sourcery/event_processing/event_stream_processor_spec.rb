@@ -1,5 +1,5 @@
 RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
-  let(:tracker) { EventSourcery::EventProcessing::EventTrackers::Memory.new }
+  let(:tracker) { EventSourcery::Memory::Tracker.new }
 
   def new_event_processor(&block)
     Class.new do

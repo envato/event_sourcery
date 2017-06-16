@@ -20,7 +20,7 @@ RSpec.describe EventSourcery::EventStore::Subscription do
   end
 
   let(:event_types) { nil }
-  let(:event_store) { EventSourcery::EventStore::Memory.new }
+  let(:event_store) { EventSourcery::Memory::EventStore.new }
   subject(:subscription) { described_class.new(event_store: event_store,
                                                poll_waiter: waiter,
                                                event_types: event_types,

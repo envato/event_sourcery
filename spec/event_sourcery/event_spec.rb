@@ -119,6 +119,16 @@ RSpec.describe EventSourcery::Event do
     end
   end
 
+  describe '#to_h' do
+    %i[id uuid aggregate_id type body version created_at correlation_id causation_id].each do |attribute|
+      it "includes #{attribute}" do
+        value = %i[id version].include?(attribute) ? 42 : '42'
+        event = EventSourcery::Event.new(attribute => value)
+        expect(event.to_h).to include(attribute => value)
+      end
+    end
+  end
+
   describe '#hash' do
     subject(:hash) { event.hash }
 

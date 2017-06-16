@@ -45,5 +45,19 @@ module EventSourcery
     def <=>(other)
       id <=> other.id if other.is_a? Event
     end
+
+    def to_h
+      {
+        id:             id,
+        uuid:           uuid,
+        aggregate_id:   aggregate_id,
+        type:           type,
+        body:           body,
+        version:        version,
+        created_at:     created_at,
+        correlation_id: correlation_id,
+        causation_id:   causation_id,
+      }
+    end
   end
 end

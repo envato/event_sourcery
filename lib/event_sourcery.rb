@@ -66,7 +66,7 @@ module EventSourcery
     config.logger
   end
 
-  # Registry of all ESPs
+  # Registry of all Event Stream Processors
   #
   # @return EventProcessing::EventStreamProcessorRegistry
   def self.event_stream_processor_registry

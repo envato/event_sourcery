@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Added `Event#to_h` method. This returns a hash of the event attributes.
 - Added `Event#with` method. This provides a way to create a new event
   identical to the old event except for the provided changes.
+- `AggregateRoot` when apply event, if unprovided, sets `correlation_id`
+  to the event `uuid` when applying events.
 
 ## [0.13.0] - 2016-6-16
 ### Added

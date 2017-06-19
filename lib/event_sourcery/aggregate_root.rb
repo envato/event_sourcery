@@ -43,8 +43,17 @@ module EventSourcery
 
     attr_reader :id
 
-    def apply_event(event_class, options = {})
-      event = event_class.new(**options.merge(aggregate_id: id))
+    def apply_event(event_class,
+                    uuid: SecureRandom.uuid,
+                    correlation_id: uuid,
+                    **event_attributes)
+      event = event_class.new(
+        **event_attributes.merge(
+          uuid: uuid,
+          correlation_id: correlation_id,
+          aggregate_id: id
+        )
+      )
       mutate_state_from(event)
       @changes << event
     end

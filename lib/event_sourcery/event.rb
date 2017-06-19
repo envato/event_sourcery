@@ -21,7 +21,7 @@ module EventSourcery
                    causation_id: nil)
       @id = id
       @uuid = uuid && uuid.downcase
-      @aggregate_id = aggregate_id
+      @aggregate_id = aggregate_id && aggregate_id.to_str
       @type = self.class.type || type.to_s
       @body = body ? EventSourcery::EventBodySerializer.serialize(body) : {}
       @version = version ? Integer(version) : nil

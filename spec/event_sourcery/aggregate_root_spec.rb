@@ -120,16 +120,14 @@ RSpec.describe EventSourcery::AggregateRoot do
       subject(:aggregate) do
         new_aggregate(aggregate_uuid) do
           def add_item(item)
-            apply_event ItemAdded, correlation_id: '4fccabfd-5e15-4e41-946a-9bf9421ff4f7
-'
+            apply_event ItemAdded, correlation_id: '4fccabfd-5e15-4e41-946a-9bf9421ff4f7'
           end
         end
       end
 
       it 'uses the provided correlation_id' do
         emitted_event = aggregate.changes.first
-        expect(emitted_event.correlation_id).to eq('4fccabfd-5e15-4e41-946a-9bf9421ff4f7
-')
+        expect(emitted_event.correlation_id).to eq('4fccabfd-5e15-4e41-946a-9bf9421ff4f7')
       end
     end
 

@@ -6,14 +6,14 @@ require 'event_sourcery/version'
 Gem::Specification.new do |spec|
   spec.name          = 'event_sourcery'
   spec.version       = EventSourcery::VERSION
-  spec.authors     = ['Steve Hodgkiss', 'Tao Guo', 'Sebastian von Conrad']
-  spec.email       = ['steve@hodgkiss.me', 'tao.guo@envato.com', 'sebastian.von.conrad@envato.com']
+  spec.authors     = ['Envato']
+  spec.email       = ['rubygems@envato.com']
 
   spec.summary       = 'Event Sourcing Library'
   spec.description   = ''
   spec.homepage      = 'https://github.com/envato/event_sourcery'
 
-  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(\.|Gemfile|Rakefile|bin/|script/|spec/)}) }
   spec.bindir        = 'exe'
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']

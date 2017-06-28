@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Added in the first version of the yard documentation.
 
 ## [0.14.0] - 2016-6-21
 ### Added
@@ -13,7 +15,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   identical to the old event except for the provided changes.
 - `Event#initialize` accepts `aggregate_id` parameter that either is
   a strings or responds to `to_str`.
-- Added in the first version of the yard documentation.
 
 ## [0.13.0] - 2016-6-16
 ### Added

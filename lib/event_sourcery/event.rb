@@ -15,31 +15,31 @@ module EventSourcery
     attr_reader :id, :uuid, :aggregate_id, :type, :body, :version, :created_at, :correlation_id, :causation_id
 
     # @!attribute [r] id
-    #   @return [Integer] unique identifier at the persistent layer
+    # @return [Integer] unique identifier at the persistent layer
 
     # @!attribute [r] uuid
-    #   @return [String] unique identifier (UUID) for this event.
+    # @return [String] unique identifier (UUID) for this event.
 
     # @!attribute [r] aggregate_id
-    #   @return [String] aggregate instance UUID to which this event belongs to.
+    # @return [String] aggregate instance UUID to which this event belongs to.
 
     # @!attribute [r] type
-    #   @return event type
+    # @return event type
 
     # @!attribute [r] body
-    #   @return [Hash] Content of the event body.
+    # @return [Hash] Content of the event body.
 
     # @!attribute [r] version
-    #   @return [String] event version. Used by some event stores to guard against concurrency errors.
+    # @return [String] event version. Used by some event stores to guard against concurrency errors.
 
     # @!attribute [r] created_at
-    #   @return [Time] Created at timestamp (in UTC) for the event.
+    # @return [Time] Created at timestamp (in UTC) for the event.
 
     # @!attribute [r] correlation_id
-    #   @return [String] UUID attached to the event that allows reference to a particular transaction or event chain. This value is often supplied as part of a command issued by clients.
+    # @return [String] UUID attached to the event that allows reference to a particular transaction or event chain. This value is often supplied as part of a command issued by clients.
 
     # @!attribute [r] causation_id
-    #   @return [String] UUID of the event that caused this event.
+    # @return [String] UUID of the event that caused this event.
 
     #
     # @param id [Integer] Optional. Unique identifier at the persistent layer. By default this will be set by the underlying persistence layer when persisting the event.
@@ -103,7 +103,7 @@ module EventSourcery
     #
     #     # Of course, with can accept any number of event attributes:
     #
-    #      new_event = old_event.with(id: 42, version: 77, body: { 'attr' => 'value' })
+    #     new_event = old_event.with(id: 42, version: 77, body: { 'attr' => 'value' })
     def with(**attributes)
       self.class.new(**to_h.merge!(attributes))
     end

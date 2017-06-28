@@ -71,9 +71,9 @@ module EventSourcery
       # @param block the event handler
       #
       # @example
-      #  apply TodoAdded do |event|
-      #    @added = true
-      #  end
+      #   apply TodoAdded do |event|
+      #     @added = true
+      #   end
       def apply(*event_classes, &block)
         event_classes.each do |event_class|
           @event_handlers[event_class.type] << block

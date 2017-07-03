@@ -18,7 +18,7 @@ module EventSourcery
       end
 
       module ProcessHandler
-        # Handler that will process the given event.
+        # Handler that processes the given event.
         #
         # @raise [EventProcessingError] error raised due to processing isssues
         # @raise [UnableToProcessEventError] raised if unable to process event type
@@ -50,14 +50,14 @@ module EventSourcery
         # @attr_reader event_handlers [Hash] Hash of handler blocks keyed by event
         attr_reader :processes_event_types, :event_handlers
 
-        # This will register the event types to process.
+        # Registers the event types to process.
         #
         # @param event_types a collection of event types to process
         def processes_events(*event_types)
           @processes_event_types = Array(@processes_event_types) | event_types.map(&:to_s)
         end
 
-        # Indicate that this class can process all event types. Note that you will need to call this method if you
+        # Indicate that this class can process all event types. Note that you need to call this method if you
         # intend to process all event types, without calling {ProcessHandler#process} for each event type.
         def processes_all_events
           define_singleton_method :processes? do |_|
@@ -77,7 +77,7 @@ module EventSourcery
         end
 
         # Set the name of the processor.
-        # If no name given then it will be the class name.
+        # Returns the class name if no name is given.
         #
         # @param name [String] the name of the processor to set
         def processor_name(name = nil)
@@ -100,7 +100,7 @@ module EventSourcery
         end
       end
 
-      # This calls the class method of processes_event_types
+      # Calls processes_event_types method on the instance class
       def processes_event_types
         self.class.processes_event_types
       end
@@ -122,12 +122,12 @@ module EventSourcery
         tracker.last_processed_event_id(processor_name)
       end
 
-      # This calls the class method of processor_name
+      # Calls processor_name method on the instance class
       def processor_name
         self.class.processor_name
       end
 
-      # This calls the class method of processes?
+      # Calls processes? method on the instance class
       def processes?(event_type)
         self.class.processes?(event_type)
       end

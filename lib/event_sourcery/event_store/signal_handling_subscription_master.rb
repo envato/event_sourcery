@@ -1,6 +1,6 @@
 module EventSourcery
   module EventStore
-    # SubscriptionMaster manages shutdown signals and facilitate graceful shutdowns of subscriptions.
+    # Manages shutdown signals and facilitate graceful shutdowns of subscriptions.
     #
     # @see Subscription
     class SignalHandlingSubscriptionMaster
@@ -9,8 +9,8 @@ module EventSourcery
         setup_graceful_shutdown
       end
 
-      # If a shutdown has been requested through a `TERM` or `INT` signal, this will throw a `:stop` (generally) causing a Subscription
-      # to stop listening for events
+      # If a shutdown has been requested through a `TERM` or `INT` signal, this will throw a `:stop`
+      # (generally) causing a Subscription to stop listening for events.
       #
       # @see Subscription#start
       def shutdown_if_requested

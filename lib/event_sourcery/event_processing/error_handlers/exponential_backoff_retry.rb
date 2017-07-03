@@ -19,7 +19,7 @@ module EventSourcery
           @retry_interval = DEFAULT_RETRY_INVERAL
         end
 
-        # Will yeild the black and attempt to retry in an exponential backoff.
+        # Will yeild the block and attempt to retry in an exponential backoff.
         def with_error_handling
           yield
         rescue => error

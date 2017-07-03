@@ -15,6 +15,7 @@ module EventSourcery
         @exit_status = true
       end
 
+      # Start each Event Stream Processor in a new child process.
       def start!
         with_logging do
           start_processes
@@ -72,6 +73,7 @@ module EventSourcery
       def kill_remaining_processes
         send_signal_to_remaining_processes(:KILL)
       end
+
 
       def send_signal_to_remaining_processes(signal)
         Process.kill(signal, *@pids) unless all_processes_terminated?

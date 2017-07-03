@@ -63,7 +63,7 @@ There are several ways to configure EventSourcery to your liking. The following 
 ```ruby
 EventSourcery.configure do |config|
   # Add custom reporting of errors occurring during event processing.
-  # One might set up Rollbar here.
+  # One might set up an error reporting service like Rollbar here.
   config.on_event_processor_error = proc { |exception, processor_name| … }
 
   # Enable EventSourcery logging.

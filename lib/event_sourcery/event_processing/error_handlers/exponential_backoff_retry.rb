@@ -3,7 +3,15 @@ module EventSourcery
     module ErrorHandlers
       class ExponentialBackoffRetry
         include EventSourcery::EventProcessing::ErrorHandlers::ErrorHandler
+
+        # The starting value for the retry interval used with {with_error_handling}.
+        #
+        # @api private
         DEFAULT_RETRY_INVERAL = 1
+
+        # The maximum retry interval value to be used with {with_error_handling}.
+        #
+        # @api private
         MAX_RETRY_INVERVAL = 64
 
         def initialize(processor_name:)
@@ -11,6 +19,7 @@ module EventSourcery
           @retry_interval = DEFAULT_RETRY_INVERAL
         end
 
+        # Will yeild the black and attempt to retry in an exponential backoff.
         def with_error_handling
           yield
         rescue => error

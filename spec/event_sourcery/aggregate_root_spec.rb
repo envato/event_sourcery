@@ -56,7 +56,7 @@ RSpec.describe EventSourcery::AggregateRoot do
       expect(aggregate.added_and_removed_events).to eq events
     end
 
-    it "updates it's version" do
+    it 'updates its version' do
       expect(aggregate.version).to eq events.count
     end
   end
@@ -87,60 +87,88 @@ RSpec.describe EventSourcery::AggregateRoot do
   context 'when state changes' do
     let(:events) { [] }
 
-    subject(:aggregate) {
-      new_aggregate(aggregate_uuid) do
-        def add_item(item)
-          apply_event ItemAdded, body: { id: item.id }
+    context 'and the event is valid' do
+      subject(:aggregate) {
+        new_aggregate(aggregate_uuid) do
+          def add_item(item)
+            apply_event ItemAdded, body: { id: item.id }
+          end
         end
-      end
-    }
+      }
 
-    before do
-      aggregate.add_item(OpenStruct.new(id: 1234))
-    end
-
-    it 'updates state by calling the handler' do
-      event = aggregate.item_added_events.first
-      expect(event.type).to eq 'item_added'
-      expect(event.body).to eq("id" => 1234)
-    end
-
-    it "increments it's version" do
-      expect(aggregate.version).to eq 1
-    end
-
-    it 'exposes the new event in changes' do
-      emitted_event = aggregate.changes.first
-      expect(emitted_event.type).to eq 'item_added'
-      expect(emitted_event.body).to eq('id' => 1234)
-      expect(emitted_event.aggregate_id).to eq aggregate_uuid
-    end
-
-    context 'when changes are cleared' do
-      it 'has no changes' do
-        aggregate.clear_changes
-        expect(aggregate.changes).to eq []
+      before do
+        aggregate.add_item(OpenStruct.new(id: 1234))
       end
 
-      it "maintains it's version" do
-        aggregate.clear_changes
+      it 'updates state by calling the handler' do
+        event = aggregate.item_added_events.first
+        expect(event.type).to eq 'item_added'
+        expect(event.body).to eq("id" => 1234)
+      end
+
+      it 'increments its version' do
         expect(aggregate.version).to eq 1
       end
+
+      it 'exposes the new event in changes' do
+        emitted_event = aggregate.changes.first
+        expect(emitted_event.type).to eq 'item_added'
+        expect(emitted_event.body).to eq('id' => 1234)
+        expect(emitted_event.aggregate_id).to eq aggregate_uuid
+      end
+
+      context 'when changes are cleared' do
+        it 'has no changes' do
+          aggregate.clear_changes
+          expect(aggregate.changes).to eq []
+        end
+
+        it 'maintains its version' do
+          aggregate.clear_changes
+          expect(aggregate.version).to eq 1
+        end
+      end
+
+      context 'multiple state changes' do
+        before do
+          aggregate.add_item(OpenStruct.new(id: 1235))
+          aggregate.add_item(OpenStruct.new(id: 1236))
+        end
+
+        it 'exposes the events in order' do
+          emitted_versions = aggregate.changes.map { |e| e.body['id'] }
+          expect(emitted_versions).to eq([1234, 1235, 1236])
+        end
+
+        it 'increments its version' do
+          expect(aggregate.version).to eq 3
+        end
+      end
     end
 
-    context 'multiple state changes' do
-      before do
-        aggregate.add_item(OpenStruct.new(id: 1235))
-        aggregate.add_item(OpenStruct.new(id: 1236))
+    context 'and the event is invalid' do
+      class InvalidItem < EventSourcery::Event
+        attr_reader :validation_errors
+
+        def valid?
+          false
+        end
+
+        def validation_errors
+          { invalid_body: body }
+        end
       end
 
-      it 'exposes the events in order' do
-        emitted_versions = aggregate.changes.map { |e| e.body['id'] }
-        expect(emitted_versions).to eq([1234, 1235, 1236])
-      end
+      subject(:aggregate) {
+        new_aggregate(aggregate_uuid) do
+          def add_item(item)
+            apply_event InvalidItem, body: item.body
+          end
+        end
+      }
 
-      it "increments it's version" do
-        expect(aggregate.version).to eq 3
+      it 'raises an exception' do
+        expect{ aggregate.add_item(OpenStruct.new(body: {this: 'item is invalid'})) }.to raise_error /item is invalid/
       end
     end
   end

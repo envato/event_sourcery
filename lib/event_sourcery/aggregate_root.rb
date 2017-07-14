@@ -124,8 +124,12 @@ module EventSourcery
 
     def apply_event(event_class, options = {})
       event = event_class.new(**options.merge(aggregate_id: id))
-      mutate_state_from(event)
-      @changes << event
+      if event.valid?
+        mutate_state_from(event)
+        @changes << event
+      else
+        raise(InvalidEventError, "#{event.class} not valid: #{event.validation_errors.values.join(', ')}")
+      end
     end
 
     def mutate_state_from(event)

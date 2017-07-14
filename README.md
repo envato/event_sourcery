@@ -224,6 +224,47 @@ Naturally, it provides the ability to store events. The event store is append-on
 
 When used in this fashion the event store can be thought of as an event sink.
 
+##### Event Validation
+
+Events may be given defined schemas which are validated before the event can be saved in the event store.
+
+There are several reasons why you may choose to enforce schemas on your events:
+
+* Event schemas document the intended structure of events and allow you to trace their history via source control
+* Schema validation ensures all events have the intended format before being saved to the event store. This is particularly important because events are immutable.
+* Schema validation ensures that specs don't make faulty assumptions when creating test inputs.
+* Schemas may be used to supply the event with attributes, eg `event.plan_code` rather than `event.body.fetch('plan_code')`. This improves the readability of your code.
+
+To enforce validation, your event must supply two methods:
+* `#valid?`  
+  should return true if the event body is valid, false otherwise.
+* `#validation_errors`  
+  should return a hash of errors detected during validation.
+  
+The [dry-validation gem](https://github.com/dry-rb/dry-validation) may be used for event body validation.
+Here is an example of an event schema defined using [dry-types](https://github.com/dry-rb/dry-types):
+  
+```ruby
+  module Events
+    class SubscriptionCreated < EventSourcery::Event
+
+      attribute :subscription_uuid, Types::Coercible::String
+      attribute :plan_code, Types::Coercible::String
+      attribute :activated_at, Types::Form::Time
+      attribute :unit_amount_in_cents, Types::Form::Int
+      attribute :cancelled_at, Types::Form::Time
+
+      validations do
+        required(:subscription_uuid).filled(:uuid?)
+        required(:plan_code).filled(:str?)
+        required(:activated_at).filled(:time?)
+        required(:unit_amount_in_cents).filled(:int?)
+        required(:cancelled_at).maybe(:time?)
+      end
+    end
+  end
+```
+
 #### Reading Events
 
 The `EventStore` also allows clients to read events. Clients can poll the store for events of specific types after a specific event ID. They can also subscribe to the event store to be notified when new events are added to the event store that match the above criteria.

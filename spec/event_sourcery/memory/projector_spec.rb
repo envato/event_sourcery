@@ -2,6 +2,7 @@ RSpec.describe EventSourcery::Memory::Projector do
   let(:projector_class) do
     Class.new do
       include EventSourcery::Memory::Projector
+      processor_name 'test_processor'
     end
   end
 
@@ -24,6 +25,12 @@ RSpec.describe EventSourcery::Memory::Projector do
 
     it 'uses the inferred event tracker by default' do
       expect(projector.instance_variable_get('@tracker')).to eq event_tracker
+    end
+  end
+
+  describe '.projector_name' do
+    it 'delegates to processor_name' do
+      expect(projector_class.projector_name).to eq 'test_processor'
     end
   end
 

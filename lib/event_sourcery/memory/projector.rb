@@ -5,6 +5,11 @@ module EventSourcery
       def self.included(base)
         base.include(EventSourcery::EventProcessing::EventStreamProcessor)
         base.include(InstanceMethods)
+        base.class_eval do
+          class << self
+            alias_method :projector_name, :processor_name
+          end
+        end
       end
 
       module InstanceMethods

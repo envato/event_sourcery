@@ -242,28 +242,6 @@ To enforce validation, your event must supply two methods:
   should return a hash of errors detected during validation.
   
 The [dry-validation gem](https://github.com/dry-rb/dry-validation) may be used for event body validation.
-Here is an example of an event schema defined using [dry-types](https://github.com/dry-rb/dry-types):
-  
-```ruby
-  module Events
-    class SubscriptionCreated < EventSourcery::Event
-
-      attribute :subscription_uuid, Types::Coercible::String
-      attribute :plan_code, Types::Coercible::String
-      attribute :activated_at, Types::Form::Time
-      attribute :unit_amount_in_cents, Types::Form::Int
-      attribute :cancelled_at, Types::Form::Time
-
-      validations do
-        required(:subscription_uuid).filled(:uuid?)
-        required(:plan_code).filled(:str?)
-        required(:activated_at).filled(:time?)
-        required(:unit_amount_in_cents).filled(:int?)
-        required(:cancelled_at).maybe(:time?)
-      end
-    end
-  end
-```
 
 #### Reading Events
 

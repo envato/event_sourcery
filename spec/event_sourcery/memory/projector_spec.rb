@@ -14,6 +14,16 @@ RSpec.describe EventSourcery::Memory::Projector do
     )
   end
 
+  def new_projector(&block)
+    Class.new do
+      include EventSourcery::Memory::Projector
+      projector_name 'test_processor'
+      processes_events :terms_accepted
+      class_eval(&block) if block_given?
+      attr_reader :processed_event
+    end.new(tracker: tracker)
+  end
+
   describe '.new' do
     let(:event_tracker) { double }
 
@@ -31,6 +41,38 @@ RSpec.describe EventSourcery::Memory::Projector do
   describe '.projector_name' do
     it 'delegates to processor_name' do
       expect(projector_class.projector_name).to eq 'test_processor'
+    end
+  end
+
+  describe '#project' do
+    let(:event) { new_event(type: :terms_accepted) }
+
+    it 'processes events via project method' do
+      projector = new_projector do
+        def project(event)
+          @processed_event = event
+        end
+      end
+      projector.project(event)
+      expect(projector.processed_event).to eq(event)
+    end
+
+    it 'processes events with custom classes' do
+      projector = new_projector do
+        project ItemAdded do |event|
+          @processed_event = event
+        end
+      end
+      event = ItemAdded.new
+      projector.project(event)
+      expect(projector.processed_event).to eq(event)
+    end
+
+    it 'raises if neither are defined' do
+      projector = new_projector
+      expect {
+        projector.project(event)
+      }.to raise_error(EventSourcery::EventProcessingError)
     end
   end
 

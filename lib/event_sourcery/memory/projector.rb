@@ -6,7 +6,9 @@ module EventSourcery
         base.include(EventSourcery::EventProcessing::EventStreamProcessor)
         base.include(InstanceMethods)
         base.class_eval do
+          alias_method :project, :process
           class << self
+            alias_method :project, :process
             alias_method :projector_name, :processor_name
           end
         end

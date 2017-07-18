@@ -76,4 +76,14 @@ RSpec.describe EventSourcery::Memory::Projector do
     end
   end
 
+  describe '.projects_events' do
+    it 'is aliased to processes_events' do
+      projector_class = Class.new do
+        include EventSourcery::Memory::Projector
+        projects_events :item_added
+      end
+      expect(projector_class.processes?(:item_added)).to eq true
+    end
+  end
+
 end

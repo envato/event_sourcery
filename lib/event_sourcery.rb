@@ -29,6 +29,8 @@ require 'event_sourcery/aggregate_root'
 require 'event_sourcery/repository'
 require 'event_sourcery/memory/tracker'
 require 'event_sourcery/memory/event_store'
+require 'event_sourcery/memory/config'
+require 'event_sourcery/memory/projector'
 
 module EventSourcery
   # Configure EventSourcery

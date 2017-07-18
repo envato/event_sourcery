@@ -12,6 +12,7 @@ module EventSourcery
       def initialize(events = [], event_builder: EventSourcery.config.event_builder)
         @events = events
         @event_builder = event_builder
+        @listeners = []
       end
 
       # Store given events to the in-memory store
@@ -40,6 +41,12 @@ module EventSourcery
             correlation_id: event.correlation_id,
             causation_id: event.causation_id,
           )
+        end
+
+        events.each do |event|
+          @listeners.each do |listener|
+            listener.process(event)
+          end
         end
 
         true
@@ -108,6 +115,14 @@ module EventSourcery
         unless events.map(&:aggregate_id).uniq.one?
           raise AtomicWriteToMultipleAggregatesNotSupported
         end
+      end
+
+      # Adds a listener or listeners to the memory store.
+      # the #process(event) method will execute whenever an event is emitted
+      #
+      # @param listener A single istener or an array of listeners
+      def add_listeners(listeners)
+        @listeners.concat(Array(listeners))
       end
     end
   end

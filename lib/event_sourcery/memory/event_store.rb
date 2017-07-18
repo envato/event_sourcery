@@ -43,11 +43,7 @@ module EventSourcery
           )
         end
 
-        events.each do |event|
-          @listeners.each do |listener|
-            listener.process(event)
-          end
-        end
+        project_events(events)
 
         true
       end
@@ -123,6 +119,16 @@ module EventSourcery
       # @param listener A single istener or an array of listeners
       def add_listeners(listeners)
         @listeners.concat(Array(listeners))
+      end
+
+      private
+
+      def project_events(events)
+        events.each do |event|
+          @listeners.each do |listener|
+            listener.process(event)
+          end
+        end
       end
     end
   end

@@ -13,7 +13,7 @@ RSpec.describe EventSourcery::Repository do
       attr_reader :item_added_events
     end
   }
-  let(:events) { [new_event(type: :item_added, aggregate_id: aggregate_id)] }
+  let(:events) { [ItemAdded.new(aggregate_id: aggregate_id)] }
 
   describe '.load' do
     RSpec.shared_examples 'news up an aggregate and loads history' do

@@ -36,16 +36,16 @@ RSpec.describe EventSourcery::EventStore::Subscription do
   end
 
   it 'yields new events' do
-    event_store.sink(new_event)
+    event_store.sink(ItemAdded.new(aggregate_id: SecureRandom.uuid))
     subscription.start
     expect(@event_batches.first.map(&:id)).to eq [1]
   end
 
   it 'yields new events in batches' do
     waiter.times = 2
-    waiter.after_poll_callback = proc { event_store.sink(new_event) }
-    event_store.sink(new_event)
-    event_store.sink(new_event)
+    waiter.after_poll_callback = proc { event_store.sink(ItemAdded.new(aggregate_id: SecureRandom.uuid)) }
+    event_store.sink(ItemAdded.new(aggregate_id: SecureRandom.uuid))
+    event_store.sink(ItemAdded.new(aggregate_id: SecureRandom.uuid))
     subscription.start
     expect(@event_batches.first.map(&:id)).to eq [1, 2]
   end
@@ -59,11 +59,11 @@ RSpec.describe EventSourcery::EventStore::Subscription do
     let(:event_types) { ['item_added', 'item_removed'] }
 
     it 'filters by the given event type' do
-      event_store.sink(new_event(type: 'item_added'))
-      event_store.sink(new_event(type: 'item_removed'))
-      event_store.sink(new_event(type: 'item_starred'))
+      event_store.sink(ItemAdded.new(aggregate_id: SecureRandom.uuid))
+      event_store.sink(ItemRemoved.new(aggregate_id: SecureRandom.uuid))
+      event_store.sink(TermsAccepted.new(aggregate_id: SecureRandom.uuid))
       waiter.times = 2
-      waiter.after_poll_callback = proc { event_store.sink(new_event(type: 'item_added')) }
+      waiter.after_poll_callback = proc { event_store.sink(ItemAdded.new(aggregate_id: SecureRandom.uuid)) }
       subscription.start
       expect(@event_batches.count).to eq 2
       expect(@event_batches.first.map(&:type)).to eq ['item_added', 'item_removed']

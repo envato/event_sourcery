@@ -69,7 +69,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
 
     before do
       event_processor.setup
-      event_processor.process(new_event(id: 1))
+      event_processor.process(ItemAdded.new(id: 1))
     end
 
     it 'resets last processed event ID' do
@@ -80,7 +80,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
 
   describe '#subscribe_to' do
     let(:event_store) { double(:event_store) }
-    let(:events) { [new_event(id: 1), new_event(id: 2)] }
+    let(:events) { [ItemAdded.new(id: 1), ItemAdded.new(id: 2)] }
     let(:subscription_master) { spy(EventSourcery::EventStore::SignalHandlingSubscriptionMaster) }
     subject(:event_processor) {
       new_event_processor do
@@ -142,7 +142,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
 
   describe '#process' do
     context 'using a generic process handler' do
-      let(:event) { new_event(type: 'item_added') }
+      let(:event) { ItemAdded.new }
       subject(:event_processor) {
         Class.new do
           include EventSourcery::EventProcessing::EventStreamProcessor
@@ -161,7 +161,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
       }
 
       context "given an event the processor doesn't care about" do
-        let(:event) { new_event(type: 'item_starred') }
+        let(:event) { ItemRemoved }
 
         it 'does not process them' do
           event_processor.process(event)
@@ -170,7 +170,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
       end
 
       context 'given an event the processor cares about' do
-        let(:event) { new_event(type: 'item_added') }
+        let(:event) { ItemAdded.new }
 
         it 'processes them' do
           event_processor.process(event)

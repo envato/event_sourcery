@@ -4,6 +4,7 @@ module EventSourcery
   UnableToProcessEventError = Class.new(Error)
   ConcurrencyError = Class.new(Error)
   AtomicWriteToMultipleAggregatesNotSupported = Class.new(Error)
+  InvalidEventError = Class.new(Error)
 
   class EventProcessingError < Error
     attr_reader :event

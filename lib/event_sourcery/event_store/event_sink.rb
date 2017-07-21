@@ -7,8 +7,13 @@ module EventSourcery
         @event_store = event_store
       end
 
-      extend Forwardable
-      def_delegators :event_store, :sink
+      def sink(event_or_events, expected_version: nil)
+        events = Array(event_or_events)
+        events.each do |event|
+          raise(InvalidEventError, "#{event.class} not valid: #{event.validation_errors.values.join(', ')}") unless event.valid?
+        end
+        event_store.sink(events, expected_version: expected_version)
+      end
 
       private
 

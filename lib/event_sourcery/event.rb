@@ -124,5 +124,10 @@ module EventSourcery
         causation_id:   causation_id,
       }
     end
+
+    #   Allow Event Validation with backwards compatibility for events that do not implement validation
+    def valid?
+      true
+    end
   end
 end

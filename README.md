@@ -226,6 +226,25 @@ Naturally, it provides the ability to store events. The event store is append-on
 
 When used in this fashion the event store can be thought of as an event sink.
 
+##### Event Validation
+
+Events may be given defined schemas which are validated before the event is saved in the event store.
+
+There are several reasons why you may choose to enforce schemas on your events:
+
+* Event schemas document the intended structure of events and allow you to trace their history via source control
+* Schema validation ensures all events have the intended format before being saved to the event store. This is particularly important because events are immutable.
+* Schema validation ensures that specs don't make faulty assumptions when creating test inputs.
+* Schemas may be used to supply the event with attributes, eg `event.plan_code` rather than `event.body.fetch('plan_code')`. This improves the readability of your code.
+
+To enforce validation, your event must supply two methods:
+* `#valid?`  
+  should return true if the event body is valid, false otherwise.
+* `#validation_errors`  
+  should return a hash of errors detected during validation.
+  
+The [dry-validation gem](https://github.com/dry-rb/dry-validation) may be used for event body validation.
+
 #### Reading Events
 
 The `EventStore` also allows clients to read events. Clients can poll the store for events of specific types after a specific event ID. They can also subscribe to the event store to be notified when new events are added to the event store that match the above criteria.

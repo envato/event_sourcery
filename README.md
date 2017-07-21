@@ -56,6 +56,8 @@ The [example EventSourcery application](https://github.com/envato/event_sourcery
 
 Otherwise you will generally need to add both event_sourcery and [event_sourcery-postgres](https://github.com/envato/event_sourcery-postgres) to your application.
 
+If Event Sourcing or CQRS is a new concept to you, we highly recommend you watch [An In-Depth Look at Event Sourcing With CQRS](https://www.youtube.com/watch?v=EqpalkqJD8M&t=2680s). It explores some of the theory behind both Event Sourcing & CQRS and will help you better understand the building blocks of the Event Sourcery framework.
+
 ## Configuration
 
 There are several ways to configure EventSourcery to your liking. The following presents some examples:

@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Added in the first version of the yard documentation.
 
+### Changed
+- Improved EventProcessingError messages
+
 ## [0.14.0] - 2016-6-21
 ### Added
 - Added `Event#to_h` method. This returns a hash of the event attributes.

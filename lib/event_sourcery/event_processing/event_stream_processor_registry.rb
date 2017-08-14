@@ -23,14 +23,25 @@ module EventSourcery
         end
       end
 
-      # Find a registered processor by its type.
+      # Find a registered processors by its type.
       #
-      # @param constant [String] name of the constant the processer has included
+      # @param constant [String] name of the constant the processers has included
       #
-      # @return [ESProcess, nil] the found processor object or nil
+      # @return [Array] of the found processor classes
       def by_type(constant)
         @processors.select do |processor|
           processor.included_modules.include?(constant)
+        end
+      end
+
+      # Find a registered processor by its group.
+      #
+      # @param constant [String] name of the processor group that targeted processors belongs to
+      #
+      # @return [Array] of the found processor classes
+      def by_group(processor_group)
+        @processors.select do |processor|
+          processor.processor_group.to_s == processor_group.to_s
         end
       end
 

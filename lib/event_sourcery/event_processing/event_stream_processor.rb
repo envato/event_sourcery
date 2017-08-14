@@ -5,7 +5,7 @@ module EventSourcery
         base.extend(ClassMethods)
         base.include(InstanceMethods)
         base.prepend(ProcessHandler)
-        EventSourcery.event_stream_processor_registry.register(base)
+        base.include(Registrable)
         base.class_eval do
           @event_handlers = Hash.new { |hash, key| hash[key] = [] }
         end
@@ -76,30 +76,6 @@ module EventSourcery
             processes_event_types.include?(event_type.to_s)
         end
 
-        # Set the group name the processor belongs to.
-        # Returns "default" if no group name is given.
-        #
-        # @param processor_group [String] the name of the group processor belongs to
-        def processor_group(processor_group = nil)
-          if processor_group
-            @processor_group = processor_group
-          else
-            (defined?(@processor_group) && @processor_group) || 'default'
-          end
-        end
-
-        # Set the name of the processor.
-        # Returns the class name if no name is given.
-        #
-        # @param name [String] the name of the processor to set
-        def processor_name(name = nil)
-          if name
-            @processor_name = name
-          else
-            (defined?(@processor_name) && @processor_name) || self.name
-          end
-        end
-
         # Process the events for the given event types with the given block.
         #
         # @param event_classes the event type classes to process
@@ -132,16 +108,6 @@ module EventSourcery
       # @return [Int] the id of the last processed event
       def last_processed_event_id
         tracker.last_processed_event_id(processor_name)
-      end
-
-      # Calls processor_name method on the instance class
-      def processor_name
-        self.class.processor_name
-      end
-
-      # Calls processor_group method on the instance class
-      def processor_group
-        self.class.processor_group
       end
 
       # Calls processes? method on the instance class

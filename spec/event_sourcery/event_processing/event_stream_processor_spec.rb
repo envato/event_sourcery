@@ -45,6 +45,22 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
     end
   end
 
+  describe '#processor_group' do
+    it 'sets processor group name' do
+      processor = new_event_processor do
+        processor_group 'critical'
+      end
+      expect(processor.class.processor_group).to eq 'critical'
+      expect(processor.processor_group).to eq 'critical'
+    end
+
+    it 'defaults to class name' do
+      processor = new_event_processor
+      expect(processor.class.processor_group).to eq 'default'
+      expect(processor.processor_group).to eq 'default'
+    end
+  end
+
   describe '#processes?' do
     it 'returns true for events the processor is interested in' do
       event_processor = new_event_processor do

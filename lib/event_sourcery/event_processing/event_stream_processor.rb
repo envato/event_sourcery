@@ -76,6 +76,18 @@ module EventSourcery
             processes_event_types.include?(event_type.to_s)
         end
 
+        # Set the group name the processor belongs to.
+        # Returns "default" if no group name is given.
+        #
+        # @param processor_group [String] the name of the group processor belongs to
+        def processor_group(processor_group = nil)
+          if processor_group
+            @processor_group = processor_group
+          else
+            (defined?(@processor_group) && @processor_group) || 'default'
+          end
+        end
+
         # Set the name of the processor.
         # Returns the class name if no name is given.
         #
@@ -125,6 +137,11 @@ module EventSourcery
       # Calls processor_name method on the instance class
       def processor_name
         self.class.processor_name
+      end
+
+      # Calls processor_group method on the instance class
+      def processor_group
+        self.class.processor_group
       end
 
       # Calls processes? method on the instance class

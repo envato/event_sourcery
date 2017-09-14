@@ -25,7 +25,7 @@ module EventSourcery
 
       # Find a registered processor by its type.
       #
-      # @param constant [String] name of the constant the processer has included
+      # @param constant [String] name of the constant the processor has included
       #
       # @return [ESProcess, nil] the found processor object or nil
       def by_type(constant)

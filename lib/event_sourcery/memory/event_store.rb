@@ -116,7 +116,7 @@ module EventSourcery
       # Adds a listener or listeners to the memory store.
       # the #process(event) method will execute whenever an event is emitted
       #
-      # @param listener A single istener or an array of listeners
+      # @param listener A single listener or an array of listeners
       def add_listeners(listeners)
         @listeners.concat(Array(listeners))
       end

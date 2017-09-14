@@ -180,17 +180,8 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
     end
 
     context 'when using specific event handlers' do
-      def new_esp(&block)
-        Class.new do
-          include EventSourcery::EventProcessing::EventStreamProcessor
-          processor_name 'my_processor'
-
-          class_eval(&block)
-        end.new(tracker: tracker)
-      end
-
       subject(:event_processor) {
-        new_esp do
+        new_event_processor do
           process ItemAdded do |event|
             @added_event = event
           end
@@ -218,7 +209,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
 
       context 'processing multiple events in handlers' do
         let(:event_processor) {
-          new_esp do
+          new_event_processor do
             process ItemAdded do |event|
               @added_event = event
             end

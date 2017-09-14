@@ -45,7 +45,8 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::NoRetry do
     end
 
     context 'when the raised errors are EventProcessingError' do
-      let(:error) { EventSourcery::EventProcessingError.new(event) }
+      let(:event_processor) { double :event_processor }
+      let(:error) { EventSourcery::EventProcessingError.new(event: event, processor: event_processor) }
 
       it 'logs the original error' do
         expect(logger).to have_received(:error).once.with("Processor #{processor_name} died with OriginalError.\nback\ntrace")

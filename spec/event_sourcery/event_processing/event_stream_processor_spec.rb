@@ -180,17 +180,8 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
     end
 
     context 'when using specific event handlers' do
-      def new_esp(&block)
-        Class.new do
-          include EventSourcery::EventProcessing::EventStreamProcessor
-          processor_name 'my_processor'
-
-          class_eval(&block)
-        end.new(tracker: tracker)
-      end
-
       subject(:event_processor) {
-        new_esp do
+        new_event_processor do
           process ItemAdded do |event|
             @added_event = event
           end
@@ -218,7 +209,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
 
       context 'processing multiple events in handlers' do
         let(:event_processor) {
-          new_esp do
+          new_event_processor do
             process ItemAdded do |event|
               @added_event = event
             end
@@ -241,13 +232,16 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
       end
 
       context 'processing events and raise error' do
-        let(:event_processor) {
-          new_esp do
-            process ItemAdded do |event|
-              raise 'Something is wrong'
-            end
+        class FooProcessor
+          include EventSourcery::EventProcessing::EventStreamProcessor
+          processor_name 'foo_processor'
+
+          process ItemAdded do |event|
+            raise 'Something is wrong'
           end
-        }
+        end
+
+        let(:event_processor) { FooProcessor.new(tracker: tracker) }
 
         it 'wraps raised exception with EventProcessingError' do
           expect {
@@ -255,7 +249,11 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
           }.to raise_error { |error|
             expect(error).to be_a(EventSourcery::EventProcessingError)
             expect(error.event).to eq item_added_event
-            expect(error.cause.message).to eq 'Something is wrong'
+            expect(error.message).to eq <<-EOF.gsub(/^ {14}/, '')
+              #<FooProcessor @@processor_name="foo_processor">
+              #<ItemAdded @id=nil, @uuid="#{item_added_event.uuid}", @type="item_added">
+              #<RuntimeError: Something is wrong>
+            EOF
           }
         end
       end

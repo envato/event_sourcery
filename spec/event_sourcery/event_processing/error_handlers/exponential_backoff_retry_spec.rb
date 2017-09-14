@@ -17,6 +17,7 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoff
   end
 
   describe '#with_error_handling' do
+    let(:event_processor) { double :event_processor }
     let(:cause) { double(to_s: 'OriginalError', backtrace: ['back', 'trace']) }
     let(:event) { double(uuid: SecureRandom.uuid) }
     let(:number_of_errors_to_raise) { 3 }
@@ -54,7 +55,7 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoff
         with_error_handling
       end
 
-      let(:error) { EventSourcery::EventProcessingError.new(event) }
+      let(:error) { EventSourcery::EventProcessingError.new(event: event, processor: event_processor) }
 
       it 'logs the original error' do
         expect(logger).to have_received(:error).thrice.with("Processor #{processor_name} died with OriginalError.\nback\ntrace")
@@ -84,9 +85,9 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoff
         with_error_handling
       end
 
-      let(:error_for_event) { EventSourcery::EventProcessingError.new(event) }
+      let(:error_for_event) { EventSourcery::EventProcessingError.new(event: event, processor: event_processor) }
       let(:another_event) { double(uuid: SecureRandom.uuid) }
-      let(:error_for_another_event) { EventSourcery::EventProcessingError.new(another_event) }
+      let(:error_for_another_event) { EventSourcery::EventProcessingError.new(event: another_event, processor: event_processor) }
       subject(:with_error_handling) do
         @count = 0
         error_handler.with_error_handling do

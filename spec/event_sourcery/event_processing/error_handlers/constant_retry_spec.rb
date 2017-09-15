@@ -44,7 +44,8 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ConstantRetry do
     end
 
     context 'when the raised errors are EventProcessingError' do
-      let(:error) { EventSourcery::EventProcessingError.new(event: event) }
+      let(:event_processor) { double :event_processor }
+      let(:error) { EventSourcery::EventProcessingError.new(event: event, processor: event_processor) }
       before do
         allow(error).to receive(:cause).and_return(cause)
         with_error_handling

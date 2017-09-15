@@ -40,7 +40,7 @@ module EventSourcery
           end
           @_event = nil
         rescue
-          raise EventProcessingError.new(event)
+          raise EventProcessingError.new(event: event, processor: self)
         end
       end
 

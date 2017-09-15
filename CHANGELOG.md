@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - Added in the first version of the yard documentation.
+- Fix typo in constant name `EventSourcery::EventProcessing::ErrorHandlers::ConstantRetry::DEFAULT_RETRY_INTERVAL`
+- Fix typo in constant name `EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoffRetry::DEFAULT_RETRY_INTERVAL`
+- Fix typo in constant name `EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoffRetry::MAX_RETRY_INTERVAL`
 
 ## [0.14.0] - 2016-6-21
 ### Added

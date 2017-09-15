@@ -8,14 +8,14 @@ module EventSourcery
         # The retry interval used with {with_error_handling}.
         #
         # @api private
-        DEFAULT_RETRY_INVERAL = 1
+        DEFAULT_RETRY_INTERVAL = 1
         
         def initialize(processor_name:)
           @processor_name = processor_name
-          @retry_interval = DEFAULT_RETRY_INVERAL
+          @retry_interval = DEFAULT_RETRY_INTERVAL
         end
 
-        # Will yield the block and attempt to retry after a defined retry interval {DEFAULT_RETRY_INVERAL}.
+        # Will yield the block and attempt to retry after a defined retry interval {DEFAULT_RETRY_INTERVAL}.
         def with_error_handling
           yield
         rescue => error

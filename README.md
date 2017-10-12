@@ -309,7 +309,7 @@ Below we see the typical flow of state in an EventSourcery application (arrows i
                │          │                               │               │
                │                                                          │
                │          │                               │          F. Handle
-           B. Handle                                                   Query
+           A. Handle                                                   Query
             Command       │                               │               │
                │                                                          │
                │          │                               │               │
@@ -320,7 +320,7 @@ Below we see the typical flow of state in an EventSourcery application (arrows i
      │  │             │       │        └─────────────┘             │             │
      │  └─────────────┘   │  D. Read          │           │        └─────────────┘
      │         │              event      E. Update                        ▲
- A. Load   C. Emit        │   │          Projection       │               │
+ B. Load   C. Emit        │   │          Projection       │               │
 state from  Event             │               │                       G. Read
   events       │          │   │               │           │          Projection
      │         ▼              │               ▼                           │

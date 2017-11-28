@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed typo in constant name `EventSourcery::EventProcessing::ErrorHandlers::ConstantRetry::DEFAULT_RETRY_INTERVAL`
 - Fixed typo in constant name `EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoffRetry::DEFAULT_RETRY_INTERVAL`
 - Fixed typo in constant name `EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoffRetry::MAX_RETRY_INTERVAL`
+- Errors of type `Exception` are now logged before being allowed to propagate.
 
 ## [0.14.0] - 2016-6-21
 ### Added

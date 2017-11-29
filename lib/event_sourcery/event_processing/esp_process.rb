@@ -18,6 +18,9 @@ module EventSourcery
           subscribe_to_event_stream
           EventSourcery.logger.info("Stopping #{@event_processor.processor_name}")
         end
+      rescue Exception => e
+        EventSourcery.logger.error(e)
+        raise e
       end
 
       private

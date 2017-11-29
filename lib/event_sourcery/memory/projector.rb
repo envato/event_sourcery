@@ -9,7 +9,6 @@ module EventSourcery
           alias_method :project, :process
           class << self
             alias_method :project, :process
-            alias_method :projects_events, :processes_events
             alias_method :projector_name, :processor_name
           end
         end

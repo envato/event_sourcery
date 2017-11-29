@@ -8,6 +8,7 @@ module EventSourcery
         EventSourcery.event_stream_processor_registry.register(base)
         base.class_eval do
           @event_handlers = Hash.new { |hash, key| hash[key] = [] }
+          @all_event_handler = nil
         end
       end
 
@@ -21,22 +22,13 @@ module EventSourcery
         # Handler that processes the given event.
         #
         # @raise [EventProcessingError] error raised due to processing isssues
-        # @raise [UnableToProcessEventError] raised if unable to process event type
         #
         # @param event [Event] the event to process
         def process(event)
           @_event = event
-          handlers = self.class.event_handlers[event.type]
-          if handlers.any?
-            handlers.each do |handler|
-              instance_exec(event, &handler)
-            end
-          elsif self.class.processes?(event.type)
-            if defined?(super)
-              super(event)
-            else
-              raise UnableToProcessEventError, "I don't know how to process '#{event.type}' events."
-            end
+          handlers = (self.class.event_handlers[event.type] + [self.class.all_event_handler]).compact
+          handlers.each do |handler|
+            instance_exec(event, &handler)
           end
           @_event = nil
         rescue
@@ -48,25 +40,10 @@ module EventSourcery
 
         # @attr_reader processes_event_types [Array] Process Event Types
         # @attr_reader event_handlers [Hash] Hash of handler blocks keyed by event
-        attr_reader :processes_event_types, :event_handlers
-
-        # Registers the event types to process.
-        #
-        # @param event_types a collection of event types to process
-        def processes_events(*event_types)
-          @processes_event_types = Array(@processes_event_types) | event_types.map(&:to_s)
-        end
-
-        # Indicate that this class can process all event types. Note that you need to call this method if you
-        # intend to process all event types, without calling {ProcessHandler#process} for each event type.
-        def processes_all_events
-          define_singleton_method :processes? do |_|
-            true
-          end
-        end
+        # @attr_reader all_event_handler [Proc] An event handler
+        attr_reader :processes_event_types, :event_handlers, :all_event_handler
 
         # Can this class process this event type.
-        # If you use process_all_events this will always return true
         #
         # @param event_type the event type to check
         #
@@ -90,12 +67,22 @@ module EventSourcery
 
         # Process the events for the given event types with the given block.
         #
+        # @raise [MultipleCatchAllHandlersDefined] error raised when attempting to define multiple catch all handlers.
+        #
         # @param event_classes the event type classes to process
         # @param block the code block used to process
         def process(*event_classes, &block)
-          event_classes.each do |event_class|
-            processes_events event_class.type
-            @event_handlers[event_class.type] << block
+          if event_classes.empty?
+            if @all_event_handler
+              raise MultipleCatchAllHandlersDefined, 'Attemping to define multiple catch all event handlers.'
+            else
+              @all_event_handler = block
+            end
+          else
+            event_classes.each do |event_class|
+              @processes_event_types = Array(@processes_event_types) | [event_class.type]
+              @event_handlers[event_class.type] << block
+            end
           end
         end
       end

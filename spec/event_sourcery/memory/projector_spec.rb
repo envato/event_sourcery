@@ -18,7 +18,6 @@ RSpec.describe EventSourcery::Memory::Projector do
     Class.new do
       include EventSourcery::Memory::Projector
       projector_name 'test_processor'
-      processes_events :terms_accepted
       class_eval(&block) if block_given?
       attr_reader :processed_event
     end.new(tracker: tracker)
@@ -45,45 +44,39 @@ RSpec.describe EventSourcery::Memory::Projector do
   end
 
   describe '#project' do
-    let(:event) { TermsAccepted.new }
+    let(:item_added_event) { ItemAdded.new }
+    let(:terms_accepted_event) { TermsAccepted.new }
 
-    it 'processes events via project method' do
+    it 'processes all events' do
       projector = new_projector do
-        def project(event)
-          @processed_event = event
+        attr_reader :events
+
+        project do |event|
+          @events ||= []
+          @events << event
         end
       end
-      projector.project(event)
-      expect(projector.processed_event).to eq(event)
+
+      projector.project(item_added_event)
+      projector.project(terms_accepted_event)
+
+      expect(projector.events).to eq [item_added_event, terms_accepted_event]
     end
 
-    it 'processes events with custom classes' do
+    it 'processes specified events' do
       projector = new_projector do
+        attr_reader :events
+
         project ItemAdded do |event|
-          @processed_event = event
+          @events ||= []
+          @events << event
         end
       end
-      event = ItemAdded.new
-      projector.project(event)
-      expect(projector.processed_event).to eq(event)
-    end
 
-    it 'raises if neither are defined' do
-      projector = new_projector
-      expect {
-        projector.project(event)
-      }.to raise_error(EventSourcery::EventProcessingError)
+      projector.project(item_added_event)
+      projector.project(terms_accepted_event)
+
+      expect(projector.events).to eq [item_added_event]
     end
   end
-
-  describe '.projects_events' do
-    it 'is aliased to processes_events' do
-      projector_class = Class.new do
-        include EventSourcery::Memory::Projector
-        projects_events :item_added
-      end
-      expect(projector_class.processes?(:item_added)).to eq true
-    end
-  end
-
 end

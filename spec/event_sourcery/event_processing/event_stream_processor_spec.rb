@@ -11,10 +11,6 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
         @events = []
       end
 
-      def process(event)
-        @events << event
-      end
-
       class_eval(&block) if block_given?
     end.new(tracker: tracker)
   end
@@ -48,7 +44,9 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
   describe '#processes?' do
     it 'returns true for events the processor is interested in' do
       event_processor = new_event_processor do
-        processes_events :item_added, :item_removed
+        process ItemAdded, ItemRemoved do
+          # Noop
+        end
       end
       expect(event_processor.processes?(:item_added)).to eq true
       expect(event_processor.processes?('item_added')).to eq true
@@ -63,7 +61,9 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
     subject(:event_processor) {
       new_event_processor do
         processor_name 'my_processor'
-        processes_all_events
+        process do
+          # Noop
+        end
       end
     }
 
@@ -85,7 +85,9 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
     subject(:event_processor) {
       new_event_processor do
         processor_name 'my_processor'
-        processes_all_events
+        process do |event|
+          @events << event
+        end
       end
     }
 
@@ -110,7 +112,9 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
       subject(:event_processor) {
         new_event_processor do
           processor_name 'my_processor'
-          processes_events :item_added
+          process ItemAdded do
+            # Noop
+          end
         end
       }
 
@@ -148,11 +152,10 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
           include EventSourcery::EventProcessing::EventStreamProcessor
           attr_reader :events
           processor_name 'my_processor'
-          processes_events :item_added
 
           attr_reader :internal_event_ref
 
-          def process(event)
+          process ItemAdded do |event|
             @internal_event_ref = _event.dup
             @events ||= []
             @events << event
@@ -161,7 +164,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
       }
 
       context "given an event the processor doesn't care about" do
-        let(:event) { ItemRemoved }
+        let(:event) { ItemRemoved.new }
 
         it 'does not process them' do
           event_processor.process(event)
@@ -256,6 +259,24 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
             EOF
           }
         end
+      end
+    end
+
+    context 'when attempting to add multiple generic handlers' do
+      let(:event_processor) do
+        Class.new do
+          include EventSourcery::EventProcessing::EventStreamProcessor
+
+          process do
+          end
+
+          process do
+          end
+        end.new
+      end
+
+      it 'raises an error' do
+        expect { event_processor }.to raise_error EventSourcery::MultipleCatchAllHandlersDefined, 'Attemping to define multiple catch all event handlers.'
       end
     end
   end

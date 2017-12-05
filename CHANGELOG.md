@@ -5,6 +5,19 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Removed
+- Remove `processes_events` and related methods in favour of `process` class
+  method. You can no longer override `process` and subscribe to all events.
+  If you want to subscribe to all events you can call the `process` class
+  method with no events.
+
+      process do |event|
+        # all events will be subscribed to
+      end
+
+      process Foobar do |event|
+        # Foobar events will be subscribed to
+      end
 
 ## [0.15.0] - 2017-11-29
 ### Added

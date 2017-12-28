@@ -1,10 +1,8 @@
 module EventSourcery
   module Memory
     class Config
-      attr_accessor :event_tracker,
-                    :event_store,
-                    :event_source,
-                    :event_sink
+      attr_accessor :event_tracker
+      attr_writer :event_store, :event_source, :event_sink
 
       def initialize
         @event_tracker = Memory::Tracker.new

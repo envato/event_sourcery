@@ -37,7 +37,7 @@ module EventSourcery
       @on_event_processor_error = proc { |exception, processor_name|
         # app specific custom logic ie. report to an error reporting service like Rollbar.
       }
-      @event_store = nil
+      @event_builder = nil
       @event_type_serializer = EventStore::EventTypeSerializers::Underscored.new
       @error_handler_class = EventProcessing::ErrorHandlers::ConstantRetry
     end

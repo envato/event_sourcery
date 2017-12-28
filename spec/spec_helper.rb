@@ -97,3 +97,8 @@ RSpec.configure do |config|
   # as the one that triggered the failure.
   Kernel.srand config.seed
 end
+
+require 'event_sourcery'
+require 'event_sourcery/rspec/event_store_shared_examples'
+
+Dir.glob(File.join(__dir__, 'support/**/*.rb')) { |f| require f }

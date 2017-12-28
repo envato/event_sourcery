@@ -26,6 +26,7 @@ module EventSourcery
           report_error(error)
           update_retry_interval(error)
           sleep(@retry_interval)
+          EventSourcery.logger.info { "Retrying #{@processor_name} with error: #{error.message} at interval=#{@retry_interval}" }
           retry
         end
 

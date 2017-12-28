@@ -12,6 +12,7 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoff
     @sleep_intervals = []
     allow(EventSourcery.config).to receive(:on_event_processor_error).and_return(on_event_processor_error)
     allow(EventSourcery).to receive(:logger).and_return(logger)
+    allow(logger).to receive(:info)
     allow(logger).to receive(:error)
     allow(error_handler).to receive(:sleep) { |interval| @sleep_intervals << interval }
   end
@@ -40,6 +41,10 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoff
         expect(logger).to have_received(:error).thrice
       end
 
+      it 'logs the retry' do
+        expect(logger).to have_received(:info).thrice
+      end
+
       it 'calls on_event_processor_error with error and processor name' do
         expect(on_event_processor_error).to have_received(:call).thrice.with(error, processor_name)
       end
@@ -59,6 +64,10 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoff
 
       it 'logs the original error' do
         expect(logger).to have_received(:error).thrice.with("Processor #{processor_name} died with OriginalError.\nback\ntrace")
+      end
+
+      it 'logs the retry' do
+        expect(logger).to have_received(:info).thrice
       end
 
       it 'calls on_event_processor_error with error and processor name' do

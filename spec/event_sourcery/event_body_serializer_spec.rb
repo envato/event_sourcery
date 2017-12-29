@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 RSpec.describe EventSourcery::EventBodySerializer do
   let(:submitted_by_uuid) { SecureRandom.uuid }
   let(:submitted_at) { Time.now.utc }

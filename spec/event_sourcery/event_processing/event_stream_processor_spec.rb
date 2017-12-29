@@ -207,7 +207,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
       end
 
       it 'returns the events in processed event types' do
-        expect(event_processor.class.processes_event_types).to eq(['item_added', 'item_removed'])
+        expect(event_processor.processes_event_types).to contain_exactly('item_added', 'item_removed')
       end
 
       context 'processing multiple events in handlers' do

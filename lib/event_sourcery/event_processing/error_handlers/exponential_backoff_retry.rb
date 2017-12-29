@@ -17,6 +17,7 @@ module EventSourcery
         def initialize(processor_name:)
           @processor_name = processor_name
           @retry_interval = DEFAULT_RETRY_INTERVAL
+          @error_event_uuid = nil
         end
 
         # Will yield the block and attempt to retry in an exponential backoff.

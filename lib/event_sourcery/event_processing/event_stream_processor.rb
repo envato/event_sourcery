@@ -38,7 +38,7 @@ module EventSourcery
 
       module ClassMethods
 
-        # @attr_reader processes_event_types [Array] Process Event Types
+        # @attr_reader processes_event_types [Set] Process Event Types
         # @attr_reader event_handlers [Hash] Hash of handler blocks keyed by event
         # @attr_reader all_event_handler [Proc] An event handler
         attr_reader :processes_event_types, :event_handlers, :all_event_handler
@@ -79,8 +79,9 @@ module EventSourcery
               @all_event_handler = block
             end
           else
+            @processes_event_types ||= Set.new
             event_classes.each do |event_class|
-              @processes_event_types = Array(@processes_event_types) | [event_class.type]
+              @processes_event_types << event_class.type
               @event_handlers[event_class.type] << block
             end
           end

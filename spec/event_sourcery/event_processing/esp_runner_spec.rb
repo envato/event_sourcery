@@ -101,6 +101,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
 
       context 'given the process does not terminate until killed' do
         before do
+          @stop_process = false
           allow(Process).to receive(:wait2) { [pid, failure_status] if @stop_process }
           allow(Process).to receive(:kill).with(:KILL, pid) { @stop_process = true}
         end

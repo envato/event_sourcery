@@ -5,7 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-### Removed
+
+## [0.16.0] - 2018-01-02
+### Added
+- Added additional logging for retries to the ExponentialBackoffRetry error handler
 - Remove `processes_events` and related methods in favour of `process` class
   method. You can no longer override `process` and subscribe to all events.
   If you want to subscribe to all events you can call the `process` class

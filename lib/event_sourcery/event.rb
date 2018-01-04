@@ -111,6 +111,10 @@ module EventSourcery
     #     new_event.type # => "item_removed"
     #     new_event.class # => ItemRemoved
     def with(event_class: self.class, **attributes)
+      if self.class != Event && !attributes[:type].nil? && attributes[:type] != type
+        raise Error, 'When using typed events change the type by changing the event class.'
+      end
+
       event_class.new(**to_h.merge!(attributes))
     end
 

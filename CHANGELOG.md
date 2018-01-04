@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Allow changing the event class using Event#with
 
 ## [0.16.0] - 2018-01-02
 ### Added

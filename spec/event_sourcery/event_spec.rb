@@ -163,6 +163,13 @@ RSpec.describe EventSourcery::Event do
         expect(original_event.send(attribute)).to(eq(value))
       end
     end
+
+    it 'allows changing the event class' do
+      new_event = original_event.with(event_class: ItemAdded)
+
+      expect(new_event).to be_a ItemAdded
+      expect(new_event.type).to eq 'item_added'
+    end
   end
 
   describe '#to_h' do

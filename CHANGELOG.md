@@ -1,4 +1,5 @@
 # Change Log
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
@@ -66,7 +67,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Fixed: default poll waiter now implements `shutdown!`
 
-## [0.11.0] - 2017-5-29
+## [0.11.1] - 2017-5-29
 ### Fixed
 - Use `processor.class.name` to set ESP process name
 - Convert `processor_name` symbol to string explicitly
@@ -117,3 +118,15 @@ moving all Postgres related code into a separate gem.
 ### Removed
 - EventSourcery no longer depends on Virtus.
 - `Command` and `CommandHandler` have been removed.
+
+[Unreleased]: https://github.com/envato/event_sourcery/compare/v0.16.0...HEAD
+[0.16.0]: https://github.com/envato/event_sourcery/compare/v0.15.0...v0.16.0
+[0.15.0]: https://github.com/envato/event_sourcery/compare/v0.14.0...v0.15.0
+[0.14.0]: https://github.com/envato/event_sourcery/compare/v0.13.0...v0.14.0
+[0.13.0]: https://github.com/envato/event_sourcery/compare/v0.12.0...v0.13.0
+[0.12.0]: https://github.com/envato/event_sourcery/compare/v0.11.2...v0.12.0
+[0.11.2]: https://github.com/envato/event_sourcery/compare/v0.11.1...v0.11.2
+[0.11.1]: https://github.com/envato/event_sourcery/compare/v0.11.0...v0.11.1
+[0.11.0]: https://github.com/envato/event_sourcery/compare/v0.10.0...v0.11.0
+[0.10.0]: https://github.com/envato/event_sourcery/compare/v0.9.0...v0.10.0
+[0.9.0]: https://github.com/envato/event_sourcery/compare/v0.8.0...v0.9.0

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.16.1] - 2018-01-17
+- Fixed bug with Sequel gem expecting processes_event_types to be an Array
+
 ## [0.16.0] - 2018-01-02
 ### Added
 - Added additional logging for retries to the ExponentialBackoffRetry error handler

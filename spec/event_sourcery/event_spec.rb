@@ -163,6 +163,36 @@ RSpec.describe EventSourcery::Event do
         expect(original_event.send(attribute)).to(eq(value))
       end
     end
+
+    it 'allows changing the event class' do
+      new_event = original_event.with(event_class: ItemAdded)
+
+      expect(new_event).to be_a ItemAdded
+      expect(new_event.type).to eq 'item_added'
+    end
+
+    it 'allows changing the event class of a typed event' do
+      original_event = ItemRemoved.new
+      new_event = original_event.with(event_class: ItemAdded)
+
+      expect(new_event).to be_a ItemAdded
+      expect(new_event.type).to eq 'item_added'
+    end
+
+    it 'allows changing the event type' do
+      original_event = EventSourcery::Event.new(type: 'item_removed')
+
+      new_event = original_event.with(type: 'item_added')
+      expect(new_event.type).to eq 'item_added'
+    end
+
+    it 'errors when attempting to change the type of a typed event' do
+      original_event = ItemRemoved.new(type: 'item_removed')
+
+      expect {
+        original_event.with(type: 'item_added')
+      }.to raise_error EventSourcery::Error, 'When using typed events change the type by changing the event class.'
+    end
   end
 
   describe '#to_h' do

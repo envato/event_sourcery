@@ -104,8 +104,18 @@ module EventSourcery
     #     # Of course, with can accept any number of event attributes:
     #
     #     new_event = old_event.with(id: 42, version: 77, body: { 'attr' => 'value' })
-    def with(**attributes)
-      self.class.new(**to_h.merge!(attributes))
+    #
+    #     # When using typed events you can also override the event class:
+    #
+    #     new_event = old_event.with(event_class: ItemRemoved)
+    #     new_event.type # => "item_removed"
+    #     new_event.class # => ItemRemoved
+    def with(event_class: self.class, **attributes)
+      if self.class != Event && !attributes[:type].nil? && attributes[:type] != type
+        raise Error, 'When using typed events change the type by changing the event class.'
+      end
+
+      event_class.new(**to_h.merge!(attributes))
     end
 
     # returns a hash of the event attributes

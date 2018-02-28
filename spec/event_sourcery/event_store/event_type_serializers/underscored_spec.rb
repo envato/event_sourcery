@@ -22,4 +22,16 @@ RSpec.describe EventSourcery::EventStore::EventTypeSerializers::Underscored do
       expect(underscored.deserialize('item_starred')).to eq EventSourcery::Event
     end
   end
+
+  it 'serializes and deserializes to the same constant' do
+    stub_const 'FooBar', Class.new(EventSourcery::Event)
+
+    expect(
+      underscored.deserialize(
+        underscored.serialize(
+          FooBar,
+        )
+      )
+    ).to eq FooBar
+  end
 end

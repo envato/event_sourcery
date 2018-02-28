@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - Allow changing the event class using Event#with
+- Allow upcasting events using custom event classes
 
 ## [0.16.1] - 2018-01-17
 - Fixed bug with Sequel gem expecting processes_event_types to be an Array

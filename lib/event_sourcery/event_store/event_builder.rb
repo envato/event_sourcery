@@ -8,12 +8,16 @@ module EventSourcery
       def build(event_data)
         type = event_data.fetch(:type)
         klass = event_type_serializer.deserialize(type)
-        klass.new(event_data)
+        upcast(klass.new(event_data))
       end
 
       private
 
       attr_reader :event_type_serializer
+
+      def upcast(event)
+        event.class.upcast(event)
+      end
     end
   end
 end

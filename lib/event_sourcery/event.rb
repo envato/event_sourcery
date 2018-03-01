@@ -12,6 +12,31 @@ module EventSourcery
       end
     end
 
+    # Use this method to add "upcasting" to your events.
+    #
+    # To upcast your events override the `upcast` class method on your event.
+    # The `upcast` method will be passed the event allowing you to modify it
+    # before it is passed to your event processors.
+    #
+    # A good place to start is using the `Event#with` method that allows you to
+    # easily change attributes.
+    #
+    # @param Event
+    # @return Event
+    # @example
+    #     Foo = Class.new(EventSourcery::Event) do
+    #       def self.upcast(event)
+    #         body = event.body
+    #
+    #         body['bar'] ||= 'baz'
+    #
+    #         event.with(body: body)
+    #       end
+    #     end
+    def self.upcast(event)
+      event
+    end
+
     attr_reader :id, :uuid, :aggregate_id, :type, :body, :version, :created_at, :correlation_id, :causation_id
 
     # @!attribute [r] id

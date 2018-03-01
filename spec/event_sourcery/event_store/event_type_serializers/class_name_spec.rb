@@ -22,4 +22,16 @@ RSpec.describe EventSourcery::EventStore::EventTypeSerializers::ClassName do
       expect(serializer.deserialize('ItemStarred')).to eq EventSourcery::Event
     end
   end
+
+  it 'serializes and deserializes to the same constant' do
+    stub_const 'FooBar', Class.new(EventSourcery::Event)
+
+    expect(
+      serializer.deserialize(
+        serializer.serialize(
+          FooBar,
+        )
+      )
+    ).to eq FooBar
+  end
 end

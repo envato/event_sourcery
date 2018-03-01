@@ -14,12 +14,24 @@ RSpec.describe EventSourcery::EventStore::EventTypeSerializers::Underscored do
 
   describe '#deserialize' do
     it 'looks up the constant' do
-      expect(underscored.deserialize('ItemAdded')).to eq ItemAdded
-      expect(underscored.deserialize('ItemRemoved')).to eq ItemRemoved
+      expect(underscored.deserialize('item_added')).to eq ItemAdded
+      expect(underscored.deserialize('item_removed')).to eq ItemRemoved
     end
 
     it 'returns Event when not found' do
-      expect(underscored.deserialize('ItemStarred')).to eq EventSourcery::Event
+      expect(underscored.deserialize('item_starred')).to eq EventSourcery::Event
     end
+  end
+
+  it 'serializes and deserializes to the same constant' do
+    stub_const 'FooBar', Class.new(EventSourcery::Event)
+
+    expect(
+      underscored.deserialize(
+        underscored.serialize(
+          FooBar,
+        )
+      )
+    ).to eq FooBar
   end
 end

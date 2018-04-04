@@ -29,6 +29,9 @@ module EventSourcery
                 :event_body_serializer,
                 :event_builder
 
+    # @return Fixnum
+    attr_accessor :subscription_batch_size
+
     # @api private
     def initialize
       @on_unknown_event = proc { |event, aggregate|
@@ -40,6 +43,7 @@ module EventSourcery
       @event_builder = nil
       @event_type_serializer = EventStore::EventTypeSerializers::Underscored.new
       @error_handler_class = EventProcessing::ErrorHandlers::ConstantRetry
+      @subscription_batch_size = 1000
     end
 
     # Logger instance used by EventSourcery.

@@ -70,4 +70,24 @@ RSpec.describe EventSourcery::EventStore::Subscription do
       expect(@event_batches.last.map(&:type)).to eq ['item_added']
     end
   end
+
+  it 'uses a default batch size' do
+    expect(event_store).to receive(:get_next_from).with(1, event_types: nil, limit: 1000).and_return []
+
+    subscription.start
+  end
+
+  it 'allows specifying a batch size' do
+    subscription = described_class.new(event_store: event_store,
+                                       poll_waiter: waiter,
+                                       event_types: event_types,
+                                       from_event_id: 1,
+                                       subscription_master: subscription_master,
+                                       on_new_events: method(:on_new_events_callback),
+                                       batch_size: 42)
+
+    expect(event_store).to receive(:get_next_from).with(1, event_types: nil, limit: 42).and_return []
+
+    subscription.start
+  end
 end

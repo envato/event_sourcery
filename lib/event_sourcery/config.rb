@@ -29,7 +29,7 @@ module EventSourcery
                 :event_body_serializer,
                 :event_builder
 
-    # @return Fixnum
+    # @return Integer
     attr_accessor :subscription_batch_size
 
     # @api private

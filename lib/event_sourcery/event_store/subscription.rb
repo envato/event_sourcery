@@ -18,7 +18,8 @@ module EventSourcery
                      event_types: nil,
                      on_new_events:,
                      subscription_master:,
-                     events_table_name: :events)
+                     events_table_name: :events,
+                     batch_size: EventSourcery.config.subscription_batch_size)
         @event_store = event_store
         @from_event_id = from_event_id
         @poll_waiter = poll_waiter
@@ -26,6 +27,7 @@ module EventSourcery
         @on_new_events = on_new_events
         @subscription_master = subscription_master
         @current_event_id = from_event_id - 1
+        @batch_size = batch_size
       end
 
       # Start listening for new events. This method will continue to listen for new events until a shutdown is requested
@@ -42,10 +44,12 @@ module EventSourcery
 
       private
 
+      attr_reader :batch_size
+
       def read_events
         loop do
           @subscription_master.shutdown_if_requested
-          events = @event_store.get_next_from(@current_event_id + 1, event_types: @event_types)
+          events = @event_store.get_next_from(@current_event_id + 1, event_types: @event_types, limit: batch_size)
           break if events.empty?
           EventSourcery.logger.debug { "New events in subscription: #{events.inspect}" }
           @on_new_events.call(events)

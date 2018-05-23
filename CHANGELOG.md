@@ -44,7 +44,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed typo in constant name `EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoffRetry::MAX_RETRY_INTERVAL`
 - Errors of type `Exception` are now logged before being allowed to propagate.
 
-## [0.14.0] - 2016-6-21
+## [0.14.0] - 2016-06-21
 ### Added
 - Added `Event#to_h` method. This returns a hash of the event attributes.
 - Added `Event#with` method. This provides a way to create a new event
@@ -52,7 +52,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `Event#initialize` accepts `aggregate_id` parameter that either is
   a strings or responds to `to_str`.
 
-## [0.13.0] - 2016-6-16
+## [0.13.0] - 2016-06-16
 ### Added
 - The core Event class accepts `causation_id` to allow event stores to
   add support for tracking causation ids with events.
@@ -67,27 +67,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   be a mechanism to wrap processing and tracker updates which appears to be
   universally unused at this point.
 
-## [0.12.0] - 2017-6-1
+## [0.12.0] - 2017-06-01
 ### Removed
 - Removed usage `#shutdown!` as it should be a private method within custom PollWaiters.
   An example of how event_sourcery-postgres has implemented `#shutdown!` can be
   found [here](https://github.com/envato/event_sourcery-postgres/pull/5)
 
-## [0.11.2] - 2017-5-29
+## [0.11.2] - 2017-05-29
 ### Fixed
 - Fixed: default poll waiter now implements `shutdown!`
 
-## [0.11.1] - 2017-5-29
+## [0.11.1] - 2017-05-29
 ### Fixed
 - Use `processor.class.name` to set ESP process name
 - Convert `processor_name` symbol to string explicitly
 
-## [0.11.0] - 2017-5-26
+## [0.11.0] - 2017-05-26
 ### Added
 - Make Event processing error handler class Configurable
 - Add exponential back off retry error handler
 
-## [0.10.0] - 2017-5-24
+## [0.10.0] - 2017-05-24
 ### Added
 - The core Event class accepts `correlation_id` to allow event stores to
   add support for tracking correlation IDs with events.

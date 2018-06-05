@@ -4,6 +4,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
       event_processor: esp,
       event_source: event_source,
       subscription_master: subscription_master,
+      after_fork: after_fork,
     )
   end
   let(:esp) { spy(:esp, processor_name: processor_name, class: esp_class) }
@@ -12,6 +13,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
   let(:event_source) { spy(:event_source) }
   let(:subscription_master) { spy(EventSourcery::EventStore::SignalHandlingSubscriptionMaster) }
   let(:error_handler) { double }
+  let(:after_fork) { nil }
 
   describe '#start' do
     subject(:start) { esp_process.start }
@@ -52,6 +54,14 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
 
       it 'logs info when stopping ESP' do
         expect(logger).to have_received(:info).with("Stopping #{processor_name}")
+      end
+
+      context 'with after_fork set' do
+        let(:after_fork) { spy(:after_fork) }
+
+        it 'calls after_fork with the processor' do
+          expect(after_fork).to have_received(:call).with(esp)
+        end
       end
     end
 

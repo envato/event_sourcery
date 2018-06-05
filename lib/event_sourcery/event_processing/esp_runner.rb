@@ -6,13 +6,15 @@ module EventSourcery
       def initialize(event_processors:,
                      event_source:,
                      max_seconds_for_processes_to_terminate: 30,
-                     shutdown_requested: false)
+                     shutdown_requested: false,
+                     after_fork: nil)
         @event_processors = event_processors
         @event_source = event_source
         @pids = []
         @max_seconds_for_processes_to_terminate = max_seconds_for_processes_to_terminate
         @shutdown_requested = shutdown_requested
         @exit_status = true
+        @after_fork = after_fork
       end
 
       # Start each Event Stream Processor in a new child process.
@@ -47,7 +49,8 @@ module EventSourcery
       def start_process(event_processor)
         process = ESPProcess.new(
           event_processor: event_processor,
-          event_source: @event_source
+          event_source: @event_source,
+          after_fork: @after_fork,
         )
         @pids << Process.fork { process.start }
       end

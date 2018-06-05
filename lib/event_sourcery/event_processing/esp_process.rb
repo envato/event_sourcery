@@ -1,18 +1,23 @@
 module EventSourcery
   module EventProcessing
     class ESPProcess
+      DEFAULT_AFTER_FORK = -> (event_processor) { }
+
       def initialize(event_processor:,
                      event_source:,
-                     subscription_master: EventStore::SignalHandlingSubscriptionMaster.new)
+                     subscription_master: EventStore::SignalHandlingSubscriptionMaster.new,
+                     after_fork:)
         @event_processor = event_processor
         @event_source = event_source
         @subscription_master = subscription_master
+        @after_fork = after_fork || DEFAULT_AFTER_FORK
       end
-      
+
       # This will start the Event Stream Processor which will subscribe
       # to the event stream source.
       def start
         name_process
+        @after_fork.call(@event_processor)
         error_handler.with_error_handling do
           EventSourcery.logger.info("Starting #{processor_name}")
           subscribe_to_event_stream

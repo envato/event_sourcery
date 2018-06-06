@@ -38,6 +38,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         .with(
           event_processor: esp,
           event_source: event_source,
+          after_fork: nil,
         )
       expect(esp_process).to have_received(:start)
     end

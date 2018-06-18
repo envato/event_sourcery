@@ -75,7 +75,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
 
       it 'logs and re-raises the error' do
         expect { start }.to raise_error(error)
-        expect(logger).to have_received(:error).with(error)
+        expect(logger).to have_received(:fatal).with(error)
       end
     end
   end

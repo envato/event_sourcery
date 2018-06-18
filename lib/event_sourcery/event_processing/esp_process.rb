@@ -21,10 +21,11 @@ module EventSourcery
         error_handler.with_error_handling do
           EventSourcery.logger.info("Starting #{processor_name}")
           subscribe_to_event_stream
-          EventSourcery.logger.info("Stopping #{@event_processor.processor_name}")
+          EventSourcery.logger.info("Stopping #{processor_name}")
         end
       rescue Exception => e
-        EventSourcery.logger.error(e)
+        EventSourcery.logger.fatal("An unhandled exception occurred in #{processor_name}")
+        EventSourcery.logger.fatal(e)
         raise e
       end
 

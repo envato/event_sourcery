@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Changed
+- Added more logging when a fatal exception occurs in ESPProcess
+
 ## [0.19.0] - 2018-06-06
 
 ### Added

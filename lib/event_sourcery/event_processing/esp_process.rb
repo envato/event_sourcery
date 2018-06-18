@@ -24,7 +24,8 @@ module EventSourcery
           EventSourcery.logger.info("Stopping #{@event_processor.processor_name}")
         end
       rescue Exception => e
-        EventSourcery.logger.error(e)
+        EventSourcery.logger.fatal("An unhandled exception occurred in #{processor_name}")
+        EventSourcery.logger.fatal(e)
         raise e
       end
 

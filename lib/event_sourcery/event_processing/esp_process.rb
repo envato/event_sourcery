@@ -6,7 +6,7 @@ module EventSourcery
       def initialize(event_processor:,
                      event_source:,
                      subscription_master: EventStore::SignalHandlingSubscriptionMaster.new,
-                     after_fork:)
+                     after_fork: DEFAULT_AFTER_FORK)
         @event_processor = event_processor
         @event_source = event_source
         @subscription_master = subscription_master

@@ -141,10 +141,12 @@ moving all Postgres related code into a separate gem.
 - EventSourcery no longer depends on Virtus.
 - `Command` and `CommandHandler` have been removed.
 
-[Unreleased]: https://github.com/envato/event_sourcery/compare/v0.19.0...HEAD
+[Unreleased]: https://github.com/envato/event_sourcery/compare/v0.20.0...HEAD
+[0.20.0]: https://github.com/envato/event_sourcery/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/envato/event_sourcery/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/envato/event_sourcery/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/envato/event_sourcery/compare/v0.16.0...v0.17.0
+[0.16.1]: https://github.com/envato/event_sourcery/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/envato/event_sourcery/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/envato/event_sourcery/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/envato/event_sourcery/compare/v0.13.0...v0.14.0

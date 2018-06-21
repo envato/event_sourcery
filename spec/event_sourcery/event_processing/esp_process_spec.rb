@@ -32,34 +32,49 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
         allow(Process).to receive(:setproctitle)
 
         allow(esp).to receive(:subscribe_to)
-
-        start
       end
 
       it 'names process with ESP name' do
+        start
         expect(Process).to have_received(:setproctitle).with('SomeApp::Reactors::SomeReactor')
       end
 
       it 'wraps event processing inside error handler' do
+        start
         expect(error_handler).to have_received(:with_error_handling)
       end
 
       it 'logs info when starting ESP' do
+        start
         expect(logger).to have_received(:info).with("Starting #{processor_name}")
       end
 
       it 'subscribes event processor to event store' do
+        start
         expect(esp).to have_received(:subscribe_to)
       end
 
       it 'logs info when stopping ESP' do
+        start
         expect(logger).to have_received(:info).with("Stopping #{processor_name}")
+      end
+
+      context 'when after_fork is omitted' do
+        it 'calls the default after_fork with the processor' do
+          expect(EventSourcery::EventProcessing::ESPProcess::DEFAULT_AFTER_FORK).to receive(:call).with(esp)
+          described_class.new(
+            event_processor: esp,
+            event_source: event_source,
+            subscription_master: subscription_master,
+          ).start
+        end
       end
 
       context 'with after_fork set' do
         let(:after_fork) { spy(:after_fork) }
 
         it 'calls after_fork with the processor' do
+          start
           expect(after_fork).to have_received(:call).with(esp)
         end
       end

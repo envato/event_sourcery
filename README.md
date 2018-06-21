@@ -103,8 +103,9 @@ bundle exec rspec
 To release a new version:
 
 1. Update the version number in `lib/event_sourcery/version.rb`
-2. Get this change onto master via the normal PR process
-3. Run `bundle exec rake release`, this will create a git tag for the
+2. Add the new version with release notes to CHANGELOG.md
+3. Get these changes onto master via the normal PR process
+4. Run `bundle exec rake release`, this will create a git tag for the
    version, push tags up to GitHub, and package the code in a `.gem` file.
 
 ## Core Concepts

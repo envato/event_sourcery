@@ -259,6 +259,13 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
             EOF
           }
         end
+
+        it 'calls the event processor error block' do
+          on_error = double(call: true)
+          allow(EventSourcery.config).to receive(:on_event_processor_error).and_return(on_error)
+          expect { event_processor.process(item_added_event) }.to raise_error(EventSourcery::EventProcessingError)
+          expect(on_error).to have_received(:call).with(an_instance_of(RuntimeError), item_added_event, event_processor)
+        end
       end
     end
 

@@ -31,7 +31,8 @@ module EventSourcery
             instance_exec(event, &handler)
           end
           @_event = nil
-        rescue
+        rescue => error
+          report_error(error, event)
           raise EventProcessingError.new(event: event, processor: self)
         end
       end
@@ -148,6 +149,10 @@ module EventSourcery
           EventSourcery.logger.debug { "[#{processor_name}] Processed event: #{event.inspect}" }
         end
         EventSourcery.logger.info { "[#{processor_name}] Processed up to event id: #{events.last.id}" }
+      end
+
+      def report_error(error, event)
+        EventSourcery.config.on_event_processor_error.call(error, event, self)
       end
     end
   end

@@ -12,6 +12,11 @@ Gem::Specification.new do |spec|
   spec.summary       = 'Event Sourcing Library'
   spec.description   = ''
   spec.homepage      = 'https://github.com/envato/event_sourcery'
+  spec.metadata      = {
+                         'bug_tracker_uri' => 'https://github.com/envato/event_sourcery/issues',
+                         'changelog_uri'   => 'https://github.com/envato/event_sourcery/blob/master/CHANGELOG.md',
+                         'source_code_uri' => 'https://github.com/envato/event_sourcery',
+                       }
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(\.|Gemfile|Rakefile|bin/|script/|spec/)}) }
   spec.bindir        = 'exe'

@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Changed signature of `ESPProcess#initialize` to include a default value for `after_fork`. This prevents the 
 `after_fork` change from 0.19.0 from being a breaking change to external creators of ESPProcess.
 - Added more logging when a fatal exception occurs in ESPProcess
+- Fixed a bug where ESPRunner would raise an error under certain circumstances
+  https://github.com/envato/event_sourcery/pull/203
 
 ## [0.19.0] - 2018-06-06
 ### Added

@@ -89,7 +89,7 @@ module EventSourcery
         until all_processes_terminated? ||
               ((pid, status) = Process.wait2(-1, Process::WNOHANG)).nil?
           @pids.delete(pid)
-          @exit_status &&= status.success?
+          @exit_status &&= !!status.success?
         end
       end
 

@@ -21,7 +21,30 @@ module EventSourcery
 
       def setup_graceful_shutdown
         %i(TERM INT).each do |signal|
-          Signal.trap(signal) { @shutdown_requested = true }
+          Signal.trap(signal) do
+            @shutdown_requested = true
+            wakeup_main_thread
+          end
+        end
+      end
+
+      # If the main thread happens to be sleeping when we receive the
+      # interrupt, wake it up.
+      #
+      # Note: the main thread processes the signal trap, hence calling
+      # Thread.main.wakeup in the signal trap is a no-op as it's undoubtedly
+      # awake. Instead, we need to fork a new thread, which waits for the main
+      # thread to go back to sleep and then wakes it up.
+      def wakeup_main_thread
+        Thread.fork do
+          main_thread = Thread.main
+          10.times do
+            if main_thread.status == 'sleep'
+              main_thread.wakeup
+              break
+            end
+            sleep 0.01
+          end
         end
       end
     end

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Added
+- Graceful shutdown interrupts poll-wait sleep for quicker quitting.
+
 ## [0.20.0] - 2018-06-21
 ### Changed
 - Changed signature of `ESPProcess#initialize` to include a default value for `after_fork`. This prevents the 

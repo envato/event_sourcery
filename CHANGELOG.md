@@ -152,7 +152,7 @@ moving all Postgres related code into a separate gem.
 - `Command` and `CommandHandler` have been removed.
 
 [Unreleased]: https://github.com/envato/event_sourcery/compare/v0.21.0...HEAD
-[0.20.0]: https://github.com/envato/event_sourcery/compare/v0.20.0...v0.21.0
+[0.21.0]: https://github.com/envato/event_sourcery/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/envato/event_sourcery/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/envato/event_sourcery/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/envato/event_sourcery/compare/v0.17.0...v0.18.0

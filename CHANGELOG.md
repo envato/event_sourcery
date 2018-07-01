@@ -5,17 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.21.0] - 2018-07-02
 ### Added
-- Graceful shutdown interrupts poll-wait sleep for quicker quitting.
+- Graceful shutdown interrupts poll-wait sleep for quicker quitting
+  ([#207](https://github.com/envato/event_sourcery/pull/207)).
+- Added `bug_tracker_uri`, `changelog_uri` and `source_code_uri` to project
+  metadata ([#205](https://github.com/envato/event_sourcery/pull/205)).
+
+### Changed
+- Fixed a bug where ESPRunner would raise an error under certain circumstances
+  ([#203](https://github.com/envato/event_sourcery/pull/203)).
 
 ## [0.20.0] - 2018-06-21
 ### Changed
 - Changed signature of `ESPProcess#initialize` to include a default value for `after_fork`. This prevents the 
 `after_fork` change from 0.19.0 from being a breaking change to external creators of ESPProcess.
 - Added more logging when a fatal exception occurs in ESPProcess
-- Fixed a bug where ESPRunner would raise an error under certain circumstances
-  https://github.com/envato/event_sourcery/pull/203
 
 ## [0.19.0] - 2018-06-06
 ### Added
@@ -147,7 +152,8 @@ moving all Postgres related code into a separate gem.
 - EventSourcery no longer depends on Virtus.
 - `Command` and `CommandHandler` have been removed.
 
-[Unreleased]: https://github.com/envato/event_sourcery/compare/v0.20.0...HEAD
+[Unreleased]: https://github.com/envato/event_sourcery/compare/v0.21.0...HEAD
+[0.21.0]: https://github.com/envato/event_sourcery/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/envato/event_sourcery/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/envato/event_sourcery/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/envato/event_sourcery/compare/v0.17.0...v0.18.0

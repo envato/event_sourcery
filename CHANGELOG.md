@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.21.0] - 2018-07-02
 ### Added
 - Graceful shutdown interrupts poll-wait sleep for quicker quitting.
 
@@ -147,7 +147,8 @@ moving all Postgres related code into a separate gem.
 - EventSourcery no longer depends on Virtus.
 - `Command` and `CommandHandler` have been removed.
 
-[Unreleased]: https://github.com/envato/event_sourcery/compare/v0.20.0...HEAD
+[Unreleased]: https://github.com/envato/event_sourcery/compare/v0.21.0...HEAD
+[0.20.0]: https://github.com/envato/event_sourcery/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/envato/event_sourcery/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/envato/event_sourcery/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/envato/event_sourcery/compare/v0.17.0...v0.18.0

@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.21.0] - 2018-07-02
 ### Added
 - Graceful shutdown interrupts poll-wait sleep for quicker quitting.
+- Added `bug_tracker_uri`, `changelog_uri` and `source_code_uri` to project
+  metadata.
 
 ### Changed
 - Fixed a bug where ESPRunner would raise an error under certain circumstances

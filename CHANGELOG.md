@@ -7,13 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.21.0] - 2018-07-02
 ### Added
-- Graceful shutdown interrupts poll-wait sleep for quicker quitting.
+- Graceful shutdown interrupts poll-wait sleep for quicker quitting
+  ([#207](https://github.com/envato/event_sourcery/pull/207)).
 - Added `bug_tracker_uri`, `changelog_uri` and `source_code_uri` to project
-  metadata.
+  metadata ([#205](https://github.com/envato/event_sourcery/pull/205)).
 
 ### Changed
 - Fixed a bug where ESPRunner would raise an error under certain circumstances
-  https://github.com/envato/event_sourcery/pull/203
+  ([#203](https://github.com/envato/event_sourcery/pull/203)).
 
 ## [0.20.0] - 2018-06-21
 ### Changed

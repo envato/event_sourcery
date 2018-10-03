@@ -30,7 +30,6 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
     context 'when no error is raised' do
       before do
         allow(error_handler).to receive(:with_error_handling).and_yield
-        allow(logger).to receive(:info)
         allow(Process).to receive(:setproctitle)
 
         allow(esp).to receive(:subscribe_to)
@@ -87,7 +86,6 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
 
       before do
         allow(error_handler).to receive(:with_error_handling).and_raise(error)
-        allow(logger).to receive(:error).with(error)
       end
 
       it 'logs and re-raises the error' do

@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Added
+- Log unhandled exceptions to configured application block
+  ([#209](https://github.com/envato/event_sourcery/pull/209)).
+
 ## [0.21.0] - 2018-07-02
 ### Added
 - Graceful shutdown interrupts poll-wait sleep for quicker quitting

@@ -26,6 +26,7 @@ module EventSourcery
       rescue Exception => e
         EventSourcery.logger.fatal("An unhandled exception occurred in #{processor_name}")
         EventSourcery.logger.fatal(e)
+        EventSourcery.config.on_event_processor_error.call(e, processor_name)
         raise e
       end
 

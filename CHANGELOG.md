@@ -7,8 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- Log unhandled exceptions to configured application block
-  ([#209](https://github.com/envato/event_sourcery/pull/209)).
+- Log critical exceptions to the application provided block via the new
+  configuration option ([#209](https://github.com/envato/event_sourcery/pull/209)):
+
+  ```ruby
+  config.on_event_processor_critical_error = proc do |exception, processor_name|
+    # report the death of this processor to an error reporting service like Rollbar.
+  end
+  ```
 
 ## [0.21.0] - 2018-07-02
 ### Added

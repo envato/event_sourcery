@@ -22,8 +22,9 @@ module EventSourcery
         with_logging do
           start_processes
           listen_for_shutdown_signals
-          wait_till_shutdown_requested
-          record_terminated_processes
+          while_waiting_for_shutdown do
+            record_terminated_processes
+          end
           terminate_remaining_processes
           until all_processes_terminated? || waited_long_enough?
             record_terminated_processes
@@ -65,8 +66,12 @@ module EventSourcery
         @shutdown_requested = true
       end
 
-      def wait_till_shutdown_requested
-        sleep(1) until @shutdown_requested
+      def while_waiting_for_shutdown
+        yield
+        until @shutdown_requested
+          sleep(1)
+          yield
+        end
       end
 
       def terminate_remaining_processes
@@ -86,8 +91,7 @@ module EventSourcery
       end
 
       def record_terminated_processes
-        until all_processes_terminated? ||
-              ((pid, status) = Process.wait2(-1, Process::WNOHANG)).nil?
+        until all_processes_terminated? || (pid, status = Process.wait2(-1, Process::WNOHANG)).nil?
           @pids.delete(pid)
           @exit_status &&= !!status.success?
         end

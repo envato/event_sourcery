@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - Add Ruby 2.6 to the CI test matrix.
+- `ESPRunner` checks for dead child processes every second. This means we
+  shouldn't see `[ruby] <defunct>` in the process list (ps) when a processor
+  fails.
 
 ### Removed
 - Remove Ruby 2.2 from the CI test matrix.
@@ -36,7 +39,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.20.0] - 2018-06-21
 ### Changed
-- Changed signature of `ESPProcess#initialize` to include a default value for `after_fork`. This prevents the 
+- Changed signature of `ESPProcess#initialize` to include a default value for `after_fork`. This prevents the
 `after_fork` change from 0.19.0 from being a breaking change to external creators of ESPProcess.
 - Added more logging when a fatal exception occurs in ESPProcess
 

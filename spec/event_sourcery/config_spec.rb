@@ -16,4 +16,3 @@ RSpec.describe EventSourcery::Config do
     end
   end
 end
-

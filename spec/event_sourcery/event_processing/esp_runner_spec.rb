@@ -4,7 +4,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
       event_processors: event_processors,
       event_source: event_source,
       max_seconds_for_processes_to_terminate: 0.01,
-      shutdown_requested: true
+      shutdown_requested: shutdown_requested
     )
   end
   let(:event_source) { spy(:event_source) }
@@ -15,6 +15,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
   let(:pid) { 363_298 }
   let(:success_status) { instance_double(Process::Status, success?: true) }
   let(:failure_status) { instance_double(Process::Status, success?: false) }
+  let(:shutdown_requested) { true }
 
   before do
     allow(EventSourcery::EventProcessing::ESPProcess)
@@ -26,6 +27,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
     allow(Process).to receive(:exit)
     allow(Signal).to receive(:trap)
     allow(esp_runner).to receive(:shutdown)
+    allow(esp_runner).to receive(:sleep)
   end
 
   describe 'start!' do
@@ -67,19 +69,48 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         expect(Process).to have_received(:exit).with(true)
       end
 
-      context 'given the processes failed before shutdown' do
-        before do
-          allow(Process).to receive(:wait2).and_return([pid, failure_status])
-        end
+      context 'given shutdown has been requested' do
+        let(:shutdown_requested) { true }
 
-        it "doesn't send processes the TERM, or KILL signal" do
-          start!
-          expect(Process).to_not have_received(:kill)
-        end
+        context 'but the processes failed before shutdown' do
+          before do
+            allow(Process).to receive(:wait2).and_return([pid, failure_status])
+          end
 
-        it "exits indicating failure" do
-          start!
-          expect(Process).to have_received(:exit).with(false)
+          it "doesn't send processes the TERM, or KILL signal to the failed process" do
+            start!
+            expect(Process).to_not have_received(:kill)
+          end
+
+          it 'exits indicating failure' do
+            start!
+            expect(Process).to have_received(:exit).with(false)
+          end
+        end
+      end
+
+      context 'given shutdown has not been requested' do
+        let(:shutdown_requested) { false }
+
+        context 'and the processes fail' do
+          before do
+            allow(Process).to receive(:wait2).and_return(nil, nil, nil, [pid, failure_status])
+          end
+
+          it 'starts the shutdown process after being notified of the failure' do
+            start!
+            expect(Process).to have_received(:wait2).exactly(4).times
+          end
+
+          it "doesn't send processes the TERM, or KILL signal to the failed process" do
+            start!
+            expect(Process).to_not have_received(:kill)
+          end
+
+          it 'exits indicating failure' do
+            start!
+            expect(Process).to have_received(:exit).with(false)
+          end
         end
       end
 

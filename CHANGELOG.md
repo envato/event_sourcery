@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 - Remove Ruby 2.2 from the CI test matrix.
 
+### Changed
+- Changed `ESPRunner` so that it shuts down all child processes if one
+  prematurely terminates.
+
 ## [0.22.0] - 2018-10-04
 ### Added
 - Log critical exceptions to the application provided block via the new

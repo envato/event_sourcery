@@ -14,6 +14,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
   let(:subscription_master) { spy(EventSourcery::EventStore::SignalHandlingSubscriptionMaster) }
   let(:error_handler) { double }
   let(:after_fork) { nil }
+  let(:on_event_processor_critical_error) { spy }
 
   describe '#start' do
     subject(:start) { esp_process.start }
@@ -23,12 +24,12 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
       allow(EventSourcery.config.error_handler_class).to receive(:new)
         .with(processor_name: processor_name).and_return(error_handler)
       allow(EventSourcery).to receive(:logger).and_return(logger)
+      allow(EventSourcery.config).to receive(:on_event_processor_critical_error).and_return(on_event_processor_critical_error)
     end
 
     context 'when no error is raised' do
       before do
         allow(error_handler).to receive(:with_error_handling).and_yield
-        allow(logger).to receive(:info)
         allow(Process).to receive(:setproctitle)
 
         allow(esp).to receive(:subscribe_to)
@@ -85,12 +86,12 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
 
       before do
         allow(error_handler).to receive(:with_error_handling).and_raise(error)
-        allow(logger).to receive(:error).with(error)
       end
 
       it 'logs and re-raises the error' do
         expect { start }.to raise_error(error)
         expect(logger).to have_received(:fatal).with(error)
+        expect(on_event_processor_critical_error).to have_received(:call).with(error, processor_name)
       end
     end
   end

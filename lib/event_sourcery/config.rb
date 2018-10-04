@@ -19,6 +19,14 @@ module EventSourcery
     # @return Proc
     attr_accessor :on_event_processor_error
 
+    # A Proc to be executed on an event processor critical error.
+    # App defined behaviour can be provided. This will be called
+    # if an exception causes an a event processor to die.
+    # i.e. report to an error reporting service like Rollbar.
+    #
+    # @return Proc
+    attr_accessor :on_event_processor_critical_error
+
     # @return EventStore::EventTypeSerializers::Underscored
     attr_accessor :event_type_serializer
 
@@ -38,6 +46,9 @@ module EventSourcery
         raise AggregateRoot::UnknownEventError, "#{event.type} is unknown to #{aggregate.class.name}"
       }
       @on_event_processor_error = proc { |exception, processor_name|
+        # app specific custom logic ie. report to an error reporting service like Rollbar.
+      }
+      @on_event_processor_critical_error = proc { |exception, processor_name|
         # app specific custom logic ie. report to an error reporting service like Rollbar.
       }
       @event_builder = nil

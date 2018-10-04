@@ -67,6 +67,7 @@ EventSourcery.configure do |config|
   # Add custom reporting of errors occurring during event processing.
   # One might set up an error reporting service like Rollbar here.
   config.on_event_processor_error = proc { |exception, processor_name| … }
+  config.on_event_processor_critical_error = proc { |exception, processor_name| … }
 
   # Enable EventSourcery logging.
   config.logger = Logger.new('logs/my_event_sourcery_app.log')

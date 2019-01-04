@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Removed
+- Remove Ruby 2.2 from the CI test matrix.
+
 ## [0.22.0] - 2018-10-04
 ### Added
 - Log critical exceptions to the application provided block via the new

@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Add Ruby 2.6 to the CI test matrix.
+
 ### Removed
 - Remove Ruby 2.2 from the CI test matrix.
 

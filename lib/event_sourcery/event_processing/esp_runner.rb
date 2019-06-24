@@ -10,7 +10,7 @@ module EventSourcery
                      after_fork: nil)
         @event_processors = event_processors
         @event_source = event_source
-        @pids = []
+        @pids = {}
         @max_seconds_for_processes_to_terminate = max_seconds_for_processes_to_terminate
         @shutdown_requested = shutdown_requested
         @exit_status = true
@@ -53,7 +53,8 @@ module EventSourcery
           event_source: @event_source,
           after_fork: @after_fork,
         )
-        @pids << Process.fork { process.start }
+        pid = Process.fork { process.start }
+        @pids[pid] = event_processor
       end
 
       def listen_for_shutdown_signals
@@ -84,7 +85,9 @@ module EventSourcery
 
 
       def send_signal_to_remaining_processes(signal)
-        Process.kill(signal, *@pids) unless all_processes_terminated?
+        return if all_processes_terminated?
+
+        Process.kill(signal, *@pids.keys)
       rescue Errno::ESRCH
         record_terminated_processes
         retry

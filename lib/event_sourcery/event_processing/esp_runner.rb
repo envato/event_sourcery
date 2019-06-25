@@ -38,9 +38,9 @@ module EventSourcery
       private
 
       def with_logging
-        logger.info('Forking ESP processes')
+        logger.info('ESPRunner: Forking processes')
         yield
-        logger.info('ESP processes shutdown')
+        logger.info('ESPRunner: Processes shutdown')
       end
 
       def start_processes
@@ -87,7 +87,7 @@ module EventSourcery
       def send_signal_to_remaining_processes(signal)
         return if all_processes_terminated?
 
-        logger.info("Sending #{signal} to [#{@pids.values.map(&:processor_name).join(', ')}]")
+        logger.info("ESPRunner: Sending #{signal} to [#{@pids.values.map(&:processor_name).join(', ')}]")
         Process.kill(signal, *@pids.keys)
       rescue Errno::ESRCH
         record_terminated_processes
@@ -98,7 +98,7 @@ module EventSourcery
         until all_processes_terminated? || (pid, status = Process.wait2(-1, Process::WNOHANG)).nil?
           event_processor = @pids.delete(pid)
           @exit_status &&= !!status.success?
-          logger.info("Process #{event_processor.processor_name} terminated with exit status: #{status.exitstatus.inspect}")
+          logger.info("ESPRunner: Process #{event_processor.processor_name} terminated with exit status: #{status.exitstatus.inspect}")
         end
       end
 

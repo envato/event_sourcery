@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   shouldn't see `[ruby] <defunct>` in the process list (ps) when a processor
   fails.
 - `ESPRunner` logs when child processes die.
+- `ESPRunner` logs when sending signals to child processes.
 
 ### Removed
 - Remove Ruby 2.2 from the CI test matrix.

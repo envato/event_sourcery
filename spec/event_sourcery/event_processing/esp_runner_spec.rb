@@ -66,6 +66,11 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         expect(Process).to have_received(:kill).with(:TERM, pid)
       end
 
+      it "logs the TERM signal" do
+        start!
+        expect(logger).to have_received(:info).with("Sending TERM to [#{processor_name}]")
+      end
+
       it "logs the process exit status" do
         start!
         expect(logger).to have_received(:info).with("Process #{processor_name} terminated with exit status: 0")
@@ -133,6 +138,11 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         it 'sends processes the KILL signal' do
           start!
           expect(Process).to have_received(:kill).with(:KILL, pid)
+        end
+
+        it "logs the KILL signal" do
+          start!
+          expect(logger).to have_received(:info).with("Sending KILL to [#{processor_name}]")
         end
 
         it "logs the process exit status" do

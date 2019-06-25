@@ -87,6 +87,7 @@ module EventSourcery
       def send_signal_to_remaining_processes(signal)
         return if all_processes_terminated?
 
+        logger.info("Sending #{signal} to [#{@pids.values.map(&:processor_name).join(', ')}]")
         Process.kill(signal, *@pids.keys)
       rescue Errno::ESRCH
         record_terminated_processes

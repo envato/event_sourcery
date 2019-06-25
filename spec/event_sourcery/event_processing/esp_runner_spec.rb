@@ -13,9 +13,10 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
   let(:processor_name) { 'processor_name' }
   let(:esp_process) { spy }
   let(:pid) { 363_298 }
-  let(:success_status) { instance_double(Process::Status, success?: true) }
-  let(:failure_status) { instance_double(Process::Status, success?: false) }
+  let(:success_status) { instance_double(Process::Status, success?: true, exitstatus: 0) }
+  let(:failure_status) { instance_double(Process::Status, success?: false, exitstatus: 1) }
   let(:shutdown_requested) { true }
+  let(:logger) { instance_spy(Logger) }
 
   before do
     allow(EventSourcery::EventProcessing::ESPProcess)
@@ -28,6 +29,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
     allow(Signal).to receive(:trap)
     allow(esp_runner).to receive(:shutdown)
     allow(esp_runner).to receive(:sleep)
+    allow(EventSourcery).to receive(:logger).and_return(logger)
   end
 
   describe 'start!' do
@@ -64,6 +66,11 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         expect(Process).to have_received(:kill).with(:TERM, pid)
       end
 
+      it "logs the process exit status" do
+        start!
+        expect(logger).to have_received(:info).with("Process #{processor_name} terminated with exit status: 0")
+      end
+
       it "exits indicating success" do
         start!
         expect(Process).to have_received(:exit).with(true)
@@ -75,6 +82,11 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         context 'but the processes failed before shutdown' do
           before do
             allow(Process).to receive(:wait2).and_return([pid, failure_status])
+          end
+
+          it "logs the process exit status" do
+            start!
+            expect(logger).to have_received(:info).with("Process #{processor_name} terminated with exit status: 1")
           end
 
           it "doesn't send processes the TERM, or KILL signal to the failed process" do
@@ -100,6 +112,11 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
           expect(Process).to have_received(:kill).with(:TERM, pid).once
         end
 
+        it "logs the process exit status" do
+          start!
+          expect(logger).to have_received(:info).with("Process #{processor_name} terminated with exit status: 1")
+        end
+
         it "exits indicating failure" do
           start!
           expect(Process).to have_received(:exit).with(false)
@@ -116,6 +133,11 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         it 'sends processes the KILL signal' do
           start!
           expect(Process).to have_received(:kill).with(:KILL, pid)
+        end
+
+        it "logs the process exit status" do
+          start!
+          expect(logger).to have_received(:info).with("Process #{processor_name} terminated with exit status: 1")
         end
 
         it "exits indicating failure" do

@@ -38,9 +38,9 @@ module EventSourcery
       private
 
       def with_logging
-        EventSourcery.logger.info { 'Forking ESP processes' }
+        logger.info('Forking ESP processes')
         yield
-        EventSourcery.logger.info { 'ESP processes shutdown' }
+        logger.info('ESP processes shutdown')
       end
 
       def start_processes
@@ -95,8 +95,9 @@ module EventSourcery
 
       def record_terminated_processes
         until all_processes_terminated? || (pid, status = Process.wait2(-1, Process::WNOHANG)).nil?
-          @pids.delete(pid)
+          event_processor = @pids.delete(pid)
           @exit_status &&= !!status.success?
+          logger.info("Process #{event_processor.processor_name} terminated with exit status: #{status.exitstatus.inspect}")
         end
       end
 
@@ -111,6 +112,10 @@ module EventSourcery
 
       def exit_indicating_status_of_processes
         Process.exit(@exit_status)
+      end
+
+      def logger
+        EventSourcery.logger
       end
     end
   end

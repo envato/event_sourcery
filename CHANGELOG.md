@@ -8,13 +8,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - Add Ruby 2.6 to the CI test matrix.
+- Added `shutdown_if_child_process_fails` option to the `ESPRunner` class.
+  This option will cause the `ESPRunner` to shutdown all child processes and
+  exit if any one child process prematurely terminates.
 
 ### Removed
 - Remove Ruby 2.2 from the CI test matrix.
 
-### Changed
-- Changed `ESPRunner` so that it shuts down all child processes if one
-  prematurely terminates.
 
 ## [0.22.0] - 2018-10-04
 ### Added
@@ -40,7 +40,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.20.0] - 2018-06-21
 ### Changed
-- Changed signature of `ESPProcess#initialize` to include a default value for `after_fork`. This prevents the 
+- Changed signature of `ESPProcess#initialize` to include a default value for `after_fork`. This prevents the
 `after_fork` change from 0.19.0 from being a breaking change to external creators of ESPProcess.
 - Added more logging when a fatal exception occurs in ESPProcess
 

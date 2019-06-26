@@ -7,7 +7,8 @@ module EventSourcery
                      event_source:,
                      max_seconds_for_processes_to_terminate: 30,
                      shutdown_requested: false,
-                     after_fork: nil)
+                     after_fork: nil,
+                     shutdown_if_child_process_fails: false)
         @event_processors = event_processors
         @event_source = event_source
         @pids = []
@@ -15,6 +16,7 @@ module EventSourcery
         @shutdown_requested = shutdown_requested
         @exit_status = true
         @after_fork = after_fork
+        @shutdown_if_child_process_fails = shutdown_if_child_process_fails
       end
 
       # Start each Event Stream Processor in a new child process.
@@ -22,7 +24,7 @@ module EventSourcery
         with_logging do
           start_processes
           listen_for_shutdown_signals
-          wait_till_shutdown_requested_or_process_terminates
+          wait_until_shutdown
           record_terminated_processes
           terminate_remaining_processes
           until all_processes_terminated? || waited_long_enough?
@@ -65,8 +67,12 @@ module EventSourcery
         @shutdown_requested = true
       end
 
-      def wait_till_shutdown_requested_or_process_terminates
-        sleep(1) until @shutdown_requested || a_process_has_terminated?
+      def wait_until_shutdown
+        loop do
+          sleep(1)
+          break if @shutdown_requested
+          break if a_process_has_terminated? && @shutdown_if_child_process_fails
+        end
       end
 
       def a_process_has_terminated?

@@ -4,7 +4,8 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
       event_processors: event_processors,
       event_source: event_source,
       max_seconds_for_processes_to_terminate: 0.01,
-      shutdown_requested: shutdown_requested
+      shutdown_requested: shutdown_requested,
+      shutdown_if_child_process_fails: shutdown_if_child_process_fails
     )
   end
   let(:event_source) { spy(:event_source) }
@@ -16,6 +17,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
   let(:success_status) { instance_double(Process::Status, success?: true) }
   let(:failure_status) { instance_double(Process::Status, success?: false) }
   let(:shutdown_requested) { true }
+  let(:shutdown_if_child_process_fails) { false }
 
   before do
     allow(EventSourcery::EventProcessing::ESPProcess)
@@ -92,24 +94,28 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
       context 'given shutdown has not been requested' do
         let(:shutdown_requested) { false }
 
-        context 'and the processes fail' do
-          before do
-            allow(Process).to receive(:wait2).and_return(nil, nil, nil, [pid, failure_status])
-          end
+        context "and we've requested shutdown if a child process fails" do
+          let(:shutdown_if_child_process_fails) { true }
 
-          it 'starts the shutdown process after being notified of the failure' do
-            start!
-            expect(Process).to have_received(:wait2).exactly(4).times
-          end
+          context 'and the processes fail' do
+            before do
+              allow(Process).to receive(:wait2).and_return(nil, nil, nil, [pid, failure_status])
+            end
 
-          it "doesn't send processes the TERM, or KILL signal to the failed process" do
-            start!
-            expect(Process).to_not have_received(:kill)
-          end
+            it 'starts the shutdown process after being notified of the failure' do
+              start!
+              expect(Process).to have_received(:wait2).exactly(4).times
+            end
 
-          it 'exits indicating failure' do
-            start!
-            expect(Process).to have_received(:exit).with(false)
+            it "doesn't send processes the TERM, or KILL signal to the failed process" do
+              start!
+              expect(Process).to_not have_received(:kill)
+            end
+
+            it 'exits indicating failure' do
+              start!
+              expect(Process).to have_received(:exit).with(false)
+            end
           end
         end
       end

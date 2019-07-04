@@ -4,7 +4,8 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
       event_processors: event_processors,
       event_source: event_source,
       max_seconds_for_processes_to_terminate: 0.01,
-      shutdown_requested: shutdown_requested
+      shutdown_requested: shutdown_requested,
+      logger: logger,
     )
   end
   let(:event_source) { spy(:event_source) }
@@ -29,7 +30,6 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
     allow(Signal).to receive(:trap)
     allow(esp_runner).to receive(:shutdown)
     allow(esp_runner).to receive(:sleep)
-    allow(EventSourcery).to receive(:logger).and_return(logger)
   end
 
   describe 'start!' do

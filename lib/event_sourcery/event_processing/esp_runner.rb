@@ -7,7 +7,8 @@ module EventSourcery
                      event_source:,
                      max_seconds_for_processes_to_terminate: 30,
                      shutdown_requested: false,
-                     after_fork: nil)
+                     after_fork: nil,
+                     logger: EventSourcery.logger)
         @event_processors = event_processors
         @event_source = event_source
         @pids = {}
@@ -15,6 +16,7 @@ module EventSourcery
         @shutdown_requested = shutdown_requested
         @exit_status = true
         @after_fork = after_fork
+        @logger = logger
       end
 
       # Start each Event Stream Processor in a new child process.
@@ -36,6 +38,8 @@ module EventSourcery
       end
 
       private
+
+      attr_reader :logger
 
       def with_logging
         logger.info('ESPRunner: Forking processes')
@@ -83,7 +87,6 @@ module EventSourcery
         send_signal_to_remaining_processes(:KILL)
       end
 
-
       def send_signal_to_remaining_processes(signal)
         return if all_processes_terminated?
 
@@ -113,10 +116,6 @@ module EventSourcery
 
       def exit_indicating_status_of_processes
         Process.exit(@exit_status)
-      end
-
-      def logger
-        EventSourcery.logger
       end
     end
   end

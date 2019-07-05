@@ -5,6 +5,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
       event_source: event_source,
       max_seconds_for_processes_to_terminate: 0.01,
       shutdown_requested: shutdown_requested,
+      after_subprocess_termination: after_subprocess_termination,
       logger: logger,
     )
   end
@@ -17,6 +18,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
   let(:success_status) { instance_double(Process::Status, success?: true, exitstatus: 0) }
   let(:failure_status) { instance_double(Process::Status, success?: false, exitstatus: 1) }
   let(:shutdown_requested) { true }
+  let(:after_subprocess_termination) { nil }
   let(:logger) { instance_spy(Logger) }
 
   before do
@@ -76,6 +78,16 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         expect(logger).to have_received(:info).with("ESPRunner: Process #{processor_name} terminated with exit status: 0")
       end
 
+      context 'given an after subprocess termination hook' do
+        let(:after_subprocess_termination) { spy }
+
+        it 'calls the after subprocess termination' do
+          start!
+          expect(after_subprocess_termination).to have_received(:call)
+            .with(processor: esp, runner: esp_runner, exit_status: 0)
+        end
+      end
+
       it "exits indicating success" do
         start!
         expect(Process).to have_received(:exit).with(true)
@@ -99,6 +111,16 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
             expect(Process).to_not have_received(:kill)
           end
 
+          context 'given an after subprocess termination hook' do
+            let(:after_subprocess_termination) { spy }
+
+            it 'calls the after subprocess termination' do
+              start!
+              expect(after_subprocess_termination).to have_received(:call)
+                .with(processor: esp, runner: esp_runner, exit_status: 1)
+            end
+          end
+
           it 'exits indicating failure' do
             start!
             expect(Process).to have_received(:exit).with(false)
@@ -120,6 +142,16 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         it "logs the process exit status" do
           start!
           expect(logger).to have_received(:info).with("ESPRunner: Process #{processor_name} terminated with exit status: 1")
+        end
+
+        context 'given an after subprocess termination hook' do
+          let(:after_subprocess_termination) { spy }
+
+          it 'calls the after subprocess termination' do
+            start!
+            expect(after_subprocess_termination).to have_received(:call)
+              .with(processor: esp, runner: esp_runner, exit_status: 1)
+          end
         end
 
         it "exits indicating failure" do
@@ -148,6 +180,16 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         it "logs the process exit status" do
           start!
           expect(logger).to have_received(:info).with("ESPRunner: Process #{processor_name} terminated with exit status: 1")
+        end
+
+        context 'given an after subprocess termination hook' do
+          let(:after_subprocess_termination) { spy }
+
+          it 'calls the after subprocess termination' do
+            start!
+            expect(after_subprocess_termination).to have_received(:call)
+              .with(processor: esp, runner: esp_runner, exit_status: 1)
+          end
         end
 
         it "exits indicating failure" do

@@ -8,6 +8,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - Add Ruby 2.6 to the CI test matrix.
+- `ESPRunner` supports an `after_subprocess_termination` hook. This optional
+  initializer argument will will be executed when each child process
+  terminates. This allows for monitoring and alerts to be configured.
+  For example, Rollbar:
+
+  ```ruby
+  EventSourcery::EventProcessing::ESPRunner.new(
+    event_processors: processors,
+    event_source: source,
+    after_subprocess_termination: proc do |processor:, runner:, exit_status:|
+      if exit_status != 0
+        Rollbar.error("Processor #{processor.processor_name} "\
+                      "terminated with exit status #{exit_status}")
+      end
+    end
+  ).start!
+  ```
+
 - `ESPRunner` checks for dead child processes every second. This means we
   shouldn't see `[ruby] <defunct>` in the process list (ps) when a processor
   fails.

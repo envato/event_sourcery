@@ -8,6 +8,7 @@ module EventSourcery
                      max_seconds_for_processes_to_terminate: 30,
                      shutdown_requested: false,
                      after_fork: nil,
+                     after_subprocess_termination: nil,
                      logger: EventSourcery.logger)
         @event_processors = event_processors
         @event_source = event_source
@@ -16,6 +17,7 @@ module EventSourcery
         @shutdown_requested = shutdown_requested
         @exit_status = true
         @after_fork = after_fork
+        @after_subprocess_termination = after_subprocess_termination
         @logger = logger
       end
 
@@ -102,6 +104,7 @@ module EventSourcery
           event_processor = @pids.delete(pid)
           @exit_status &&= !!status.success?
           logger.info("ESPRunner: Process #{event_processor.processor_name} terminated with exit status: #{status.exitstatus.inspect}")
+          @after_subprocess_termination&.call(processor: event_processor, runner: self, exit_status: status.exitstatus)
         end
       end
 

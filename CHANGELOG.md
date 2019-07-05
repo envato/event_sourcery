@@ -26,6 +26,32 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   ).start!
   ```
 
+- `ESPRunner` exposes three new public methods `start_processor`, `shutdown`,
+  and `shutdown_requested?`. These provide options for handling subprocess
+  failure/termination. For example, shutting down the `ESPRunner`:
+
+  ```ruby
+  EventSourcery::EventProcessing::ESPRunner.new(
+    event_processors: processors,
+    event_source: source,
+    after_subprocess_termination: proc do |processor:, runner:, exit_status:|
+      runner.shutdown
+    end
+  ).start!
+  ```
+
+  Or restarting the event processor:
+
+  ```ruby
+  EventSourcery::EventProcessing::ESPRunner.new(
+    event_processors: processors,
+    event_source: source,
+    after_subprocess_termination: proc do |processor:, runner:, exit_status:|
+      runner.start_processor(processor) unless runner.shutdown_requested?
+    end
+  ).start!
+  ```
+
 - `ESPRunner` checks for dead child processes every second. This means we
   shouldn't see `[ruby] <defunct>` in the process list (ps) when a processor
   fails.

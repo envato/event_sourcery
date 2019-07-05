@@ -30,12 +30,15 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
     allow(Process).to receive(:wait2).and_return(nil, [pid, success_status])
     allow(Process).to receive(:exit)
     allow(Signal).to receive(:trap)
-    allow(esp_runner).to receive(:shutdown)
     allow(esp_runner).to receive(:sleep)
   end
 
   describe 'start!' do
     subject(:start!) { esp_runner.start! }
+
+    before do
+      allow(esp_runner).to receive(:shutdown)
+    end
 
     it 'starts ESP processes' do
       start!
@@ -197,6 +200,34 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
           expect(Process).to have_received(:exit).with(false)
         end
       end
+    end
+  end
+
+  describe 'start_processor' do
+    subject(:start_processor) { esp_runner.start_processor(esp) }
+
+    it 'starts an ESP process' do
+      start_processor
+      expect(EventSourcery::EventProcessing::ESPProcess)
+        .to have_received(:new)
+        .with(
+          event_processor: esp,
+          event_source: event_source,
+          after_fork: nil,
+        )
+      expect(esp_process).to have_received(:start)
+    end
+  end
+
+  describe 'shutdown' do
+    subject(:shutdown) { esp_runner.shutdown }
+
+    let(:shutdown_requested) { false }
+
+    it 'requests the runner to shutdown' do
+      expect(esp_runner.shutdown_requested?).to be false
+      shutdown
+      expect(esp_runner.shutdown_requested?).to be true
     end
   end
 end

@@ -39,6 +39,24 @@ module EventSourcery
         exit_indicating_status_of_processes
       end
 
+      def start_processor(event_processor)
+        process = ESPProcess.new(
+          event_processor: event_processor,
+          event_source: @event_source,
+          after_fork: @after_fork,
+        )
+        pid = Process.fork { process.start }
+        @pids[pid] = event_processor
+      end
+
+      def shutdown
+        @shutdown_requested = true
+      end
+
+      def shutdown_requested?
+        @shutdown_requested
+      end
+
       private
 
       attr_reader :logger
@@ -50,17 +68,7 @@ module EventSourcery
       end
 
       def start_processes
-        @event_processors.each(&method(:start_process))
-      end
-
-      def start_process(event_processor)
-        process = ESPProcess.new(
-          event_processor: event_processor,
-          event_source: @event_source,
-          after_fork: @after_fork,
-        )
-        pid = Process.fork { process.start }
-        @pids[pid] = event_processor
+        @event_processors.each(&method(:start_processor))
       end
 
       def listen_for_shutdown_signals
@@ -69,13 +77,9 @@ module EventSourcery
         end
       end
 
-      def shutdown
-        @shutdown_requested = true
-      end
-
       def while_waiting_for_shutdown
         yield
-        until @shutdown_requested
+        until shutdown_requested?
           sleep(1)
           yield
         end

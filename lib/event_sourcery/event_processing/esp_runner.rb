@@ -78,10 +78,10 @@ module EventSourcery
       end
 
       def while_waiting_for_shutdown
-        yield
-        until shutdown_requested?
-          sleep(1)
+        loop do
           yield
+          break if shutdown_requested?
+          sleep(1)
         end
       end
 

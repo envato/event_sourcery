@@ -36,10 +36,6 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
   describe 'start!' do
     subject(:start!) { esp_runner.start! }
 
-    before do
-      allow(esp_runner).to receive(:shutdown)
-    end
-
     it 'starts ESP processes' do
       start!
       expect(EventSourcery::EventProcessing::ESPProcess)
@@ -57,6 +53,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         context "upon receiving a #{signal} signal" do
           before do
             allow(Signal).to receive(:trap).with(signal).and_yield
+            allow(esp_runner).to receive(:shutdown)
           end
 
           it 'it starts to shutdown' do

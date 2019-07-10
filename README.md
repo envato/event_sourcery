@@ -218,7 +218,7 @@ The event store is a persistent store of events.
 
 EventSourcery currently supports a Postgres-based event store via the [event_sourcery-postgres gem](https://github.com/envato/event_sourcery-postgres).
 
-For more information about the `EventStore` API refer to [the postgres event store](https://github.com/envato/event_sourcery-postgres/blob/master/lib/event_sourcery/postgres/event_store.rb) or the [in memory event store in this repo](lib/event_sourcery/event_store/memory.rb)
+For more information about the `EventStore` API refer to [the postgres event store](https://github.com/envato/event_sourcery-postgres/blob/master/lib/event_sourcery/postgres/event_store.rb) or the [in memory event store in this repo](lib/event_sourcery/memory/event_store.rb)
 
 #### Storing Events
 

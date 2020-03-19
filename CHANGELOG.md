@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Fixed
+- Upgrade development dependency Rake to version 13. This resolves
+  [CVE-2020-8130](https://github.com/advisories/GHSA-jppv-gw3r-w3q8).
 
 ## [0.23.0] - 2019-07-11
 ### Added

@@ -10,6 +10,7 @@ before_install:
 - gem install bundler
 notifications:
   slack:
+    if: branch = master
     on_pull_requests: false
     on_success: change
     on_failure: always

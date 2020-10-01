@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Upgrade development dependency Rake to version 13. This resolves
   [CVE-2020-8130](https://github.com/advisories/GHSA-jppv-gw3r-w3q8).
 
+- Patch `ESPRunner` to gracefully handle terminating subprocesses it did
+  not start ([#223]).
+
+[#223]: https://github.com/envato/event_sourcery/pull/223
+
 ## [0.23.0] - 2019-07-11
 ### Added
 - Add Ruby 2.6 to the CI test matrix.

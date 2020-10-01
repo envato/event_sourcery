@@ -197,6 +197,26 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
           expect(Process).to have_received(:exit).with(false)
         end
       end
+
+      context 'given an unknown subprocess terminates' do
+        before do
+          allow(Process).to receive(:wait2).and_return(nil, [pid + 1, success_status], [pid, success_status])
+        end
+
+        it 'only logs the exit status for the known process' do
+          start!
+          expect(logger).to have_received(:info).with(/^ESPRunner: Process /).once
+        end
+
+        context 'given an after subprocess termination hook' do
+          let(:after_subprocess_termination) { spy }
+
+          it 'calls the after subprocess termination only once (for the known process)' do
+            start!
+            expect(after_subprocess_termination).to have_received(:call).once
+          end
+        end
+      end
     end
   end
 

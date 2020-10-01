@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [0.23.1] - 2020-10-02
 ### Fixed
 - Upgrade development dependency Rake to version 13. This resolves
   [CVE-2020-8130](https://github.com/advisories/GHSA-jppv-gw3r-w3q8).
@@ -232,7 +234,8 @@ moving all Postgres related code into a separate gem.
 - EventSourcery no longer depends on Virtus.
 - `Command` and `CommandHandler` have been removed.
 
-[Unreleased]: https://github.com/envato/event_sourcery/compare/v0.23.0...HEAD
+[Unreleased]: https://github.com/envato/event_sourcery/compare/v0.23.1...HEAD
+[0.23.1]: https://github.com/envato/event_sourcery/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/envato/event_sourcery/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/envato/event_sourcery/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/envato/event_sourcery/compare/v0.20.0...v0.21.0

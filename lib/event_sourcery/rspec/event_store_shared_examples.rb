@@ -212,9 +212,9 @@ RSpec.shared_examples 'an event store' do
       end
     end
 
-    def events_by_range(*args)
+    def events_by_range(from_event_id, to_event_id, **args)
       [].tap do |events|
-        event_store.each_by_range(*args) do |event|
+        event_store.each_by_range(from_event_id, to_event_id, **args) do |event|
           events << event
         end
       end

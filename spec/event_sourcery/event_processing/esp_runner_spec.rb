@@ -203,9 +203,16 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
           allow(Process).to receive(:wait2).and_return(nil, [pid + 1, success_status], [pid, success_status])
         end
 
-        it 'only logs the exit status for the known process' do
+        it 'only logs the exit status for both the known and unknown process' do
           start!
-          expect(logger).to have_received(:info).with(/^ESPRunner: Process /).once
+          expect(logger)
+            .to have_received(:info)
+            .with("ESPRunner: Process #{pid + 1} terminated with exit status: 0")
+            .once
+          expect(logger)
+            .to have_received(:info)
+            .with("ESPRunner: Process #{processor_name} terminated with exit status: 0")
+            .once
         end
 
         context 'given an after subprocess termination hook' do

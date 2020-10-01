@@ -106,9 +106,10 @@ module EventSourcery
       def record_terminated_processes
         until all_processes_terminated? || (pid, status = Process.wait2(-1, Process::WNOHANG)).nil?
           event_processor = @pids.delete(pid)
+          logger.info("ESPRunner: Process #{event_processor&.processor_name || pid} " \
+                      "terminated with exit status: #{status.exitstatus.inspect}")
           next unless event_processor
           @exit_status &&= !!status.success?
-          logger.info("ESPRunner: Process #{event_processor.processor_name} terminated with exit status: #{status.exitstatus.inspect}")
           @after_subprocess_termination&.call(processor: event_processor, runner: self, exit_status: status.exitstatus)
         end
       end

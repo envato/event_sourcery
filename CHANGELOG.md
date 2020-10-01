@@ -13,7 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Patch `ESPRunner` to gracefully handle terminating subprocesses it did
   not start ([#223]).
 
+- Resolve warnings raised by Ruby 2.7 ([#225]).
+
 [#223]: https://github.com/envato/event_sourcery/pull/223
+[#225]: https://github.com/envato/event_sourcery/pull/225
 
 ## [0.23.0] - 2019-07-11
 ### Added

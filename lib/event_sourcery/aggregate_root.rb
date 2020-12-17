@@ -3,7 +3,7 @@ module EventSourcery
   # EventSourcery::AggregateRoot provides a foundation for writing your own aggregate root classes.
   # You can use it by including it in your classes, as show in the example code.
   #
-  # Excerpt from {https://github.com/envato/event_sourcery/blob/master/docs/core-concepts.md EventSourcery Core Concepts} on Aggregates follows:
+  # Excerpt from {https://github.com/envato/event_sourcery/blob/HEAD/docs/core-concepts.md EventSourcery Core Concepts} on Aggregates follows:
   # === Aggregates and Command Handling
   #
   #   An aggregate is a cluster of domain objects that can be treated as a single unit.
@@ -18,7 +18,7 @@ module EventSourcery
   # A typical EventSourcery application will have one or more aggregate roots with multiple commands.
   #
   # The following partial example is taken from the EventSourceryTodoApp.
-  # Refer a more complete example {https://github.com/envato/event_sourcery_todo_app/blob/master/app/aggregates/todo.rb here}.
+  # Refer a more complete example {https://github.com/envato/event_sourcery_todo_app/blob/HEAD/app/aggregates/todo.rb here}.
   #
   # @example
   #   module EventSourceryTodoApp

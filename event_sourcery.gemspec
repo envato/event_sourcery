@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://github.com/envato/event_sourcery'
   spec.metadata      = {
                          'bug_tracker_uri' => 'https://github.com/envato/event_sourcery/issues',
-                         'changelog_uri'   => 'https://github.com/envato/event_sourcery/blob/master/CHANGELOG.md',
+                         'changelog_uri'   => 'https://github.com/envato/event_sourcery/blob/HEAD/CHANGELOG.md',
                          'source_code_uri' => 'https://github.com/envato/event_sourcery',
                        }
 

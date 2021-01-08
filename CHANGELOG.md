@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Use GitHub Actions for the CI build instead of Travis CI ([#228]).
+
+[#228]: https://github.com/envato/event_sourcery/pull/228
+
 ## [0.23.1] - 2020-10-02
 ### Fixed
 - Upgrade development dependency Rake to version 13. This resolves

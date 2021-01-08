@@ -1,0 +1,20 @@
+---
+name: tests
+on: push
+jobs:
+  test:
+    name: Test (Ruby ${{ matrix.ruby }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-20.04 ]
+        ruby: [ '2.3', '2.4', '2.5', '2.6', '2.7' ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby ${{ matrix.ruby }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: RSpec
+        run: bundle exec rspec

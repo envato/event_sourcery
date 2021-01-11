@@ -1,6 +1,6 @@
 # EventSourcery
 
-[![Build Status](https://travis-ci.org/envato/event_sourcery.svg?branch=main)](https://travis-ci.org/envato/event_sourcery)
+[![Build Status](https://github.com/envato/event_sourcery/workflows/tests/badge.svg?branch=main)](https://github.com/envato/event_sourcery/actions?query=workflow%3Atests+branch%3Amain)
 
 A framework for building event sourced, CQRS applications.
 

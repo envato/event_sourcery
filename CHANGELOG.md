@@ -7,10 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Test against Ruby 3.0 in the CI build ([#229]).
+
 ### Changed
 
+- Use GitHub Actions for the CI build instead of Travis CI ([#228]).
 - This project now uses `main` as its default branch.
-- Documentation updated to refer to `main` and update links accordingly.
+- Documentation updated to refer to `main` and links updated accordingly.
+
+[#228]: https://github.com/envato/event_sourcery/pull/228
+[#229]: https://github.com/envato/event_sourcery/pull/229
 
 ## [0.23.1] - 2020-10-02
 ### Fixed

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- This project now uses `main` as its default branch.
+- Documentation updated to refer to `main` and update links accordingly.
+
 ## [0.23.1] - 2020-10-02
 ### Fixed
 - Upgrade development dependency Rake to version 13. This resolves

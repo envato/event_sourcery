@@ -1,6 +1,6 @@
 # EventSourcery
 
-[![Build Status](https://github.com/envato/event_sourcery/workflows/tests/badge.svg?branch=master)](https://github.com/envato/event_sourcery/actions?query=workflow%3Atests+branch%3Amaster)
+[![Build Status](https://github.com/envato/event_sourcery/workflows/tests/badge.svg?branch=main)](https://github.com/envato/event_sourcery/actions?query=workflow%3Atests+branch%3Amain)
 
 A framework for building event sourced, CQRS applications.
 
@@ -105,7 +105,7 @@ To release a new version:
 
 1. Update the version number in `lib/event_sourcery/version.rb`
 2. Add the new version with release notes to CHANGELOG.md
-3. Get these changes onto master via the normal PR process
+3. Get these changes onto main via the normal PR process
 4. Run `bundle exec rake release`, this will create a git tag for the
    version, push tags up to GitHub, and package the code in a `.gem` file.
 
@@ -218,7 +218,7 @@ The event store is a persistent store of events.
 
 EventSourcery currently supports a Postgres-based event store via the [event_sourcery-postgres gem](https://github.com/envato/event_sourcery-postgres).
 
-For more information about the `EventStore` API refer to [the postgres event store](https://github.com/envato/event_sourcery-postgres/blob/master/lib/event_sourcery/postgres/event_store.rb) or the [in memory event store in this repo](lib/event_sourcery/memory/event_store.rb)
+For more information about the `EventStore` API refer to [the postgres event store](https://github.com/envato/event_sourcery-postgres/blob/HEAD/lib/event_sourcery/postgres/event_store.rb) or the [in memory event store in this repo](lib/event_sourcery/memory/event_store.rb)
 
 #### Storing Events
 
@@ -294,7 +294,7 @@ Reactors can be used to build [process managers or sagas](https://msdn.microsoft
 
 #### Running Multiple ESPs
 
-An EventSourcery application will typically have multiple ESPs running. EventSourcery provides a class called [ESPRunner](lib/event_sourcery/event_processing/esp_runner.rb) which can be used to run ESPs. It runs each ESP in a forked child process so each ESP can process the event store independently. You can find an example in [event_sourcery_todo_app](https://github.com/envato/event_sourcery_todo_app/blob/master/Rakefile).
+An EventSourcery application will typically have multiple ESPs running. EventSourcery provides a class called [ESPRunner](lib/event_sourcery/event_processing/esp_runner.rb) which can be used to run ESPs. It runs each ESP in a forked child process so each ESP can process the event store independently. You can find an example in [event_sourcery_todo_app](https://github.com/envato/event_sourcery_todo_app/blob/HEAD/Rakefile).
 
 Note that you may instead choose to run each ESP in their own process directly. The coordination of this is not currently provided by EventSourcery.
 

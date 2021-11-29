@@ -1,4 +1,4 @@
 module EventSourcery
   # Defines the version
-  VERSION = '0.23.1'.freeze
+  VERSION = '0.24.0'.freeze
 end

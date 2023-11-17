@@ -205,6 +205,17 @@ RSpec.describe EventSourcery::Event do
     end
   end
 
+  describe '#persisted?' do
+    subject(:persisted?) { event.persisted? }
+
+    context 'given an Event with ID' do
+      let(:event_id) { SecureRandom.uuid }
+      let(:event) { EventSourcery::Event.new(id: event_id) }
+
+      it { should be true } # This seems debatable
+    end
+  end
+
   describe '#hash' do
     subject(:hash) { event.hash }
 

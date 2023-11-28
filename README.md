@@ -32,6 +32,12 @@ A framework for building event sourced, CQRS applications.
         - [2. Updating a Projection](#2-updating-a-projection)
         - [3. Handling a Query](#3-handling-a-query)
 
+## Development Status
+
+[![Build Status](https://github.com/envato/event_sourcery/workflows/tests/badge.svg?branch=main)](https://github.com/envato/event_sourcery/actions?query=branch%3Amain)
+
+Event Sourcery is in production use at [Envato](http://envato.com).
+
 ## Goals
 
 The goal of EventSourcery is to make it easier to build event sourced, CQRS applications.

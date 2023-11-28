@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [1.0.0] - 2023-11-29
+
+### Removed
+- Removed Event.persisted? as it was potentially misleading ([#235])
+
+[#235]: https://github.com/envato/event_sourcery/pull/235
+
 ## [0.24.0] - 2021-11-18
 
 ### Added
@@ -254,6 +262,7 @@ moving all Postgres related code into a separate gem.
 - `Command` and `CommandHandler` have been removed.
 
 [Unreleased]: https://github.com/envato/event_sourcery/compare/v0.24.0...HEAD
+[1.0.0]: https://github.com/envato/event_sourcery/compare/v0.24.0...v1.0.0
 [0.24.0]: https://github.com/envato/event_sourcery/compare/v0.23.1...v0.24.0
 [0.23.1]: https://github.com/envato/event_sourcery/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/envato/event_sourcery/compare/v0.22.0...v0.23.0

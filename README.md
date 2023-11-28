@@ -32,12 +32,6 @@ A framework for building event sourced, CQRS applications.
         - [2. Updating a Projection](#2-updating-a-projection)
         - [3. Handling a Query](#3-handling-a-query)
 
-## Development Status
-
-EventSourcery is currently being used in production by multiple apps but we
-haven't finalized the API yet and things are still moving rapidly. Until we
-release a 1.0 things may change without first being deprecated.
-
 ## Goals
 
 The goal of EventSourcery is to make it easier to build event sourced, CQRS applications.

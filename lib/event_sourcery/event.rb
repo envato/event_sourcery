@@ -95,11 +95,6 @@ module EventSourcery
       @causation_id = causation_id
     end
 
-    # Is this event persisted?
-    def persisted?
-      !id.nil?
-    end
-
     def hash
       [self.class, uuid].hash
     end

@@ -34,9 +34,9 @@ A framework for building event sourced, CQRS applications.
 
 ## Development Status
 
-EventSourcery is currently being used in production by multiple apps but we
-haven't finalized the API yet and things are still moving rapidly. Until we
-release a 1.0 things may change without first being deprecated.
+[![Build Status](https://github.com/envato/event_sourcery/workflows/tests/badge.svg?branch=main)](https://github.com/envato/event_sourcery/actions?query=branch%3Amain)
+
+Event Sourcery is in production use at [Envato](http://envato.com).
 
 ## Goals
 

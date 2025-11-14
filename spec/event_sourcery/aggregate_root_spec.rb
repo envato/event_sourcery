@@ -36,6 +36,7 @@ RSpec.describe EventSourcery::AggregateRoot do
             on_unknown_event: on_unknown_event)
   end
 
+  let(:item) { Struct.new(:id) }
   let(:aggregate_uuid) { SecureRandom.uuid }
   subject(:aggregate) { new_aggregate(aggregate_uuid) }
 
@@ -96,7 +97,7 @@ RSpec.describe EventSourcery::AggregateRoot do
     }
 
     before do
-      aggregate.add_item(OpenStruct.new(id: 1234))
+      aggregate.add_item(item.new(1234))
     end
 
     it 'updates state by calling the handler' do
@@ -130,8 +131,8 @@ RSpec.describe EventSourcery::AggregateRoot do
 
     context 'multiple state changes' do
       before do
-        aggregate.add_item(OpenStruct.new(id: 1235))
-        aggregate.add_item(OpenStruct.new(id: 1236))
+        aggregate.add_item(item.new(1235))
+        aggregate.add_item(item.new(1236))
       end
 
       it 'exposes the events in order' do

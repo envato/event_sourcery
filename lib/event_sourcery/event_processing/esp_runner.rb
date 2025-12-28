@@ -30,9 +30,7 @@ module EventSourcery
             record_terminated_processes
           end
           terminate_remaining_processes
-          until all_processes_terminated? || waited_long_enough?
-            record_terminated_processes
-          end
+          record_terminated_processes until all_processes_terminated? || waited_long_enough?
           kill_remaining_processes
           record_terminated_processes until all_processes_terminated?
         end

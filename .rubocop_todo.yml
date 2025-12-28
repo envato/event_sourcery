@@ -7,12 +7,6 @@
 # versions of RuboCop, may require this file to be generated again.
 
 # This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: TreatCommentsAsGroupSeparators, ConsiderPunctuation.
-Gemspec/OrderedDependencies:
-  Exclude:
-    - 'event_sourcery.gemspec'
-
-# This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: AllowedMethods, AllowedPatterns.
 Lint/AmbiguousBlockAssociation:
   Exclude:

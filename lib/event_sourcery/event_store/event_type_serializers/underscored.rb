@@ -28,7 +28,7 @@ module EventSourcery
               else
                 string.sub(/^(?:(?=\b|[A-Z_])|\w)/) { ::Regexp.last_match(0).downcase }
               end
-            string.gsub(/(?:_|(\/))([a-z\d]*)/i) do
+            string.gsub(%r{(?:_|(/))([a-z\d]*)}i) do
               "#{::Regexp.last_match(1)}#{capitalize(::Regexp.last_match(2))}"
             end.gsub('/', '::')
           end

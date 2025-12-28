@@ -200,12 +200,6 @@ Style/GlobalStdStream:
   Exclude:
     - 'lib/event_sourcery/config.rb'
 
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: AllowedMethods, AllowedPatterns.
-Style/MethodCallWithoutArgsParentheses:
-  Exclude:
-    - 'spec/event_sourcery/memory/event_store_spec.rb'
-
 Style/MultilineBlockChain:
   Exclude:
     - 'lib/event_sourcery/event_store/event_type_serializers/underscored.rb'

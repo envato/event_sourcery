@@ -15,7 +15,7 @@ RSpec.describe EventSourcery::Memory::EventStore do
         @processed_event = event
       end
       attr_reader :processed_event
-    end.new()
+    end.new
     event_store.add_listeners(listener)
     event_store.sink(event)
     expect(listener.processed_event).to eq(event)

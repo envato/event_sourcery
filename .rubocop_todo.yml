@@ -104,14 +104,6 @@ Naming/HeredocDelimiterNaming:
     - 'spec/event_sourcery/event_processing/event_stream_processor_spec.rb'
 
 # This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: PreferredName.
-Naming/RescuedExceptionsVariableName:
-  Exclude:
-    - 'lib/event_sourcery/event_processing/error_handlers/constant_retry.rb'
-    - 'lib/event_sourcery/event_processing/error_handlers/exponential_backoff_retry.rb'
-    - 'lib/event_sourcery/event_processing/error_handlers/no_retry.rb'
-
-# This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: prefer_alias, prefer_alias_method
 Style/Alias:

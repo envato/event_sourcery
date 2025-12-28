@@ -15,30 +15,33 @@ module EventSourcery
             word.gsub!(/::/, '/')
             word.gsub!(/([A-Z\d]+)([A-Z][a-z])/, '\1_\2')
             word.gsub!(/([a-z\d])([A-Z])/, '\1_\2')
-            word.tr!("-", "_")
+            word.tr!('-', '_')
             word.downcase!
             word
           end
 
           def camelize(term, uppercase_first_letter = true)
             string = term.to_s
-            if uppercase_first_letter
-              string = string.sub(/^[a-z\d]*/) { capitalize($&) }
-            else
-              string = string.sub(/^(?:(?=\b|[A-Z_])|\w)/) { $&.downcase }
-            end
-            string.gsub(/(?:_|(\/))([a-z\d]*)/i) { "#{$1}#{capitalize($2)}" }.gsub('/', '::')
+            string =
+              if uppercase_first_letter
+                string.sub(/^[a-z\d]*/) { capitalize(::Regexp.last_match(0)) }
+              else
+                string.sub(/^(?:(?=\b|[A-Z_])|\w)/) { ::Regexp.last_match(0).downcase }
+              end
+            string.gsub(%r{(?:_|(/))([a-z\d]*)}i) do
+              "#{::Regexp.last_match(1)}#{capitalize(::Regexp.last_match(2))}"
+            end.gsub('/', '::')
           end
 
           private
 
           def capitalize(lower_case_and_underscored_word)
             result = lower_case_and_underscored_word.to_s.dup
-            result.gsub!(/_id$/, "")
+            result.gsub!(/_id$/, '')
             result.gsub!(/_/, ' ')
-            result.gsub(/([a-z\d]*)/i) { |match|
+            result.gsub(/([a-z\d]*)/i) do |match|
               "#{match.downcase}"
-            }.gsub(/^\w/) { $&.upcase }
+            end.gsub(/^\w/) { ::Regexp.last_match(0).upcase }
           end
         end
 

@@ -30,9 +30,7 @@ module EventSourcery
             record_terminated_processes
           end
           terminate_remaining_processes
-          until all_processes_terminated? || waited_long_enough?
-            record_terminated_processes
-          end
+          record_terminated_processes until all_processes_terminated? || waited_long_enough?
           kill_remaining_processes
           record_terminated_processes until all_processes_terminated?
         end
@@ -43,7 +41,7 @@ module EventSourcery
         process = ESPProcess.new(
           event_processor: event_processor,
           event_source: @event_source,
-          after_fork: @after_fork,
+          after_fork: @after_fork
         )
         pid = Process.fork { process.start }
         @pids[pid] = event_processor
@@ -72,7 +70,7 @@ module EventSourcery
       end
 
       def listen_for_shutdown_signals
-        %i(TERM INT).each do |signal|
+        %i[TERM INT].each do |signal|
           Signal.trap(signal) { shutdown }
         end
       end

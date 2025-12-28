@@ -10,8 +10,8 @@ module EventSourcery
         # Will yield the block and exit the process if an error is raised.
         def with_error_handling
           yield
-        rescue => error
-          report_error(error)
+        rescue StandardError => e
+          report_error(e)
           Process.exit(false)
         end
       end

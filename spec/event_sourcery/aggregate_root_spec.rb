@@ -88,13 +88,13 @@ RSpec.describe EventSourcery::AggregateRoot do
   context 'when state changes' do
     let(:events) { [] }
 
-    subject(:aggregate) {
+    subject(:aggregate) do
       new_aggregate(aggregate_uuid) do
         def add_item(item)
           apply_event ItemAdded, body: { id: item.id }
         end
       end
-    }
+    end
 
     before do
       aggregate.add_item(item.new(1234))
@@ -103,7 +103,7 @@ RSpec.describe EventSourcery::AggregateRoot do
     it 'updates state by calling the handler' do
       event = aggregate.item_added_events.first
       expect(event.type).to eq 'item_added'
-      expect(event.body).to eq("id" => 1234)
+      expect(event.body).to eq('id' => 1234)
     end
 
     it "increments it's version" do

@@ -13,8 +13,18 @@ end
 RSpec.describe EventSourcery::EventProcessing::EventStreamProcessorRegistry do
   subject(:registry) { described_class.new }
 
-  let(:projector) { Class.new { include MyProjector; processor_name 'projector' } }
-  let(:reactor) { Class.new { include MyReactor; processor_name 'reactor' } }
+  let(:projector) do
+    Class.new do
+      include MyProjector
+      processor_name 'projector'
+    end
+  end
+  let(:reactor) do
+    Class.new do
+      include MyReactor
+      processor_name 'reactor'
+    end
+  end
 
   before do
     registry.register(projector)

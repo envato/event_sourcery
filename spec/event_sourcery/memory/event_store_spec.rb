@@ -6,9 +6,7 @@ RSpec.describe EventSourcery::Memory::EventStore do
   include_examples 'an event store'
 
   it 'ignores an expected_version param' do
-    expect {
-      event_store.sink(event)
-    }.to_not raise_error
+    expect { event_store.sink(event) }.to_not raise_error
   end
 
   it 'passes events to listeners' do
@@ -17,7 +15,7 @@ RSpec.describe EventSourcery::Memory::EventStore do
         @processed_event = event
       end
       attr_reader :processed_event
-    end.new()
+    end.new
     event_store.add_listeners(listener)
     event_store.sink(event)
     expect(listener.processed_event).to eq(event)

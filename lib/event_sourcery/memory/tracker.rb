@@ -26,7 +26,7 @@ module EventSourcery
         @state[processor_name.to_s] = event_id
       end
 
-      alias :reset_last_processed_event_id :setup
+      alias reset_last_processed_event_id setup
 
       # Find the last processed event id for a given processor name.
       #

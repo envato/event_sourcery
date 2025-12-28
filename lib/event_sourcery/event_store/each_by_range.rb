@@ -15,9 +15,7 @@ module EventSourcery
               break
             end
           end
-          unless no_events_left
-            event_id = events.last.id + 1
-          end
+          event_id = events.last.id + 1 unless no_events_left
         end while !caught_up && !no_events_left
       end
     end

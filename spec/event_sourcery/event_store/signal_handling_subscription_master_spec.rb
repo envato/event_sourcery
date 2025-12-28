@@ -8,7 +8,7 @@ RSpec.describe EventSourcery::EventStore::SignalHandlingSubscriptionMaster do
       allow(Signal).to receive(:trap)
     end
 
-    %i(TERM INT).each do |signal|
+    %i[TERM INT].each do |signal|
       context "after receiving a #{signal} signal" do
         before do
           allow(Signal).to receive(:trap).with(signal).and_yield

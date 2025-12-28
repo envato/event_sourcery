@@ -58,14 +58,14 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
   end
 
   describe '#reset' do
-    subject(:event_processor) {
+    subject(:event_processor) do
       new_event_processor do
         processor_name 'my_processor'
         process do
           # Noop
         end
       end
-    }
+    end
 
     before do
       event_processor.setup
@@ -82,14 +82,14 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
     let(:event_store) { double(:event_store) }
     let(:events) { [ItemAdded.new(id: 1), ItemAdded.new(id: 2)] }
     let(:subscription_master) { spy(EventSourcery::EventStore::SignalHandlingSubscriptionMaster) }
-    subject(:event_processor) {
+    subject(:event_processor) do
       new_event_processor do
         processor_name 'my_processor'
         process do |event|
           @events << event
         end
       end
-    }
+    end
 
     before do
       allow(event_store).to receive(:subscribe).and_yield(events).once
@@ -109,14 +109,14 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
     end
 
     context 'when processing specific event types' do
-      subject(:event_processor) {
+      subject(:event_processor) do
         new_event_processor do
           processor_name 'my_processor'
           process ItemAdded do
             # Noop
           end
         end
-      }
+      end
 
       it 'subscribes to the event store for the given types' do
         allow(tracker).to receive(:last_processed_event_id).with('my_processor').and_return(2)
@@ -147,7 +147,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
   describe '#process' do
     context 'using a generic process handler' do
       let(:event) { ItemAdded.new }
-      subject(:event_processor) {
+      subject(:event_processor) do
         Class.new do
           include EventSourcery::EventProcessing::EventStreamProcessor
           attr_reader :events
@@ -162,7 +162,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
             @events << event
           end
         end.new(tracker: tracker)
-      }
+      end
 
       context "given an event the processor doesn't care about" do
         let(:event) { ItemRemoved.new }
@@ -184,7 +184,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
     end
 
     context 'when using specific event handlers' do
-      subject(:event_processor) {
+      subject(:event_processor) do
         new_event_processor do
           process ItemAdded do |event|
             @added_event = event
@@ -196,7 +196,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
 
           attr_reader :added_event, :removed_event
         end
-      }
+      end
       let(:item_added_event) { ItemAdded.new }
       let(:item_removed_event) { ItemRemoved.new }
 
@@ -212,7 +212,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
       end
 
       context 'processing multiple events in handlers' do
-        let(:event_processor) {
+        let(:event_processor) do
           new_event_processor do
             process ItemAdded do |event|
               @added_event = event
@@ -225,7 +225,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
 
             attr_reader :added_and_removed_events, :added_event
           end
-        }
+        end
 
         it 'calls the associated handlers for each event' do
           event_processor.process(item_added_event)
@@ -240,7 +240,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
           include EventSourcery::EventProcessing::EventStreamProcessor
           processor_name 'foo_processor'
 
-          process ItemAdded do |event|
+          process ItemAdded do
             raise 'Something is wrong'
           end
         end
@@ -248,17 +248,17 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
         let(:event_processor) { FooProcessor.new(tracker: tracker) }
 
         it 'wraps raised exception with EventProcessingError' do
-          expect {
-            event_processor.process(item_added_event)
-          }.to raise_error { |error|
-            expect(error).to be_a(EventSourcery::EventProcessingError)
-            expect(error.event).to eq item_added_event
-            expect(error.message).to eq <<-EOF.gsub(/^ {14}/, '')
-              #<FooProcessor @@processor_name="foo_processor">
-              #<ItemAdded @id=nil, @uuid="#{item_added_event.uuid}", @type="item_added">
-              #<RuntimeError: Something is wrong>
-            EOF
-          }
+          expect { event_processor.process(item_added_event) }.to(
+            raise_error do |error|
+              expect(error).to be_a(EventSourcery::EventProcessingError)
+              expect(error.event).to eq item_added_event
+              expect(error.message).to eq <<~EOF
+                #<FooProcessor @@processor_name="foo_processor">
+                #<ItemAdded @id=nil, @uuid="#{item_added_event.uuid}", @type="item_added">
+                #<RuntimeError: Something is wrong>
+              EOF
+            end
+          )
         end
       end
     end

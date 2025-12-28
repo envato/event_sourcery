@@ -21,14 +21,14 @@ module EventSourcery
             event = event_builder.build(
               type: 'foo',
               body: {
-                'foo' => 1,
-              },
+                'foo' => 1
+              }
             )
 
             expect(event.class).to eq Foo
             expect(event.body).to eq(
               'foo' => 1,
-              'bar' => 'baz',
+              'bar' => 'baz'
             )
           end
         end

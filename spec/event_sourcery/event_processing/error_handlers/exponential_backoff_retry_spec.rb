@@ -1,7 +1,7 @@
 RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoffRetry do
   subject(:error_handler) do
     described_class.new(
-      processor_name: processor_name,
+      processor_name: processor_name
     )
   end
   let(:processor_name) { 'processor_name' }
@@ -19,7 +19,7 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoff
 
   describe '#with_error_handling' do
     let(:event_processor) { double :event_processor }
-    let(:cause) { double(to_s: 'OriginalError', backtrace: ['back', 'trace']) }
+    let(:cause) { double(to_s: 'OriginalError', backtrace: %w[back trace]) }
     let(:event) { double(uuid: SecureRandom.uuid) }
     let(:number_of_errors_to_raise) { 3 }
     subject(:with_error_handling) do

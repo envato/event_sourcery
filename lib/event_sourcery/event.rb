@@ -7,9 +7,9 @@ module EventSourcery
     #
     # Will return `nil` if called on an instance of {EventSourcery::Event}.
     def self.type
-      unless self == Event
-        EventSourcery.config.event_type_serializer.serialize(self)
-      end
+      return if self == Event
+
+      EventSourcery.config.event_type_serializer.serialize(self)
     end
 
     # Use this method to add "upcasting" to your events.
@@ -167,7 +167,7 @@ module EventSourcery
         version: version,
         created_at: created_at,
         correlation_id: correlation_id,
-        causation_id: causation_id,
+        causation_id: causation_id
       }
     end
   end

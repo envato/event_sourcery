@@ -16,9 +16,9 @@ module EventSourcery
       def initialize(event_store:,
                      poll_waiter:,
                      from_event_id:,
-                     event_types: nil,
                      on_new_events:,
                      subscription_master:,
+                     event_types: nil,
                      events_table_name: :events,
                      batch_size: EventSourcery.config.subscription_batch_size)
         @event_store = event_store

@@ -6,7 +6,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
       max_seconds_for_processes_to_terminate: 0.01,
       shutdown_requested: shutdown_requested,
       after_subprocess_termination: after_subprocess_termination,
-      logger: logger,
+      logger: logger
     )
   end
   let(:event_source) { spy(:event_source) }
@@ -43,13 +43,13 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         .with(
           event_processor: esp,
           event_source: event_source,
-          after_fork: nil,
+          after_fork: nil
         )
       expect(esp_process).to have_received(:start)
     end
 
     describe 'graceful shutdown' do
-      %i(TERM INT).each do |signal|
+      %i[TERM INT].each do |signal|
         context "upon receiving a #{signal} signal" do
           before do
             allow(Signal).to receive(:trap).with(signal).and_yield
@@ -68,14 +68,14 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         expect(Process).to have_received(:kill).with(:TERM, pid)
       end
 
-      it "logs the TERM signal" do
+      it 'logs the TERM signal' do
         start!
         expect(logger)
           .to have_received(:info)
           .with("ESPRunner: Sending TERM to [#{processor_name}]")
       end
 
-      it "logs the process exit status" do
+      it 'logs the process exit status' do
         start!
         expect(logger)
           .to have_received(:info)
@@ -92,7 +92,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         end
       end
 
-      it "exits indicating success" do
+      it 'exits indicating success' do
         start!
         expect(Process).to have_received(:exit).with(true)
       end
@@ -105,7 +105,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
             allow(Process).to receive(:wait2).and_return([pid, failure_status])
           end
 
-          it "logs the process exit status" do
+          it 'logs the process exit status' do
             start!
             expect(logger)
               .to have_received(:info)
@@ -145,7 +145,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
           expect(Process).to have_received(:kill).with(:TERM, pid).once
         end
 
-        it "logs the process exit status" do
+        it 'logs the process exit status' do
           start!
           expect(logger)
             .to have_received(:info)
@@ -162,7 +162,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
           end
         end
 
-        it "exits indicating failure" do
+        it 'exits indicating failure' do
           start!
           expect(Process).to have_received(:exit).with(false)
         end
@@ -180,12 +180,12 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
           expect(Process).to have_received(:kill).with(:KILL, pid)
         end
 
-        it "logs the KILL signal" do
+        it 'logs the KILL signal' do
           start!
           expect(logger).to have_received(:info).with("ESPRunner: Sending KILL to [#{processor_name}]")
         end
 
-        it "logs the process exit status" do
+        it 'logs the process exit status' do
           start!
           expect(logger)
             .to have_received(:info)
@@ -203,7 +203,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
           end
         end
 
-        it "exits indicating failure" do
+        it 'exits indicating failure' do
           start!
           expect(Process).to have_received(:exit).with(false)
         end
@@ -248,7 +248,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         .with(
           event_processor: esp,
           event_source: event_source,
-          after_fork: nil,
+          after_fork: nil
         )
       expect(esp_process).to have_received(:start)
     end

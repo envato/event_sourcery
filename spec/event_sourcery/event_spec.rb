@@ -4,7 +4,7 @@ RSpec.describe EventSourcery::Event do
   let(:version) { 1 }
   let(:body) do
     {
-      symbol: "value",
+      symbol: 'value'
     }
   end
   let(:uuid) { SecureRandom.uuid }
@@ -133,12 +133,12 @@ RSpec.describe EventSourcery::Event do
         version: 89,
         created_at: Time.now.utc,
         correlation_id: SecureRandom.uuid,
-        causation_id: SecureRandom.uuid,
+        causation_id: SecureRandom.uuid
       }
     end
     let(:changes) do
       {
-        causation_id: SecureRandom.uuid,
+        causation_id: SecureRandom.uuid
       }
     end
 
@@ -189,9 +189,8 @@ RSpec.describe EventSourcery::Event do
     it 'errors when attempting to change the type of a typed event' do
       original_event = ItemRemoved.new(type: 'item_removed')
 
-      expect {
-        original_event.with(type: 'item_added')
-      }.to raise_error EventSourcery::Error, 'When using typed events change the type by changing the event class.'
+      expect { original_event.with(type: 'item_added') }
+        .to raise_error EventSourcery::Error, 'When using typed events change the type by changing the event class.'
     end
   end
 

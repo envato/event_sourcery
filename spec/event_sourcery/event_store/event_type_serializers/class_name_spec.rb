@@ -29,7 +29,7 @@ RSpec.describe EventSourcery::EventStore::EventTypeSerializers::ClassName do
     expect(
       serializer.deserialize(
         serializer.serialize(
-          FooBar,
+          FooBar
         )
       )
     ).to eq FooBar

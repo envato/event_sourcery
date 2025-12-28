@@ -112,9 +112,9 @@ RSpec.shared_examples 'an event store' do
     end
 
     it 'raises an error if the events given are for more than one aggregate' do
-      expect {
+      expect do
         event_store.sink([ItemAdded.new(aggregate_id: aggregate_id), ItemAdded.new(aggregate_id: SecureRandom.uuid)])
-      }.to raise_error(EventSourcery::AtomicWriteToMultipleAggregatesNotSupported)
+      end.to raise_error(EventSourcery::AtomicWriteToMultipleAggregatesNotSupported)
     end
   end
 
@@ -169,7 +169,7 @@ RSpec.shared_examples 'an event store' do
 
         expect(event_store.latest_event_id(event_types: ['type1'])).to eq 2
         expect(event_store.latest_event_id(event_types: ['type2'])).to eq 3
-        expect(event_store.latest_event_id(event_types: ['type1', 'type2'])).to eq 3
+        expect(event_store.latest_event_id(event_types: %w[type1 type2])).to eq 3
       end
     end
   end
@@ -208,7 +208,7 @@ RSpec.shared_examples 'an event store' do
 
   describe '#each_by_range' do
     before do
-      (1..21).each do |i|
+      21.times do
         event_store.sink(ItemAdded.new(aggregate_id: aggregate_id, body: {}))
       end
     end
@@ -256,7 +256,7 @@ RSpec.shared_examples 'an event store' do
   def save_event(expected_version: nil)
     event_store.sink(
       BillingDetailsProvided.new(aggregate_id: aggregate_id, body: { my_event: 'data' }),
-      expected_version: expected_version,
+      expected_version: expected_version
     )
   end
 
@@ -279,9 +279,8 @@ RSpec.shared_examples 'an event store' do
 
       context 'and the expected version is incorrect - 1' do
         it 'raises a ConcurrencyError' do
-          expect {
-            save_event(expected_version: 1)
-          }.to raise_error(EventSourcery::ConcurrencyError)
+          expect { save_event(expected_version: 1) }
+            .to raise_error(EventSourcery::ConcurrencyError)
         end
       end
 
@@ -300,9 +299,8 @@ RSpec.shared_examples 'an event store' do
 
       context 'with an incorrect expected version - 0' do
         it 'raises a ConcurrencyError' do
-          expect {
-            save_event(expected_version: 0)
-          }.to raise_error(EventSourcery::ConcurrencyError)
+          expect { save_event(expected_version: 0) }
+            .to raise_error(EventSourcery::ConcurrencyError)
         end
       end
 

@@ -4,7 +4,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
       event_processor: esp,
       event_source: event_source,
       subscription_master: subscription_master,
-      after_fork: after_fork,
+      after_fork: after_fork
     )
   end
   let(:esp) { spy(:esp, processor_name: processor_name, class: esp_class) }
@@ -68,7 +68,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPProcess do
           described_class.new(
             event_processor: esp,
             event_source: event_source,
-            subscription_master: subscription_master,
+            subscription_master: subscription_master
           ).start
         end
       end

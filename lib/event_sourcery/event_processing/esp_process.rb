@@ -1,7 +1,7 @@
 module EventSourcery
   module EventProcessing
     class ESPProcess
-      DEFAULT_AFTER_FORK = -> (event_processor) { }
+      DEFAULT_AFTER_FORK = ->(event_processor) {}
 
       def initialize(event_processor:,
                      event_source:,

@@ -19,7 +19,6 @@ module EventSourcery
       def event_sink
         @event_sink ||= ::EventSourcery::EventStore::EventSink.new(event_store)
       end
-
     end
 
     def self.configure
@@ -29,6 +28,5 @@ module EventSourcery
     def self.config
       @config ||= Config.new
     end
-
   end
 end

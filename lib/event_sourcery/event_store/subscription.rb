@@ -1,6 +1,5 @@
 module EventSourcery
   module EventStore
-
     # This allows Event Stream Processors (ESPs) to subscribe to an event store, and be notified when new events are
     # added.
     class Subscription
@@ -10,7 +9,9 @@ module EventSourcery
       # @param from_event_id [Integer] Start reading events from this event ID
       # @param event_types [Array] Optional. If specified, only subscribe to given event types.
       # @param on_new_events [Proc] Code block to be executed when new events are received
-      # @param subscription_master A subscription master instance (such as {EventStore::SignalHandlingSubscriptionMaster}) which orchestrates a graceful shutdown of the subscription, if one is requested.
+      # @param subscription_master A subscription master instance (such as
+      #   {EventStore::SignalHandlingSubscriptionMaster}) which orchestrates a
+      #   graceful shutdown of the subscription, if one is requested.
       # @param events_table_name [Symbol] Optional. Defaults to `:events`
       def initialize(event_store:,
                      poll_waiter:,
@@ -51,6 +52,7 @@ module EventSourcery
           @subscription_master.shutdown_if_requested
           events = @event_store.get_next_from(@current_event_id + 1, event_types: @event_types, limit: batch_size)
           break if events.empty?
+
           EventSourcery.logger.debug { "New events in subscription: #{events.inspect}" }
           @on_new_events.call(events)
           @current_event_id = events.last.id

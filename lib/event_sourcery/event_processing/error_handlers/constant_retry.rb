@@ -9,7 +9,7 @@ module EventSourcery
         #
         # @api private
         DEFAULT_RETRY_INTERVAL = 1
-        
+
         def initialize(processor_name:)
           @processor_name = processor_name
           @retry_interval = DEFAULT_RETRY_INTERVAL

@@ -3,6 +3,7 @@ module MyProjector
     base.send(:include, EventSourcery::EventProcessing::EventStreamProcessor)
   end
 end
+
 module MyReactor
   def self.included(base)
     base.send(:include, EventSourcery::EventProcessing::EventStreamProcessor)

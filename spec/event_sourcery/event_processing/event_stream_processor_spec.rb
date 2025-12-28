@@ -151,6 +151,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
         Class.new do
           include EventSourcery::EventProcessing::EventStreamProcessor
           attr_reader :events
+
           processor_name 'my_processor'
 
           attr_reader :internal_event_ref
@@ -276,7 +277,11 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
       end
 
       it 'raises an error' do
-        expect { event_processor }.to raise_error EventSourcery::MultipleCatchAllHandlersDefined, 'Attemping to define multiple catch all event handlers.'
+        expect { event_processor }
+          .to raise_error(
+            EventSourcery::MultipleCatchAllHandlersDefined,
+            'Attemping to define multiple catch all event handlers.'
+          )
       end
     end
   end

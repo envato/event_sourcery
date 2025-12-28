@@ -10,9 +10,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Minor fixups in gem metadata ([#240]).
+- Resolve code layout issues as identified by RuboCop ([#241]).
 
 [Unreleased]: https://github.com/envato/event_sourcery/compare/v1.0.1...HEAD
 [#240]: https://github.com/envato/event_sourcery/pull/240
+[#241]: https://github.com/envato/event_sourcery/pull/241
 
 ## [1.0.1] - 2025-12-27
 

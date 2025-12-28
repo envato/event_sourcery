@@ -81,6 +81,7 @@ module EventSourcery
         loop do
           yield
           break if shutdown_requested?
+
           sleep(1)
         end
       end
@@ -109,6 +110,7 @@ module EventSourcery
           logger.info("ESPRunner: Process #{event_processor&.processor_name || pid} " \
                       "terminated with exit status: #{status.exitstatus.inspect}")
           next unless event_processor
+
           @exit_status &&= !!status.success?
           @after_subprocess_termination&.call(processor: event_processor, runner: self, exit_status: status.exitstatus)
         end

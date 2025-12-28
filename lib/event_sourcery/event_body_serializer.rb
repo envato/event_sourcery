@@ -4,7 +4,9 @@ module EventSourcery
     # Serialize the given event body, with the default or the provided, serializer
     #
     # @param event_body event body to be serialized
-    # @param serializer Optional. Serializer to be used. By default {Config#event_body_serializer EventSourcery.config.event_body_serializer} will be used.
+    # @param serializer Optional. Serializer to be used. By default
+    #   {Config#event_body_serializer EventSourcery.config.event_body_serializer}
+    #   will be used.
     def self.serialize(event_body,
                        serializer: EventSourcery.config.event_body_serializer)
       serializer.serialize(event_body)

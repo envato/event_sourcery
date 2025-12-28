@@ -21,7 +21,7 @@ RSpec.describe EventSourcery::EventStore::Subscription do
 
   let(:event_types) { nil }
   let(:event_store) { EventSourcery::Memory::EventStore.new }
-  subject(:subscription) {
+  subject(:subscription) do
     described_class.new(
       event_store: event_store,
       poll_waiter: waiter,
@@ -30,7 +30,7 @@ RSpec.describe EventSourcery::EventStore::Subscription do
       subscription_master: subscription_master,
       on_new_events: method(:on_new_events_callback)
     )
-  }
+  end
 
   let(:waiter) { TestPoller.new }
   let(:subscription_master) { spy(EventSourcery::EventStore::SignalHandlingSubscriptionMaster) }

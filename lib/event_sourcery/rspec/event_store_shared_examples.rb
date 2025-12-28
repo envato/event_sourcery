@@ -112,9 +112,9 @@ RSpec.shared_examples 'an event store' do
     end
 
     it 'raises an error if the events given are for more than one aggregate' do
-      expect {
+      expect do
         event_store.sink([ItemAdded.new(aggregate_id: aggregate_id), ItemAdded.new(aggregate_id: SecureRandom.uuid)])
-      }.to raise_error(EventSourcery::AtomicWriteToMultipleAggregatesNotSupported)
+      end.to raise_error(EventSourcery::AtomicWriteToMultipleAggregatesNotSupported)
     end
   end
 
@@ -279,9 +279,8 @@ RSpec.shared_examples 'an event store' do
 
       context 'and the expected version is incorrect - 1' do
         it 'raises a ConcurrencyError' do
-          expect {
-            save_event(expected_version: 1)
-          }.to raise_error(EventSourcery::ConcurrencyError)
+          expect { save_event(expected_version: 1) }
+            .to raise_error(EventSourcery::ConcurrencyError)
         end
       end
 
@@ -300,9 +299,8 @@ RSpec.shared_examples 'an event store' do
 
       context 'with an incorrect expected version - 0' do
         it 'raises a ConcurrencyError' do
-          expect {
-            save_event(expected_version: 0)
-          }.to raise_error(EventSourcery::ConcurrencyError)
+          expect { save_event(expected_version: 0) }
+            .to raise_error(EventSourcery::ConcurrencyError)
         end
       end
 

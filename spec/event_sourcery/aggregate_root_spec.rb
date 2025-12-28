@@ -88,13 +88,13 @@ RSpec.describe EventSourcery::AggregateRoot do
   context 'when state changes' do
     let(:events) { [] }
 
-    subject(:aggregate) {
+    subject(:aggregate) do
       new_aggregate(aggregate_uuid) do
         def add_item(item)
           apply_event ItemAdded, body: { id: item.id }
         end
       end
-    }
+    end
 
     before do
       aggregate.add_item(item.new(1234))

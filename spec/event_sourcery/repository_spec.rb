@@ -2,7 +2,7 @@ RSpec.describe EventSourcery::Repository do
   let(:event_store) { EventSourcery::Memory::EventStore.new }
   let(:event_sink) { EventSourcery::EventStore::EventSink.new(event_store) }
   let(:aggregate_id) { SecureRandom.uuid }
-  let(:aggregate_class) {
+  let(:aggregate_class) do
     Class.new do
       include EventSourcery::AggregateRoot
 
@@ -12,7 +12,7 @@ RSpec.describe EventSourcery::Repository do
       end
       attr_reader :item_added_events
     end
-  }
+  end
   let(:events) { [ItemAdded.new(aggregate_id: aggregate_id)] }
 
   describe '.load' do

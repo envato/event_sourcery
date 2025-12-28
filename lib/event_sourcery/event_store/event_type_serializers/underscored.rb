@@ -36,9 +36,9 @@ module EventSourcery
             result = lower_case_and_underscored_word.to_s.dup
             result.gsub!(/_id$/, "")
             result.gsub!(/_/, ' ')
-            result.gsub(/([a-z\d]*)/i) { |match|
+            result.gsub(/([a-z\d]*)/i) do |match|
               "#{match.downcase}"
-            }.gsub(/^\w/) { $&.upcase }
+            end.gsub(/^\w/) { $&.upcase }
           end
         end
 

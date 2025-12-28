@@ -189,9 +189,8 @@ RSpec.describe EventSourcery::Event do
     it 'errors when attempting to change the type of a typed event' do
       original_event = ItemRemoved.new(type: 'item_removed')
 
-      expect {
-        original_event.with(type: 'item_added')
-      }.to raise_error EventSourcery::Error, 'When using typed events change the type by changing the event class.'
+      expect { original_event.with(type: 'item_added') }
+        .to raise_error EventSourcery::Error, 'When using typed events change the type by changing the event class.'
     end
   end
 

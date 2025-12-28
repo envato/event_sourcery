@@ -169,7 +169,7 @@ RSpec.shared_examples 'an event store' do
 
         expect(event_store.latest_event_id(event_types: ['type1'])).to eq 2
         expect(event_store.latest_event_id(event_types: ['type2'])).to eq 3
-        expect(event_store.latest_event_id(event_types: ['type1', 'type2'])).to eq 3
+        expect(event_store.latest_event_id(event_types: %w[type1 type2])).to eq 3
       end
     end
   end

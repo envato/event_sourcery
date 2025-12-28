@@ -16,7 +16,7 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::NoRetry do
   end
 
   describe '#with_error_handling' do
-    let(:cause) { double(to_s: 'OriginalError', backtrace: ['back', 'trace']) }
+    let(:cause) { double(to_s: 'OriginalError', backtrace: %w[back trace]) }
     let(:event) { double(uuid: SecureRandom.uuid) }
     subject(:with_error_handling) do
       error_handler.with_error_handling do

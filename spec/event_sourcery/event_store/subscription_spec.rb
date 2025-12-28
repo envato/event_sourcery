@@ -60,7 +60,7 @@ RSpec.describe EventSourcery::EventStore::Subscription do
   end
 
   context 'with event types' do
-    let(:event_types) { ['item_added', 'item_removed'] }
+    let(:event_types) { %w[item_added item_removed] }
 
     it 'filters by the given event type' do
       event_store.sink(ItemAdded.new(aggregate_id: SecureRandom.uuid))
@@ -70,7 +70,7 @@ RSpec.describe EventSourcery::EventStore::Subscription do
       waiter.after_poll_callback = proc { event_store.sink(ItemAdded.new(aggregate_id: SecureRandom.uuid)) }
       subscription.start
       expect(@event_batches.count).to eq 2
-      expect(@event_batches.first.map(&:type)).to eq ['item_added', 'item_removed']
+      expect(@event_batches.first.map(&:type)).to eq %w[item_added item_removed]
       expect(@event_batches.last.map(&:type)).to eq ['item_added']
     end
   end

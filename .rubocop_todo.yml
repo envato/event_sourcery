@@ -201,11 +201,6 @@ Style/GlobalStdStream:
     - 'lib/event_sourcery/config.rb'
 
 # This cop supports safe autocorrection (--autocorrect).
-Style/KeywordParametersOrder:
-  Exclude:
-    - 'lib/event_sourcery/event_store/subscription.rb'
-
-# This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: AllowedMethods, AllowedPatterns.
 Style/MethodCallWithoutArgsParentheses:
   Exclude:

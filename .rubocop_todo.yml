@@ -12,10 +12,6 @@ Gemspec/OrderedDependencies:
   Exclude:
     - 'event_sourcery.gemspec'
 
-Gemspec/RequiredRubyVersion:
-  Exclude:
-    - 'event_sourcery.gemspec'
-
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: AllowedMethods, AllowedPatterns.
 Lint/AmbiguousBlockAssociation:

@@ -28,9 +28,7 @@ module EventSourcery
         events = Array(event_or_events)
         ensure_one_aggregate(events)
 
-        if expected_version && version_for(events.first.aggregate_id) != expected_version
-          raise ConcurrencyError
-        end
+        raise ConcurrencyError if expected_version && version_for(events.first.aggregate_id) != expected_version
 
         events.each do |event|
           @events << @event_builder.build(

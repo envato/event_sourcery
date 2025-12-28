@@ -7,11 +7,28 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Minor fixups in gem metadata ([#240]).
+
+[Unreleased]: https://github.com/envato/event_sourcery/compare/v1.0.1...HEAD
+[#240]: https://github.com/envato/event_sourcery/pull/240
+
+## [1.0.1] - 2025-12-27
+
+### Changed
+
+- Support Ruby 4.0, make `logger` dependency explicit ([#239])
+
+[1.0.1]: https://github.com/envato/event_sourcery/compare/v1.0.0...v1.0.1
+[#239]: https://github.com/envato/event_sourcery/pull/239
+
 ## [1.0.0] - 2023-11-29
 
 ### Removed
 - Removed Event.persisted? as it was potentially misleading ([#235])
 
+[1.0.0]: https://github.com/envato/event_sourcery/compare/v0.24.0...v1.0.0
 [#235]: https://github.com/envato/event_sourcery/pull/235
 
 ## [0.24.0] - 2021-11-18
@@ -261,8 +278,6 @@ moving all Postgres related code into a separate gem.
 - EventSourcery no longer depends on Virtus.
 - `Command` and `CommandHandler` have been removed.
 
-[Unreleased]: https://github.com/envato/event_sourcery/compare/v0.24.0...HEAD
-[1.0.0]: https://github.com/envato/event_sourcery/compare/v0.24.0...v1.0.0
 [0.24.0]: https://github.com/envato/event_sourcery/compare/v0.23.1...v0.24.0
 [0.23.1]: https://github.com/envato/event_sourcery/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/envato/event_sourcery/compare/v0.22.0...v0.23.0

@@ -210,11 +210,6 @@ Style/OptionalBooleanParameter:
   Exclude:
     - 'lib/event_sourcery/event_store/event_type_serializers/underscored.rb'
 
-# This cop supports safe autocorrection (--autocorrect).
-Style/PerlBackrefs:
-  Exclude:
-    - 'lib/event_sourcery/event_store/event_type_serializers/underscored.rb'
-
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Style/RedundantInterpolation:
   Exclude:

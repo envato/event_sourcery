@@ -24,11 +24,13 @@ module EventSourcery
             string = term.to_s
             string =
               if uppercase_first_letter
-                string.sub(/^[a-z\d]*/) { capitalize($&) }
+                string.sub(/^[a-z\d]*/) { capitalize(::Regexp.last_match(0)) }
               else
-                string.sub(/^(?:(?=\b|[A-Z_])|\w)/) { $&.downcase }
+                string.sub(/^(?:(?=\b|[A-Z_])|\w)/) { ::Regexp.last_match(0).downcase }
               end
-            string.gsub(/(?:_|(\/))([a-z\d]*)/i) { "#{$1}#{capitalize($2)}" }.gsub('/', '::')
+            string.gsub(/(?:_|(\/))([a-z\d]*)/i) do
+              "#{::Regexp.last_match(1)}#{capitalize(::Regexp.last_match(2))}"
+            end.gsub('/', '::')
           end
 
           private
@@ -39,7 +41,7 @@ module EventSourcery
             result.gsub!(/_/, ' ')
             result.gsub(/([a-z\d]*)/i) do |match|
               "#{match.downcase}"
-            end.gsub(/^\w/) { $&.upcase }
+            end.gsub(/^\w/) { ::Regexp.last_match(0).upcase }
           end
         end
 

@@ -15,7 +15,7 @@ module EventSourcery
             word.gsub!(/::/, '/')
             word.gsub!(/([A-Z\d]+)([A-Z][a-z])/, '\1_\2')
             word.gsub!(/([a-z\d])([A-Z])/, '\1_\2')
-            word.tr!("-", "_")
+            word.tr!('-', '_')
             word.downcase!
             word
           end
@@ -37,7 +37,7 @@ module EventSourcery
 
           def capitalize(lower_case_and_underscored_word)
             result = lower_case_and_underscored_word.to_s.dup
-            result.gsub!(/_id$/, "")
+            result.gsub!(/_id$/, '')
             result.gsub!(/_/, ' ')
             result.gsub(/([a-z\d]*)/i) do |match|
               "#{match.downcase}"

@@ -4,7 +4,7 @@ RSpec.describe EventSourcery::Event do
   let(:version) { 1 }
   let(:body) do
     {
-      symbol: "value",
+      symbol: 'value',
     }
   end
   let(:uuid) { SecureRandom.uuid }

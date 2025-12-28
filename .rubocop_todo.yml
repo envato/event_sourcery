@@ -230,21 +230,6 @@ Style/StringConcatenation:
     - 'lib/event_sourcery/errors.rb'
 
 # This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle, ConsistentQuotesInMultiline.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiterals:
-  Exclude:
-    - 'Rakefile'
-    - 'bin/console'
-    - 'lib/event_sourcery/event_store/event_type_serializers/underscored.rb'
-    - 'spec/event_sourcery/aggregate_root_spec.rb'
-    - 'spec/event_sourcery/event_body_serializer_spec.rb'
-    - 'spec/event_sourcery/event_processing/esp_runner_spec.rb'
-    - 'spec/event_sourcery/event_spec.rb'
-    - 'spec/spec_helper.rb'
-    - 'spec/support/warnings.rb'
-
-# This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyleForMultiline.
 # SupportedStylesForMultiline: comma, consistent_comma, diff_comma, no_comma
 Style/TrailingCommaInArguments:

@@ -31,7 +31,7 @@ module EventSourcery
             instance_exec(event, &handler)
           end
           @_event = nil
-        rescue
+        rescue StandardError
           raise EventProcessingError.new(event: event, processor: self)
         end
       end

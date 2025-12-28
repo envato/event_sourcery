@@ -23,7 +23,7 @@ module EventSourcery
         # Will yield the block and attempt to retry in an exponential backoff.
         def with_error_handling
           yield
-        rescue => e
+        rescue StandardError => e
           report_error(e)
           update_retry_interval(e)
           sleep(@retry_interval)

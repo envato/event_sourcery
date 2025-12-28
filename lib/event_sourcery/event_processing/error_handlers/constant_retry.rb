@@ -18,7 +18,7 @@ module EventSourcery
         # Will yield the block and attempt to retry after a defined retry interval {DEFAULT_RETRY_INTERVAL}.
         def with_error_handling
           yield
-        rescue => e
+        rescue StandardError => e
           report_error(e)
           sleep(@retry_interval)
 

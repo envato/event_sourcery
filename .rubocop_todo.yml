@@ -215,16 +215,6 @@ Style/RedundantInterpolation:
   Exclude:
     - 'lib/event_sourcery/event_store/event_type_serializers/underscored.rb'
 
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: implicit, explicit
-Style/RescueStandardError:
-  Exclude:
-    - 'lib/event_sourcery/event_processing/error_handlers/constant_retry.rb'
-    - 'lib/event_sourcery/event_processing/error_handlers/exponential_backoff_retry.rb'
-    - 'lib/event_sourcery/event_processing/error_handlers/no_retry.rb'
-    - 'lib/event_sourcery/event_processing/event_stream_processor.rb'
-
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: ConvertCodeThatCanStartToReturnNil, AllowedMethods, MaxChainLength.
 # AllowedMethods: present?, blank?, presence, try, try!

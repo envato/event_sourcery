@@ -1,6 +1,6 @@
 # EventSourcery
 
-[![Build Status](https://github.com/envato/event_sourcery/workflows/tests/badge.svg?branch=main)](https://github.com/envato/event_sourcery/actions?query=workflow%3Atests+branch%3Amain)
+[![Build Status](https://github.com/envato/event_sourcery/actions/workflows/test.yml/badge.svg)](https://github.com/envato/event_sourcery/actions/workflows/test.yml)
 
 A framework for building event sourced, CQRS applications.
 
@@ -34,7 +34,7 @@ A framework for building event sourced, CQRS applications.
 
 ## Development Status
 
-[![Build Status](https://github.com/envato/event_sourcery/workflows/tests/badge.svg?branch=main)](https://github.com/envato/event_sourcery/actions?query=branch%3Amain)
+[![Build Status](https://github.com/envato/event_sourcery/actions/workflows/test.yml/badge.svg)](https://github.com/envato/event_sourcery/actions/workflows/test.yml)
 
 Event Sourcery is in production use at [Envato](http://envato.com).
 

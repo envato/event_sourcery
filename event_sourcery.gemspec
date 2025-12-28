@@ -12,10 +12,13 @@ Gem::Specification.new do |spec|
   spec.summary       = 'Event Sourcing Library'
   spec.description   = ''
   spec.homepage      = 'https://github.com/envato/event_sourcery'
+  spec.license       = 'MIT'
   spec.metadata      = {
-                         'bug_tracker_uri' => 'https://github.com/envato/event_sourcery/issues',
-                         'changelog_uri'   => 'https://github.com/envato/event_sourcery/blob/HEAD/CHANGELOG.md',
-                         'source_code_uri' => 'https://github.com/envato/event_sourcery',
+                         'allowed_push_host' => 'https://rubygems.org',
+                         'bug_tracker_uri'   => "#{spec.homepage}/issues",
+                         'changelog_uri'     => "#{spec.homepage}/blob/HEAD/CHANGELOG.md",
+                         'documentation_uri' => "https://www.rubydoc.info/gems/event_sourcery/#{spec.version}",
+                         'source_code_uri' => "#{spec.homepage}/tree/v#{spec.version}"
                        }
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(\.|Gemfile|Rakefile|bin/|script/|spec/)}) }

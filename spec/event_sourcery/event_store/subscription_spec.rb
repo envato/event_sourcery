@@ -6,7 +6,7 @@ class TestPoller
     @after_poll_callback = after_poll_callback
   end
 
-  def poll(*args, &block)
+  def poll(*_args)
     Array(1..times).each do
       yield
       after_poll_callback.call

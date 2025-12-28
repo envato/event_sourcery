@@ -37,9 +37,7 @@ Lint/RescueException:
 # NotImplementedExceptions: NotImplementedError
 Lint/UnusedMethodArgument:
   Exclude:
-    - 'lib/event_sourcery/event_store/event_type_serializers/legacy.rb'
     - 'lib/event_sourcery/event_store/subscription.rb'
-    - 'spec/event_sourcery/event_store/subscription_spec.rb'
 
 # Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes, Max.
 Metrics/AbcSize:

@@ -103,13 +103,6 @@ Naming/HeredocDelimiterNaming:
   Exclude:
     - 'spec/event_sourcery/event_processing/event_stream_processor_spec.rb'
 
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle, SingleLineConditionsOnly, IncludeTernaryExpressions.
-# SupportedStyles: assign_to_condition, assign_inside_condition
-Style/ConditionalAssignment:
-  Exclude:
-    - 'lib/event_sourcery/event_store/event_type_serializers/underscored.rb'
-
 # Configuration parameters: AllowedConstants.
 Style/Documentation:
   Exclude:

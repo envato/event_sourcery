@@ -22,11 +22,12 @@ module EventSourcery
 
           def camelize(term, uppercase_first_letter = true)
             string = term.to_s
-            if uppercase_first_letter
-              string = string.sub(/^[a-z\d]*/) { capitalize($&) }
-            else
-              string = string.sub(/^(?:(?=\b|[A-Z_])|\w)/) { $&.downcase }
-            end
+            string =
+              if uppercase_first_letter
+                string.sub(/^[a-z\d]*/) { capitalize($&) }
+              else
+                string.sub(/^(?:(?=\b|[A-Z_])|\w)/) { $&.downcase }
+              end
             string.gsub(/(?:_|(\/))([a-z\d]*)/i) { "#{$1}#{capitalize($2)}" }.gsub('/', '::')
           end
 

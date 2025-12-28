@@ -37,7 +37,6 @@ module EventSourcery
       end
 
       module ClassMethods
-
         # @attr_reader processes_event_types [Array] Process Event Types
         # @attr_reader event_handlers [Hash] Hash of handler blocks keyed by event
         # @attr_reader all_event_handler [Proc] An event handler
@@ -127,8 +126,8 @@ module EventSourcery
       def subscribe_to(event_source, subscription_master: EventStore::SignalHandlingSubscriptionMaster.new)
         setup
         event_source.subscribe(from_id: last_processed_event_id + 1,
-                              event_types: processes_event_types,
-                              subscription_master: subscription_master) do |events|
+                               event_types: processes_event_types,
+                               subscription_master: subscription_master) do |events|
           process_events(events, subscription_master)
         end
       end

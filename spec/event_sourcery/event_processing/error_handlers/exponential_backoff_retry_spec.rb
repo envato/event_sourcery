@@ -25,7 +25,7 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoff
     subject(:with_error_handling) do
       @count = 0
       error_handler.with_error_handling do
-        @count +=1
+        @count += 1
         raise error if @count <= number_of_errors_to_raise
       end
     end
@@ -63,7 +63,10 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoff
       let(:error) { EventSourcery::EventProcessingError.new(event: event, processor: event_processor) }
 
       it 'logs the original error' do
-        expect(logger).to have_received(:error).thrice.with("Processor #{processor_name} died with OriginalError.\nback\ntrace")
+        expect(logger)
+          .to have_received(:error)
+          .thrice
+          .with("Processor #{processor_name} died with OriginalError.\nback\ntrace")
       end
 
       it 'logs the retry' do
@@ -100,7 +103,7 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoff
       subject(:with_error_handling) do
         @count = 0
         error_handler.with_error_handling do
-          @count +=1
+          @count += 1
           raise error_for_event if @count <= 3
           raise error_for_another_event if @count <= 5
         end

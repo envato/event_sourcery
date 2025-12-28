@@ -1,7 +1,6 @@
 module EventSourcery
   module Memory
     module Projector
-
       def self.included(base)
         base.include(EventSourcery::EventProcessing::EventStreamProcessor)
         base.include(InstanceMethods)

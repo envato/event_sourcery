@@ -28,6 +28,5 @@ RSpec.describe EventSourcery::Memory::Config do
         expect(config.event_store).to eq(event_store)
       end
     end
-
   end
 end

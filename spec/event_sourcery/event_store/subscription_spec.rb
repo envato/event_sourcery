@@ -1,7 +1,7 @@
 class TestPoller
   attr_accessor :times, :after_poll_callback
 
-  def initialize(times: 1, after_poll_callback: proc { })
+  def initialize(times: 1, after_poll_callback: proc {})
     @times = times
     @after_poll_callback = after_poll_callback
   end
@@ -21,12 +21,16 @@ RSpec.describe EventSourcery::EventStore::Subscription do
 
   let(:event_types) { nil }
   let(:event_store) { EventSourcery::Memory::EventStore.new }
-  subject(:subscription) { described_class.new(event_store: event_store,
-                                               poll_waiter: waiter,
-                                               event_types: event_types,
-                                               from_event_id: 1,
-                                               subscription_master: subscription_master,
-                                               on_new_events: method(:on_new_events_callback)) }
+  subject(:subscription) {
+    described_class.new(
+      event_store: event_store,
+      poll_waiter: waiter,
+      event_types: event_types,
+      from_event_id: 1,
+      subscription_master: subscription_master,
+      on_new_events: method(:on_new_events_callback)
+    )
+  }
 
   let(:waiter) { TestPoller.new }
   let(:subscription_master) { spy(EventSourcery::EventStore::SignalHandlingSubscriptionMaster) }

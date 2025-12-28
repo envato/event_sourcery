@@ -125,15 +125,15 @@ RSpec.describe EventSourcery::Event do
     let(:original_event) { EventSourcery::Event.new(**original_attributes) }
     let(:original_attributes) do
       {
-        id:             73,
-        uuid:           SecureRandom.uuid,
-        aggregate_id:   SecureRandom.uuid,
-        type:           'type',
-        body:           { 'attr' => 'value' },
-        version:        89,
-        created_at:     Time.now.utc,
+        id: 73,
+        uuid: SecureRandom.uuid,
+        aggregate_id: SecureRandom.uuid,
+        type: 'type',
+        body: { 'attr' => 'value' },
+        version: 89,
+        created_at: Time.now.utc,
         correlation_id: SecureRandom.uuid,
-        causation_id:   SecureRandom.uuid,
+        causation_id: SecureRandom.uuid,
       }
     end
     let(:changes) do

@@ -18,7 +18,10 @@ module EventSourcery
       # Store given events to the in-memory store
       #
       # @param event_or_events Event(s) to be stored
-      # @param expected_version [Optional] Expected version for the aggregate. This is the version the caller of this method expect the aggregate to be in. If it's different from the expected version a {EventSourcery::ConcurrencyError} will be raised. Defaults to nil.
+      # @param expected_version [Optional] Expected version for the aggregate.
+      #   This is the version the caller of this method expect the aggregate to
+      #   be in. If it's different from the expected version a
+      #   {EventSourcery::ConcurrencyError} will be raised. Defaults to nil.
       # @raise EventSourcery::ConcurrencyError
       # @return Boolean
       def sink(event_or_events, expected_version: nil)
@@ -55,11 +58,12 @@ module EventSourcery
       # @param limit [Integer] Optional. Number of events to retrieve (starting from the given event ID).
       # @return Array
       def get_next_from(id, event_types: nil, limit: 1000)
-        events = if event_types.nil?
-          @events
-        else
-          @events.select { |e| event_types.include?(e.type) }
-        end
+        events =
+          if event_types.nil?
+            @events
+          else
+            @events.select { |e| event_types.include?(e.type) }
+          end
 
         events.select { |event| event.id >= id }.first(limit)
       end
@@ -69,11 +73,12 @@ module EventSourcery
       # @param event_types [Array] Optional. If supplied, only retrieve events of given type(s).
       # @return Integer
       def latest_event_id(event_types: nil)
-        events = if event_types.nil?
-          @events
-        else
-          @events.select { |e| event_types.include?(e.type) }
-        end
+        events =
+          if event_types.nil?
+            @events
+          else
+            @events.select { |e| event_types.include?(e.type) }
+          end
 
         events.empty? ? 0 : events.last.id
       end

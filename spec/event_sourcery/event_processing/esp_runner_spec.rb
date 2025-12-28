@@ -70,12 +70,16 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
 
       it "logs the TERM signal" do
         start!
-        expect(logger).to have_received(:info).with("ESPRunner: Sending TERM to [#{processor_name}]")
+        expect(logger)
+          .to have_received(:info)
+          .with("ESPRunner: Sending TERM to [#{processor_name}]")
       end
 
       it "logs the process exit status" do
         start!
-        expect(logger).to have_received(:info).with("ESPRunner: Process #{processor_name} terminated with exit status: 0")
+        expect(logger)
+          .to have_received(:info)
+          .with("ESPRunner: Process #{processor_name} terminated with exit status: 0")
       end
 
       context 'given an after subprocess termination hook' do
@@ -103,7 +107,9 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
 
           it "logs the process exit status" do
             start!
-            expect(logger).to have_received(:info).with("ESPRunner: Process #{processor_name} terminated with exit status: 1")
+            expect(logger)
+              .to have_received(:info)
+              .with("ESPRunner: Process #{processor_name} terminated with exit status: 1")
           end
 
           it "doesn't send processes the TERM, or KILL signal to the failed process" do
@@ -141,7 +147,9 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
 
         it "logs the process exit status" do
           start!
-          expect(logger).to have_received(:info).with("ESPRunner: Process #{processor_name} terminated with exit status: 1")
+          expect(logger)
+            .to have_received(:info)
+            .with("ESPRunner: Process #{processor_name} terminated with exit status: 1")
         end
 
         context 'given an after subprocess termination hook' do
@@ -164,7 +172,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         before do
           @stop_process = false
           allow(Process).to receive(:wait2) { [pid, failure_status] if @stop_process }
-          allow(Process).to receive(:kill).with(:KILL, pid) { @stop_process = true}
+          allow(Process).to receive(:kill).with(:KILL, pid) { @stop_process = true }
         end
 
         it 'sends processes the KILL signal' do
@@ -179,7 +187,9 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
 
         it "logs the process exit status" do
           start!
-          expect(logger).to have_received(:info).with("ESPRunner: Process #{processor_name} terminated with exit status: 1")
+          expect(logger)
+            .to have_received(:info)
+            .with("ESPRunner: Process #{processor_name} terminated with exit status: 1")
         end
 
         context 'given an after subprocess termination hook' do
@@ -187,7 +197,8 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
 
           it 'calls the after subprocess termination' do
             start!
-            expect(after_subprocess_termination).to have_received(:call)
+            expect(after_subprocess_termination)
+              .to have_received(:call)
               .with(processor: esp, runner: esp_runner, exit_status: 1)
           end
         end

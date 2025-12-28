@@ -65,7 +65,7 @@ RSpec.describe EventSourcery::EventBodySerializer do
           "submitted_at" => submitted_at,
           "nested" => {
             "submitted_by_uuid" => submitted_by_uuid,
-            "submissions" => [{submitted_at: submitted_at}, {submitted_at: submitted_at}]
+            "submissions" => [{ submitted_at: submitted_at }, { submitted_at: submitted_at }]
           }
         }
       end
@@ -75,7 +75,7 @@ RSpec.describe EventSourcery::EventBodySerializer do
           "submitted_at" => submitted_at.iso8601,
           "nested" => {
             "submitted_by_uuid" => submitted_by_uuid,
-            "submissions" =>[{"submitted_at" => submitted_at.iso8601}, { "submitted_at" => submitted_at.iso8601}]
+            "submissions" => [{ "submitted_at" => submitted_at.iso8601 }, { "submitted_at" => submitted_at.iso8601 }]
           }
         }
 

@@ -3,7 +3,9 @@ module EventSourcery
   # EventSourcery::AggregateRoot provides a foundation for writing your own aggregate root classes.
   # You can use it by including it in your classes, as show in the example code.
   #
-  # Excerpt from {https://github.com/envato/event_sourcery/blob/HEAD/docs/core-concepts.md EventSourcery Core Concepts} on Aggregates follows:
+  # Excerpt from {https://github.com/envato/event_sourcery/blob/HEAD/docs/core-concepts.md EventSourcery Core Concepts}
+  # on Aggregates follows:
+  #
   # === Aggregates and Command Handling
   #
   #   An aggregate is a cluster of domain objects that can be treated as a single unit.
@@ -18,7 +20,8 @@ module EventSourcery
   # A typical EventSourcery application will have one or more aggregate roots with multiple commands.
   #
   # The following partial example is taken from the EventSourceryTodoApp.
-  # Refer a more complete example {https://github.com/envato/event_sourcery_todo_app/blob/HEAD/app/aggregates/todo.rb here}.
+  # Refer a more complete example
+  # {https://github.com/envato/event_sourcery_todo_app/blob/HEAD/app/aggregates/todo.rb here}.
   #
   # @example
   #   module EventSourceryTodoApp
@@ -85,7 +88,9 @@ module EventSourcery
     #
     # @param id [String] ID (a UUID represented as a string) of the aggregate instance to be loaded
     # @param events [Array] Events from which the aggregate's current state will be formed
-    # @param on_unknown_event [Proc] Optional. The proc to be run if an unknown event type (for which no event handler is registered using {ClassMethods#apply}) is to be loaded.
+    # @param on_unknown_event [Proc] Optional. The proc to be run if an unknown
+    #   event type (for which no event handler is registered using
+    #   {ClassMethods#apply}) is to be loaded.
     def initialize(id, events, on_unknown_event: EventSourcery.config.on_unknown_event)
       @id = id.to_str
       @version = 0

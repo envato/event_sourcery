@@ -22,7 +22,7 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ConstantRetry do
     subject(:with_error_handling) do
       @count = 0
       error_handler.with_error_handling do
-        @count +=1
+        @count += 1
         raise error if @count <= number_of_errors_to_raise
       end
     end
@@ -52,7 +52,10 @@ RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ConstantRetry do
       end
 
       it 'logs the original error' do
-        expect(logger).to have_received(:error).thrice.with("Processor #{processor_name} died with OriginalError.\nback\ntrace")
+        expect(logger)
+          .to have_received(:error)
+          .thrice
+          .with("Processor #{processor_name} died with OriginalError.\nback\ntrace")
       end
 
       it 'calls on_event_processor_error with error and processor name' do

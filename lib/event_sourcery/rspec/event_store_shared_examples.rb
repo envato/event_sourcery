@@ -51,22 +51,22 @@ RSpec.shared_examples 'an event store' do
     end
 
     it 'writes multiple events' do
-      event_store.sink([ItemAdded.new(aggregate_id: aggregate_id, body: {e: 1}),
-                        ItemAdded.new(aggregate_id: aggregate_id, body: {e: 2}),
-                        ItemAdded.new(aggregate_id: aggregate_id, body: {e: 3})])
+      event_store.sink([ItemAdded.new(aggregate_id: aggregate_id, body: { e: 1 }),
+                        ItemAdded.new(aggregate_id: aggregate_id, body: { e: 2 }),
+                        ItemAdded.new(aggregate_id: aggregate_id, body: { e: 3 })])
       events = event_store.get_next_from(1)
       expect(events.count).to eq 3
       expect(events.map(&:id)).to eq [1, 2, 3]
-      expect(events.map(&:body)).to eq [{'e' => 1}, {'e' => 2}, {'e' => 3}]
+      expect(events.map(&:body)).to eq [{ 'e' => 1 }, { 'e' => 2 }, { 'e' => 3 }]
       expect(events.map(&:version)).to eq [1, 2, 3]
     end
 
     it 'sets the correct aggregates version' do
-      event_store.sink([ItemAdded.new(aggregate_id: aggregate_id, body: {e: 1}),
-                        ItemAdded.new(aggregate_id: aggregate_id, body: {e: 2})])
+      event_store.sink([ItemAdded.new(aggregate_id: aggregate_id, body: { e: 1 }),
+                        ItemAdded.new(aggregate_id: aggregate_id, body: { e: 2 })])
       # this will throw a unique constrain error if the aggregate version was not set correctly ^
-      event_store.sink([ItemAdded.new(aggregate_id: aggregate_id, body: {e: 1}),
-                        ItemAdded.new(aggregate_id: aggregate_id, body: {e: 2})])
+      event_store.sink([ItemAdded.new(aggregate_id: aggregate_id, body: { e: 1 }),
+                        ItemAdded.new(aggregate_id: aggregate_id, body: { e: 2 })])
       events = event_store.get_next_from(1)
       expect(events.count).to eq 4
       expect(events.map(&:id)).to eq [1, 2, 3, 4]
@@ -104,7 +104,8 @@ RSpec.shared_examples 'an event store' do
 
     it 'correctly inserts created at times when inserting multiple events atomically' do
       time = Time.parse('2016-10-14T00:00:00.646191Z')
-      event_store.sink([ItemAdded.new(aggregate_id: aggregate_id, created_at: nil), ItemAdded.new(aggregate_id: aggregate_id, created_at: time)])
+      event_store.sink([ItemAdded.new(aggregate_id: aggregate_id, created_at: nil),
+                        ItemAdded.new(aggregate_id: aggregate_id, created_at: time)])
       created_ats = event_store.get_next_from(0).map(&:created_at)
       expect(created_ats.map(&:class)).to eq [Time, Time]
       expect(created_ats.last).to eq time

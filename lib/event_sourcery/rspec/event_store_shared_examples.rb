@@ -208,7 +208,7 @@ RSpec.shared_examples 'an event store' do
 
   describe '#each_by_range' do
     before do
-      (1..21).each do |i|
+      21.times do
         event_store.sink(ItemAdded.new(aggregate_id: aggregate_id, body: {}))
       end
     end

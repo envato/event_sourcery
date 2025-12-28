@@ -240,7 +240,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
           include EventSourcery::EventProcessing::EventStreamProcessor
           processor_name 'foo_processor'
 
-          process ItemAdded do |event|
+          process ItemAdded do
             raise 'Something is wrong'
           end
         end

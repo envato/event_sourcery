@@ -20,7 +20,7 @@ module EventSourcery
       private
 
       def setup_graceful_shutdown
-        %i(TERM INT).each do |signal|
+        %i[TERM INT].each do |signal|
           Signal.trap(signal) do
             @shutdown_requested = true
             wakeup_main_thread

@@ -72,7 +72,7 @@ module EventSourcery
       end
 
       def listen_for_shutdown_signals
-        %i(TERM INT).each do |signal|
+        %i[TERM INT].each do |signal|
           Signal.trap(signal) { shutdown }
         end
       end

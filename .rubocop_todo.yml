@@ -211,15 +211,6 @@ Style/OptionalBooleanParameter:
     - 'lib/event_sourcery/event_store/event_type_serializers/underscored.rb'
 
 # This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: PreferredDelimiters.
-Style/PercentLiteralDelimiters:
-  Exclude:
-    - 'lib/event_sourcery/event_processing/esp_runner.rb'
-    - 'lib/event_sourcery/event_store/signal_handling_subscription_master.rb'
-    - 'spec/event_sourcery/event_processing/esp_runner_spec.rb'
-    - 'spec/event_sourcery/event_store/signal_handling_subscription_master_spec.rb'
-
-# This cop supports safe autocorrection (--autocorrect).
 Style/PerlBackrefs:
   Exclude:
     - 'lib/event_sourcery/event_store/event_type_serializers/underscored.rb'

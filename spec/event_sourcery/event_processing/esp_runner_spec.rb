@@ -49,7 +49,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
     end
 
     describe 'graceful shutdown' do
-      %i(TERM INT).each do |signal|
+      %i[TERM INT].each do |signal|
         context "upon receiving a #{signal} signal" do
           before do
             allow(Signal).to receive(:trap).with(signal).and_yield

@@ -21,7 +21,7 @@ module EventSourcery
             event = event_builder.build(
               type: 'foo',
               body: {
-                'foo' => 1,
+                'foo' => 1
               }
             )
 

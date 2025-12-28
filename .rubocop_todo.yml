@@ -230,15 +230,6 @@ Style/StringConcatenation:
     - 'lib/event_sourcery/errors.rb'
 
 # This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyleForMultiline.
-# SupportedStylesForMultiline: comma, consistent_comma, diff_comma, no_comma
-Style/TrailingCommaInHashLiteral:
-  Exclude:
-    - 'lib/event_sourcery/event.rb'
-    - 'spec/event_sourcery/event_spec.rb'
-    - 'spec/event_sourcery/event_store/event_builder_spec.rb'
-
-# This cop supports safe autocorrection (--autocorrect).
 Style/WhileUntilModifier:
   Exclude:
     - 'lib/event_sourcery/event_processing/esp_runner.rb'

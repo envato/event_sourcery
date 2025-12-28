@@ -127,11 +127,6 @@ Style/Documentation:
     - 'lib/event_sourcery/memory/projector.rb'
 
 # This cop supports safe autocorrection (--autocorrect).
-Style/Encoding:
-  Exclude:
-    - 'event_sourcery.gemspec'
-
-# This cop supports safe autocorrection (--autocorrect).
 Style/ExpandPathArguments:
   Exclude:
     - 'event_sourcery.gemspec'

@@ -250,7 +250,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
         it 'wraps raised exception with EventProcessingError' do
           expect {
             event_processor.process(item_added_event)
-          }.to raise_error { |error|
+          }.to(raise_error { |error|
             expect(error).to be_a(EventSourcery::EventProcessingError)
             expect(error.event).to eq item_added_event
             expect(error.message).to eq <<-EOF.gsub(/^ {14}/, '')
@@ -258,7 +258,7 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
               #<ItemAdded @id=nil, @uuid="#{item_added_event.uuid}", @type="item_added">
               #<RuntimeError: Something is wrong>
             EOF
-          }
+          })
         end
       end
     end

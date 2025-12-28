@@ -113,9 +113,9 @@ module EventSourcery
       # @param events [Array] Collection of events
       # @raise AtomicWriteToMultipleAggregatesNotSupported
       def ensure_one_aggregate(events)
-        unless events.map(&:aggregate_id).uniq.one?
-          raise AtomicWriteToMultipleAggregatesNotSupported
-        end
+        return if events.map(&:aggregate_id).uniq.one?
+
+        raise AtomicWriteToMultipleAggregatesNotSupported
       end
 
       # Adds a listener or listeners to the memory store.

@@ -74,9 +74,9 @@ module EventSourcery
           if event_classes.empty?
             if @all_event_handler
               raise MultipleCatchAllHandlersDefined, 'Attemping to define multiple catch all event handlers.'
-            else
-              @all_event_handler = block
             end
+
+            @all_event_handler = block
           else
             @processes_event_types ||= []
             event_classes.each do |event_class|

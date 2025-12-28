@@ -201,22 +201,6 @@ Style/GlobalStdStream:
     - 'lib/event_sourcery/config.rb'
 
 # This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: MinBodyLength, AllowConsecutiveConditionals.
-Style/GuardClause:
-  Exclude:
-    - 'lib/event_sourcery/event.rb'
-    - 'lib/event_sourcery/event_processing/event_stream_processor.rb'
-    - 'lib/event_sourcery/memory/event_store.rb'
-
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle, EnforcedShorthandSyntax, UseHashRocketsWithSymbolValues, PreferHashRocketsForNonAlnumEndingSymbols.
-# SupportedStyles: ruby19, hash_rockets, no_mixed_keys, ruby19_no_mixed_keys
-# SupportedShorthandSyntax: always, never, either, consistent, either_consistent
-Style/HashSyntax:
-  Exclude:
-    - 'Rakefile'
-
-# This cop supports safe autocorrection (--autocorrect).
 Style/IfUnlessModifier:
   Exclude:
     - 'lib/event_sourcery/event.rb'

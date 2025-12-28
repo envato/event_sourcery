@@ -7,16 +7,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+[Unreleased]: https://github.com/envato/event_sourcery/compare/v1.0.2...HEAD
+
+## [1.0.2] - 2025-12-28
+
 ### Changed
 
 - Minor fixups in gem metadata ([#240]).
-- Resolve code layout issues as identified by RuboCop ([#241]).
-- Removed support for older Ruby versions: Ruby 2.6 or greater is now required ([#242]).
+- Resolve issues as identified by RuboCop ([#241], [#244]).
+- Removed support for older Ruby versions: Ruby 2.6 or greater is now required ([#243]).
 
-[Unreleased]: https://github.com/envato/event_sourcery/compare/v1.0.1...HEAD
+[1.0.2]: https://github.com/envato/event_sourcery/compare/v1.0.1...v1.0.2
 [#240]: https://github.com/envato/event_sourcery/pull/240
 [#241]: https://github.com/envato/event_sourcery/pull/241
-[#242]: https://github.com/envato/event_sourcery/pull/242
+[#243]: https://github.com/envato/event_sourcery/pull/243
+[#244]: https://github.com/envato/event_sourcery/pull/244
 
 ## [1.0.1] - 2025-12-27
 

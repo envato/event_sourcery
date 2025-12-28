@@ -6,7 +6,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
       max_seconds_for_processes_to_terminate: 0.01,
       shutdown_requested: shutdown_requested,
       after_subprocess_termination: after_subprocess_termination,
-      logger: logger,
+      logger: logger
     )
   end
   let(:event_source) { spy(:event_source) }
@@ -43,7 +43,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         .with(
           event_processor: esp,
           event_source: event_source,
-          after_fork: nil,
+          after_fork: nil
         )
       expect(esp_process).to have_received(:start)
     end
@@ -248,7 +248,7 @@ RSpec.describe EventSourcery::EventProcessing::ESPRunner do
         .with(
           event_processor: esp,
           event_source: event_source,
-          after_fork: nil,
+          after_fork: nil
         )
       expect(esp_process).to have_received(:start)
     end

@@ -43,7 +43,7 @@ module EventSourcery
         process = ESPProcess.new(
           event_processor: event_processor,
           event_source: @event_source,
-          after_fork: @after_fork,
+          after_fork: @after_fork
         )
         pid = Process.fork { process.start }
         @pids[pid] = event_processor

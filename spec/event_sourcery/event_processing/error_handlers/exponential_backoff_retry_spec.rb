@@ -1,7 +1,7 @@
 RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::ExponentialBackoffRetry do
   subject(:error_handler) do
     described_class.new(
-      processor_name: processor_name,
+      processor_name: processor_name
     )
   end
   let(:processor_name) { 'processor_name' }

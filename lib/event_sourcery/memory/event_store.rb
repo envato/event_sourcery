@@ -40,7 +40,7 @@ module EventSourcery
             created_at: event.created_at || Time.now.utc,
             uuid: event.uuid,
             correlation_id: event.correlation_id,
-            causation_id: event.causation_id,
+            causation_id: event.causation_id
           )
         end
 

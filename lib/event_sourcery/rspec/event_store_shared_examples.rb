@@ -256,7 +256,7 @@ RSpec.shared_examples 'an event store' do
   def save_event(expected_version: nil)
     event_store.sink(
       BillingDetailsProvided.new(aggregate_id: aggregate_id, body: { my_event: 'data' }),
-      expected_version: expected_version,
+      expected_version: expected_version
     )
   end
 

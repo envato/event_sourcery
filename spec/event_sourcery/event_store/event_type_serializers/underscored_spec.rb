@@ -29,7 +29,7 @@ RSpec.describe EventSourcery::EventStore::EventTypeSerializers::Underscored do
     expect(
       underscored.deserialize(
         underscored.serialize(
-          FooBar,
+          FooBar
         )
       )
     ).to eq FooBar

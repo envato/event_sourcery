@@ -20,7 +20,7 @@ module EventSourcery
       parts << "#<#{processor.class} @@processor_name=#{processor.processor_name.inspect}>"
       parts << "#<#{event.class} @id=#{event.id.inspect}, @uuid=#{event.uuid.inspect}, @type=#{event.type.inspect}>"
       parts << "#<#{cause.class}: #{cause.message}>"
-      parts.join("\n") + "\n"
+      "#{parts.join("\n")}\n"
     end
   end
 end

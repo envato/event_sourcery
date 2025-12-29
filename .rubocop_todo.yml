@@ -118,9 +118,3 @@ Style/OptionalBooleanParameter:
 Style/RedundantInterpolation:
   Exclude:
     - 'lib/event_sourcery/event_store/event_type_serializers/underscored.rb'
-
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: Mode.
-Style/StringConcatenation:
-  Exclude:
-    - 'lib/event_sourcery/errors.rb'

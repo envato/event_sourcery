@@ -1,11 +1,11 @@
-RSpec.shared_examples 'an event store' do
-  TestEvent2 = Class.new(EventSourcery::Event)
-  UserSignedUp = Class.new(EventSourcery::Event)
-  ItemRejected = Class.new(EventSourcery::Event)
-  Type1 = Class.new(EventSourcery::Event)
-  Type2 = Class.new(EventSourcery::Event)
-  BillingDetailsProvided = Class.new(EventSourcery::Event)
+TestEvent2 = Class.new(EventSourcery::Event)
+UserSignedUp = Class.new(EventSourcery::Event)
+ItemRejected = Class.new(EventSourcery::Event)
+Type1 = Class.new(EventSourcery::Event)
+Type2 = Class.new(EventSourcery::Event)
+BillingDetailsProvided = Class.new(EventSourcery::Event)
 
+RSpec.shared_examples 'an event store' do
   let(:aggregate_id) { SecureRandom.uuid }
 
   describe '#sink' do

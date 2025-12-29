@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EventSourcery
   module EventStore
     # Manages shutdown signals and facilitate graceful shutdowns of subscriptions.

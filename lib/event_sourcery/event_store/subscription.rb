@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EventSourcery
   module EventStore
     # This allows Event Stream Processors (ESPs) to subscribe to an event store, and be notified when new events are

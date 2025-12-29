@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EventSourcery
   module EventStore
     RSpec.describe EventBuilder do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EventSourcery
   # Represents an Event
   class Event

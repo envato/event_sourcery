@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EventSourcery
   module EventStore
     # This class provides a basic poll waiter implementation that calls the

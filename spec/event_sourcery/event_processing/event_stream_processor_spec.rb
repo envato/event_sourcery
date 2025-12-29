@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
   let(:tracker) { EventSourcery::Memory::Tracker.new }
 

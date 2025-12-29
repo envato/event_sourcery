@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe EventSourcery::EventStore::EventTypeSerializers::ClassName do
   subject(:serializer) { described_class.new }
 

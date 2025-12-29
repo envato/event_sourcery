@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EventSourcery
   #
   # EventSourcery::AggregateRoot provides a foundation for writing your own aggregate root classes.

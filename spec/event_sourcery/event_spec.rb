@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe EventSourcery::Event do
   let(:aggregate_id) { 'aggregate_id' }
   let(:type) { 'type' }

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe EventSourcery::Memory::Projector do
   let(:projector_class) do
     Class.new do

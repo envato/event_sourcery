@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe EventSourcery::EventProcessing::ErrorHandlers::NoRetry do
   subject(:error_handler) do
     described_class.new(

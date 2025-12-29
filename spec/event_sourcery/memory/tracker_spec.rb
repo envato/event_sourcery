@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe EventSourcery::Memory::Tracker do
   let(:processor_name) { 'test-processor' }
   subject(:adapter) { described_class.new }

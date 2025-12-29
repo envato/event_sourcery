@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 TestEvent2 = Class.new(EventSourcery::Event)
 UserSignedUp = Class.new(EventSourcery::Event)
 ItemRejected = Class.new(EventSourcery::Event)

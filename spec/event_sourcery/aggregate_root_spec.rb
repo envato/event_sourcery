@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe EventSourcery::AggregateRoot do
   def new_aggregate(id,
                     on_unknown_event: EventSourcery.config.on_unknown_event,

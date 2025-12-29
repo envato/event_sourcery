@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EventSourcery
   Error = Class.new(StandardError)
   UnableToLockProcessorError = Class.new(Error)

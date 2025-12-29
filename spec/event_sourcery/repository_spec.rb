@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe EventSourcery::Repository do
   let(:event_store) { EventSourcery::Memory::EventStore.new }
   let(:event_sink) { EventSourcery::EventStore::EventSink.new(event_store) }

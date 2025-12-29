@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe EventSourcery::EventStore::PollWaiter do
   subject(:poll_waiter) { described_class.new(interval: 0) }
 

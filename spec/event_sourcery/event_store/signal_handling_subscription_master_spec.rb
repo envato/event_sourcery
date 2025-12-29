@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe EventSourcery::EventStore::SignalHandlingSubscriptionMaster do
   subject(:subscription_master) { described_class.new }
 

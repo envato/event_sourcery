@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe EventSourcery::Memory::EventStore do
   let(:supports_versions) { false }
   let(:event) { EventSourcery::Event.new(type: 'blah', aggregate_id: SecureRandom.uuid, body: {}) }

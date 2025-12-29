@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe EventSourcery::EventStore::EventTypeSerializers::Underscored do
   subject(:underscored) { described_class.new }
 

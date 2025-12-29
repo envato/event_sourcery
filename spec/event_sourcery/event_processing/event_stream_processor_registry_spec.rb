@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module MyProjector
   def self.included(base)
     base.send(:include, EventSourcery::EventProcessing::EventStreamProcessor)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class TestPoller
   attr_accessor :times, :after_poll_callback
 

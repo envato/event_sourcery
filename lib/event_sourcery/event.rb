@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EventSourcery
   # Represents an Event
   class Event
@@ -101,8 +103,8 @@ module EventSourcery
                    correlation_id: nil,
                    causation_id: nil)
       @id = id
-      @uuid = uuid && uuid.downcase
-      @aggregate_id = aggregate_id && aggregate_id.to_str
+      @uuid = uuid&.downcase
+      @aggregate_id = aggregate_id&.to_str
       @type = self.class.type || type.to_s
       @body = body ? EventSourcery::EventBodySerializer.serialize(body) : {}
       @version = version ? Integer(version) : nil

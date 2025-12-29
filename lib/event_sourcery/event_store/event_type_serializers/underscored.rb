@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EventSourcery
   module EventStore
     module EventTypeSerializers
@@ -39,9 +41,8 @@ module EventSourcery
             result = lower_case_and_underscored_word.to_s.dup
             result.gsub!(/_id$/, '')
             result.gsub!(/_/, ' ')
-            result.gsub(/([a-z\d]*)/i) do |match|
-              "#{match.downcase}"
-            end.gsub(/^\w/) { ::Regexp.last_match(0).upcase }
+            result.gsub!(/([a-z\d]*)/i, &:downcase)
+            result.gsub(/^\w/) { ::Regexp.last_match(0).upcase }
           end
         end
 

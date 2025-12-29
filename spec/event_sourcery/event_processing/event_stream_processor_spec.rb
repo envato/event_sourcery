@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
   let(:tracker) { EventSourcery::Memory::Tracker.new }
 
@@ -236,27 +238,32 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
       end
 
       context 'processing events and raise error' do
-        class FooProcessor
-          include EventSourcery::EventProcessing::EventStreamProcessor
-          processor_name 'foo_processor'
+        let(:foo_processor) do
+          Class.new do
+            include EventSourcery::EventProcessing::EventStreamProcessor
+            processor_name 'foo_processor'
 
-          process ItemAdded do
-            raise 'Something is wrong'
+            process ItemAdded do
+              raise 'Something is wrong'
+            end
           end
         end
-
         let(:event_processor) { FooProcessor.new(tracker: tracker) }
+
+        before do
+          stub_const('FooProcessor', foo_processor)
+        end
 
         it 'wraps raised exception with EventProcessingError' do
           expect { event_processor.process(item_added_event) }.to(
             raise_error do |error|
               expect(error).to be_a(EventSourcery::EventProcessingError)
               expect(error.event).to eq item_added_event
-              expect(error.message).to eq <<~EOF
+              expect(error.message).to eq <<~MESSAGE
                 #<FooProcessor @@processor_name="foo_processor">
                 #<ItemAdded @id=nil, @uuid="#{item_added_event.uuid}", @type="item_added">
                 #<RuntimeError: Something is wrong>
-              EOF
+              MESSAGE
             end
           )
         end

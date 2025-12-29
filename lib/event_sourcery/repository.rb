@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EventSourcery
   # This class provides a set of methods to help load and save aggregate instances.
   #

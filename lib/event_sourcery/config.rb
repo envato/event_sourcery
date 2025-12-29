@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'logger'
 
 module EventSourcery
@@ -60,7 +62,7 @@ module EventSourcery
     # Logger instance used by EventSourcery.
     # By default EventSourcery will log to STDOUT with a log level of Logger::INFO
     def logger
-      @logger ||= ::Logger.new(STDOUT).tap do |logger|
+      @logger ||= ::Logger.new($stdout).tap do |logger|
         logger.level = Logger::INFO
       end
     end

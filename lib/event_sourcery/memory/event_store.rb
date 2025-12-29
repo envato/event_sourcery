@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EventSourcery
   module Memory
     # In-memory event store.

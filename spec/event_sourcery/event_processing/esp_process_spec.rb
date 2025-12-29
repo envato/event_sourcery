@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe EventSourcery::EventProcessing::ESPProcess do
   subject(:esp_process) do
     described_class.new(

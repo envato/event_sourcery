@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EventSourcery
   module Memory
     # Being able to know where you're at when reading an event stream

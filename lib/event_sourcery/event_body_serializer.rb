@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EventSourcery
   # EventBodySerializer is used for serializing event bodies when persisting events.
   class EventBodySerializer

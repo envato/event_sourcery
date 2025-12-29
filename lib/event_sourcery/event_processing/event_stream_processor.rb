@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EventSourcery
   module EventProcessing
     module EventStreamProcessor
@@ -48,8 +50,7 @@ module EventSourcery
         #
         # @return [True, False]
         def processes?(event_type)
-          processes_event_types &&
-            processes_event_types.include?(event_type.to_s)
+          processes_event_types&.include?(event_type.to_s)
         end
 
         # Set the name of the processor.

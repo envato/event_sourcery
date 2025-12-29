@@ -257,11 +257,11 @@ RSpec.describe EventSourcery::EventProcessing::EventStreamProcessor do
             raise_error do |error|
               expect(error).to be_a(EventSourcery::EventProcessingError)
               expect(error.event).to eq item_added_event
-              expect(error.message).to eq <<~EOF
+              expect(error.message).to eq <<~MESSAGE
                 #<FooProcessor @@processor_name="foo_processor">
                 #<ItemAdded @id=nil, @uuid="#{item_added_event.uuid}", @type="item_added">
                 #<RuntimeError: Something is wrong>
-              EOF
+              MESSAGE
             end
           )
         end

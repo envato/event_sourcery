@@ -81,12 +81,6 @@ Metrics/ParameterLists:
     - 'lib/event_sourcery/event_processing/esp_runner.rb'
     - 'lib/event_sourcery/event_store/subscription.rb'
 
-# Configuration parameters: ForbiddenDelimiters.
-# ForbiddenDelimiters: (?i-mx:(^|\s)(EO[A-Z]{1}|END)(\s|$))
-Naming/HeredocDelimiterNaming:
-  Exclude:
-    - 'spec/event_sourcery/event_processing/event_stream_processor_spec.rb'
-
 # Configuration parameters: AllowedConstants.
 Style/Documentation:
   Exclude:

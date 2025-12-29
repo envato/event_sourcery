@@ -13,10 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- Resolve issues as identified by RuboCop ([#245]).
+- Resolve issues as identified by RuboCop ([#246]).
 
 [1.0.3]: https://github.com/envato/event_sourcery/compare/v1.0.2...v1.0.3
-[#245]: https://github.com/envato/event_sourcery/pull/245
+[#246]: https://github.com/envato/event_sourcery/pull/246
 
 ## [1.0.2] - 2025-12-28
 

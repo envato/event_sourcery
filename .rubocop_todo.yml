@@ -6,11 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Lint/Loop:
-  Exclude:
-    - 'lib/event_sourcery/event_store/each_by_range.rb'
-
 # Configuration parameters: AllowedParentClasses.
 Lint/MissingSuper:
   Exclude:

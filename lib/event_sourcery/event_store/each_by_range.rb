@@ -5,7 +5,7 @@ module EventSourcery
         caught_up = false
         no_events_left = false
         event_id = from_event_id
-        begin
+        loop do
           events = get_next_from(event_id, event_types: event_types)
           no_events_left = true if events.empty?
           events.each do |event|
@@ -16,7 +16,8 @@ module EventSourcery
             end
           end
           event_id = events.last.id + 1 unless no_events_left
-        end while !caught_up && !no_events_left
+          break if caught_up || no_events_left
+        end
       end
     end
   end

@@ -104,11 +104,6 @@ Style/Documentation:
     - 'lib/event_sourcery/memory/config.rb'
     - 'lib/event_sourcery/memory/projector.rb'
 
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/GlobalStdStream:
-  Exclude:
-    - 'lib/event_sourcery/config.rb'
-
 Style/MultilineBlockChain:
   Exclude:
     - 'lib/event_sourcery/event_store/event_type_serializers/underscored.rb'

@@ -33,7 +33,6 @@ Metrics/AbcSize:
 # AllowedMethods: refine
 Metrics/BlockLength:
   Exclude:
-    - '**/*.gemspec'
     - 'lib/event_sourcery/rspec/event_store_shared_examples.rb'
     - 'spec/event_sourcery/aggregate_root_spec.rb'
     - 'spec/event_sourcery/event_body_serializer_spec.rb'
@@ -84,8 +83,6 @@ Metrics/ParameterLists:
 # Configuration parameters: AllowedConstants.
 Style/Documentation:
   Exclude:
-    - 'spec/**/*'
-    - 'test/**/*'
     - 'lib/event_sourcery.rb'
     - 'lib/event_sourcery/aggregate_root.rb'
     - 'lib/event_sourcery/config.rb'
@@ -103,10 +100,6 @@ Style/Documentation:
     - 'lib/event_sourcery/event_store/event_type_serializers/underscored.rb'
     - 'lib/event_sourcery/memory/config.rb'
     - 'lib/event_sourcery/memory/projector.rb'
-
-Style/MultilineBlockChain:
-  Exclude:
-    - 'lib/event_sourcery/event_store/event_type_serializers/underscored.rb'
 
 # Configuration parameters: AllowedMethods.
 # AllowedMethods: respond_to_missing?

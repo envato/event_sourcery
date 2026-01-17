@@ -25,7 +25,7 @@ module EventSourcery
           subscribe_to_event_stream
           EventSourcery.logger.info("Stopping #{processor_name}")
         end
-      rescue Exception => e
+      rescue Exception => e # rubocop:disable Lint/RescueException
         EventSourcery.logger.fatal("An unhandled exception occurred in #{processor_name}")
         EventSourcery.logger.fatal(e)
         EventSourcery.config.on_event_processor_critical_error.call(e, processor_name)

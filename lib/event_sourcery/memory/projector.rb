@@ -2,6 +2,7 @@
 
 module EventSourcery
   module Memory
+    # Provides projection functionality for in-memory event processing.
     module Projector
       def self.included(base)
         base.include(EventSourcery::EventProcessing::EventStreamProcessor)
@@ -15,6 +16,7 @@ module EventSourcery
         end
       end
 
+      # Instance methods for in-memory projectors.
       module InstanceMethods
         def initialize(tracker: EventSourcery::Memory.config.event_tracker)
           @tracker = tracker

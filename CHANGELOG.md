@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+- Resolve issues as identified by RuboCop ([#248]).
+
 [Unreleased]: https://github.com/envato/event_sourcery/compare/v1.0.3...HEAD
+[#248]: https://github.com/envato/event_sourcery/pull/248
 
 ## [1.0.3] - 2025-12-29
 

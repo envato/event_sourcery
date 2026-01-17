@@ -2,6 +2,7 @@
 
 module EventSourcery
   module EventStore
+    # Builds event objects from serialised event data.
     class EventBuilder
       def initialize(event_type_serializer:)
         @event_type_serializer = event_type_serializer

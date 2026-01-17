@@ -2,6 +2,7 @@
 
 module EventSourcery
   module EventProcessing
+    # Manages the lifecycle of an event stream processor in a dedicated process.
     class ESPProcess
       DEFAULT_AFTER_FORK = ->(event_processor) {}
 

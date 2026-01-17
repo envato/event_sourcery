@@ -2,6 +2,7 @@
 
 module EventSourcery
   module EventStore
+    # Delegates event retrieval operations to the underlying event store.
     class EventSource
       def initialize(event_store)
         @event_store = event_store

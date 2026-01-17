@@ -3,6 +3,7 @@
 module EventSourcery
   module EventProcessing
     module ErrorHandlers
+      # Base module for error handling strategies in event processing.
       module ErrorHandler
         # The default with_error_handling method. Will always raise NotImplementedError
         #

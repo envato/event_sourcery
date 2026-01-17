@@ -9,6 +9,7 @@ module EventSourcery
       # Replace inflector with ActiveSupport like this:
       # EventSourcery::EventStore::EventTypeSerializers::Underscored.inflector = ActiveSupport::Inflector
       class Underscored
+        # Provides string inflection methods for converting between formats.
         class Inflector
           # Inflection methods are taken from active support 3.2
           # https://github.com/rails/rails/blob/3-2-stable/activesupport/lib/active_support/inflector/methods.rb

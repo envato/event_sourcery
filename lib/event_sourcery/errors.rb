@@ -7,6 +7,7 @@ module EventSourcery
   AtomicWriteToMultipleAggregatesNotSupported = Class.new(Error)
   MultipleCatchAllHandlersDefined = Class.new(Error)
 
+  # Error raised when event processing fails with contextual information.
   class EventProcessingError < Error
     attr_reader :event, :processor
 

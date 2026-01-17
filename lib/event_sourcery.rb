@@ -34,6 +34,7 @@ require 'event_sourcery/memory/event_store'
 require 'event_sourcery/memory/config'
 require 'event_sourcery/memory/projector'
 
+# Event sourcing framework for Ruby applications.
 module EventSourcery
   # Configure EventSourcery
   #

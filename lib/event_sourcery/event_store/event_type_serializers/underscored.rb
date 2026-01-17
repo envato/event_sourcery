@@ -22,7 +22,7 @@ module EventSourcery
             word
           end
 
-          def camelize(term, uppercase_first_letter = true)
+          def camelize(term, uppercase_first_letter = true) # rubocop:disable Style/OptionalBooleanParameter
             string = term.to_s
             string =
               if uppercase_first_letter

@@ -91,9 +91,3 @@ Style/Documentation:
     - 'lib/event_sourcery/event_store/event_type_serializers/underscored.rb'
     - 'lib/event_sourcery/memory/config.rb'
     - 'lib/event_sourcery/memory/projector.rb'
-
-# Configuration parameters: AllowedMethods.
-# AllowedMethods: respond_to_missing?
-Style/OptionalBooleanParameter:
-  Exclude:
-    - 'lib/event_sourcery/event_store/event_type_serializers/underscored.rb'

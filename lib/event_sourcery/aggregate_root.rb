@@ -64,6 +64,7 @@ module EventSourcery
       end
     end
 
+    # Class methods for aggregate root event handling configuration.
     module ClassMethods
       # Collection of event handlers for the events that this aggregate cares about
       #

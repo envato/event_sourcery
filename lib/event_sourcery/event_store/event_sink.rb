@@ -4,6 +4,7 @@ require 'forwardable'
 
 module EventSourcery
   module EventStore
+    # Delegates event storage operations to the underlying event store.
     class EventSink
       def initialize(event_store)
         @event_store = event_store

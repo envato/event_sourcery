@@ -3,6 +3,7 @@
 module EventSourcery
   module EventProcessing
     module ErrorHandlers
+      # Error handler that retries with exponentially increasing delays.
       class ExponentialBackoffRetry
         include EventSourcery::EventProcessing::ErrorHandlers::ErrorHandler
 

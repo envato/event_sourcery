@@ -2,6 +2,7 @@
 
 module EventSourcery
   module EventProcessing
+    # Module for processing streams of events with customisable handlers.
     module EventStreamProcessor
       def self.included(base)
         base.extend(ClassMethods)
@@ -14,12 +15,14 @@ module EventSourcery
         end
       end
 
+      # Instance methods for event stream processors.
       module InstanceMethods
         def initialize(tracker:)
           @tracker = tracker
         end
       end
 
+      # Handles the processing of individual events with error handling.
       module ProcessHandler
         # Handler that processes the given event.
         #
@@ -38,6 +41,7 @@ module EventSourcery
         end
       end
 
+      # Class methods for configuring event stream processors.
       module ClassMethods
         # @attr_reader processes_event_types [Array] Process Event Types
         # @attr_reader event_handlers [Hash] Hash of handler blocks keyed by event

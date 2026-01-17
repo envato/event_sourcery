@@ -2,6 +2,7 @@
 
 module EventSourcery
   module EventStore
+    # Provides iteration over events within a specified range.
     module EachByRange
       def each_by_range(from_event_id, to_event_id, event_types: nil)
         caught_up = false

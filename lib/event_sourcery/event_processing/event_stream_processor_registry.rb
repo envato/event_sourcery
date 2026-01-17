@@ -2,6 +2,7 @@
 
 module EventSourcery
   module EventProcessing
+    # Registry for managing event stream processor classes.
     class EventStreamProcessorRegistry
       def initialize
         @processors = []

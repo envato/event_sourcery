@@ -3,6 +3,7 @@
 module EventSourcery
   module EventProcessing
     module ErrorHandlers
+      # Error handler that exits the process on error without retrying.
       class NoRetry
         include EventSourcery::EventProcessing::ErrorHandlers::ErrorHandler
         def initialize(processor_name:)

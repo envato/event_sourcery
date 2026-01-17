@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module EventSourcery
+  # In-memory implementation for testing and development.
   module Memory
+    # Configuration for in-memory event sourcing components.
     class Config
       attr_accessor :event_tracker
       attr_writer :event_store, :event_source, :event_sink

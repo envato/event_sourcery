@@ -3,6 +3,7 @@
 require 'logger'
 
 module EventSourcery
+  # Configuration settings for EventSourcery.
   class Config
     # The default Proc to be run when an aggregate loads an event type that
     # it doesn't know how to handle.

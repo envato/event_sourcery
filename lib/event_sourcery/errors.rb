@@ -11,6 +11,7 @@ module EventSourcery
     attr_reader :event, :processor
 
     def initialize(event:, processor:)
+      super()
       @event = event
       @processor = processor
     end

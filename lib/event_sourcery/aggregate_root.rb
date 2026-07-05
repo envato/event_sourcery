@@ -5,7 +5,7 @@ module EventSourcery
   # EventSourcery::AggregateRoot provides a foundation for writing your own aggregate root classes.
   # You can use it by including it in your classes, as show in the example code.
   #
-  # Excerpt from {https://github.com/envato/event_sourcery/blob/HEAD/docs/core-concepts.md EventSourcery Core Concepts}
+  # Excerpt from {https://github.com/envato/event_sourcery/blob/HEAD/README.md#aggregates-and-command-handling EventSourcery Core Concepts}
   # on Aggregates follows:
   #
   # === Aggregates and Command Handling

@@ -4,34 +4,6 @@
 
 A framework for building event sourced, CQRS applications.
 
-**Table of Contents**
-
-- [Development Status](#development-status)
-- [Goals](#goals)
-- [Related Repositories](#related-repositories)
-- [Getting Started](#getting-started)
-- [Configuration](#configuration)
-- [Development](#development)
-    - [Dependencies](#dependencies)
-    - [Running the Test Suite](#running-the-test-suite)
-    - [Release](#release)
-- [Core Concepts](#core-concepts)
-    - [Tour of an EventSourcery Web Application](#tour-of-an-eventsourcery-web-application)
-    - [Events](#events)
-    - [The Event Store](#the-event-store)
-        - [Storing Events](#storing-events)
-        - [Reading Events](#reading-events)
-    - [Aggregates and Command Handling](#aggregates-and-command-handling)
-    - [Event Processing](#event-processing)
-        - [Event Stream Processors](#event-stream-processors)
-        - [Projectors](#projectors)
-        - [Reactors](#reactors)
-        - [Running Multiple ESPs](#running-multiple-esps)
-    - [Typical Flow of State in an EventSourcery Application](#typical-flow-of-state-in-an-eventsourcery-application)
-        - [1. Handling a Command](#1-handling-a-command)
-        - [2. Updating a Projection](#2-updating-a-projection)
-        - [3. Handling a Query](#3-handling-a-query)
-
 ## Development Status
 
 [![Build Status](https://github.com/envato/event_sourcery/actions/workflows/test.yml/badge.svg)](https://github.com/envato/event_sourcery/actions/workflows/test.yml)

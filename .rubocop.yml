@@ -18,3 +18,9 @@ AllCops:
   NewCops: disable
   SuggestExtensions: false
   TargetRubyVersion: 2.6
+
+# RSpec's DSL naturally produces long describe/context blocks, so the block
+# length metric is not meaningful for the test suite.
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
